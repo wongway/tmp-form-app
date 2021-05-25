@@ -1,4 +1,5 @@
 import * as mobilenet from '@tensorflow-models/mobilenet';
+import * as poseDetection from '@tensorflow-models/pose-detection';
 import { Camera } from 'expo-camera';
 import React from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
@@ -9,10 +10,30 @@ import { PredictionList } from './PredictionList';
 import { useTensorFlowModel } from './useTensorFlow';
 
 export function ModelView() {
-  const model = useTensorFlowModel(mobilenet);
-  const [predictions, setPredictions] = React.useState([]);
+  // const model = useTensorFlowModel(mobilenet);
+  // const detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet);
 
-  if (!model) {
+  const [predictions, setPredictions] = React.useState([]);
+  const [detector, setDetector] = React.useState(null);
+
+  React.useEffect(() => {
+    if (!detector) {
+      // console.log('Setting up detector');
+      getDetector();
+    } 
+
+  }, []);
+
+  const getDetector = async () => {
+    try {
+      setDetector(await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet));
+    } catch (error) {
+      console.error(error);
+    }
+
+  };
+
+  if (!detector) {
     return <LoadingView>Loading TensorFlow model</LoadingView>;
   }
 
@@ -22,7 +43,7 @@ export function ModelView() {
     >
       <PredictionList predictions={predictions} />
       <View style={{ borderRadius: 20, overflow: "hidden" }}>
-        <ModelCamera model={model} setPredictions={setPredictions} />
+        <ModelCamera model={detector} setPredictions={setPredictions} />
       </View>
     </View>
   );
@@ -42,7 +63,8 @@ function ModelCamera({ model, setPredictions }) {
     (images) => {
       const loop = async () => {
         const nextImageTensor = images.next().value;
-        const predictions = await model.classify(nextImageTensor);
+        const predictions = await model.estimatePoses(nextImageTensor);
+        // console.log(predictions);
         setPredictions(predictions);
         raf.current = requestAnimationFrame(loop);
       };
@@ -56,7 +78,7 @@ function ModelCamera({ model, setPredictions }) {
       <CustomTensorCamera
         width={size.width}
         style={styles.camera}
-        type={Camera.Constants.Type.back}
+        type={Camera.Constants.Type.front}
         onReady={onReady}
         autorender
       />
