@@ -1,4 +1,4 @@
-# TensorFlow Camera example
+# Silver Owl Technologies Fitness App
 
 <p>
   <!-- iOS -->
@@ -9,15 +9,15 @@
 
 Identify objects in real time using `@tensorflow/tfjs`, `expo-camera`, and `expo-gl` (for native acceleration).
 
-## 🚀 How to use
+## Running the App
 
-> `npx create-react-native-app my-app -t with-tfjs-camera`
+> `npm run android`
 
-- Run `expo start`, open on a native device (simulator, emulator, and browser are not supported).
-- You can swap out `@tensorflow-models/mobilenet` for another [TensorFlow model](https://github.com/tensorflow/models/blob/master/research/slim/nets/mobilenet_v1.md) to achieve different results.
+- Runs `expo start`, open on a native device (simulator, emulator, and browser are not supported).
 
 ## 📝 Notes
 
 - [TFJS Expo API reference](https://js.tensorflow.org/api_react_native/latest/#Media-Camera)
 - [`@tensorflow/tfjs-react-native` package](https://www.npmjs.com/package/@tensorflow/tfjs-react-native)
 - [Expo Camera docs](https://docs.expo.io/versions/latest/sdk/camera/)
+- [MoveNet blog post](https://blog.tensorflow.org/2021/05/next-generation-pose-detection-with-movenet-and-tensorflowjs.html)
