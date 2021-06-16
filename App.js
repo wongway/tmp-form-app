@@ -35,10 +35,10 @@ const WelcomeScreen = ({ navigation }) => {
       <Text style={styles.titleText}>Choose Your Workout</Text>
       <WorkoutView 
       />
-      <Button
+      {/* <Button
         title="Start Workout"
         disabled
-        onPress={() => navigation.navigate('Workout', {})} />
+        onPress={() => navigation.navigate('Workout', {})} /> */}
       <Text style={styles.titleText}>Activity Log</Text>
       <Image 
         source={require('./src/assets/placeholder.jpeg')}

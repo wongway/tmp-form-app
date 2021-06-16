@@ -1,6 +1,6 @@
 import React, { Component, useState } from "react";
 import { View, ScrollView, Text, StyleSheet, TouchableOpacity, ActivityIndicator, TouchableHighlight, TouchableWithoutFeedback } from "react-native";
-import { Tile, Image, ButtonGroup } from "react-native-elements";
+import { Tile, Image, ButtonGroup, Rating } from "react-native-elements";
 import { FontAwesome } from "@expo/vector-icons";
 
 const workouts = [
@@ -27,7 +27,7 @@ const workouts = [
     },
     {
         title: "Bicycles",
-        creator: "mynameisverylong",
+        creator: "mynameissoverylong",
         duration: "999",
         fav: true,
         image: require("./assets/mor-shani-li4dxZ0KYRw-unsplash.jpeg"),
@@ -67,7 +67,7 @@ export class WorkoutView extends Component {
     }
       
     render() {
-        const buttons = ['Favorite', 'Custom', 'Trending'];
+        const buttons = ['Favorites', 'Custom', 'Trending'];
         const { selectedIndex } = this.state;
 
         return (
@@ -109,7 +109,7 @@ const WorkoutTile = (props) => {
                     PlaceholderContent={<ActivityIndicator />}
                 >
                     <TouchableWithoutFeedback onPress={() => { console.log("*boop*"); fav ? setFav(false) : setFav(true) }}>
-                        <FontAwesome name={fav ? "star" : "star-o"} style={styles.workoutFav} />
+                        <FontAwesome name={fav ? "heart" : "heart-o"} style={styles.workoutFav} />
                     </TouchableWithoutFeedback>
                 </Image>
 
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     },
     workoutFav: {
         margin: "5%",
-        color: "gold",
+        color: "#e31b23",
         fontSize: 18,
     },
 });
