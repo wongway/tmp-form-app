@@ -10,6 +10,7 @@
     "@tensorflow/tfjs": "^2.8.6",
     "@tensorflow/tfjs-core": "^2.8.6",
     "@tensorflow/tfjs-react-native": "^0.5.0",
+    "color-hash": "^2.0.1",
     "expo": "~41.0.0",
     "expo-camera": "~11.0.3",
     "expo-gl": "~10.2.0",

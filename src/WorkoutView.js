@@ -3,7 +3,7 @@ import { View, ScrollView, Text, StyleSheet, TouchableOpacity, ActivityIndicator
 import { Tile, Image, ButtonGroup, Rating } from "react-native-elements";
 import { FontAwesome } from "@expo/vector-icons";
 
-const workouts = [
+const workoutsData = [
     {
         title: "10-Week Glut Guarantee",
         creator: "squatmaven",
@@ -48,7 +48,7 @@ export class WorkoutView extends Component {
     }
 
     getWorkoutTiles (selectedIndex) {
-        const tileList = workouts.map((workout) => {
+        const tileList = workoutsData.map((workout) => {
             if (selectedIndex != 0 || workout.fav) {
                 return (
                     <WorkoutTile 
@@ -123,6 +123,10 @@ const WorkoutTile = (props) => {
             </View>
         </View>
     );
+
+};
+
+export const WorkoutDetailView = () => {
 
 };
 
