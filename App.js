@@ -39,7 +39,7 @@ const WelcomeScreen = ({ navigation }) => {
         title="Start Workout"
         disabled
         onPress={() => navigation.navigate('Workout', {})} /> */}
-      <Text style={styles.titleText}>Activity Log</Text>
+      <Text style={styles.titleText}>Activity Feed</Text>
       <Image 
         source={require('./src/assets/placeholder.jpeg')}
         style={{ width: '90%', height: 200, marginHorizontal: 20 }}
