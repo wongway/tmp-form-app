@@ -1,7 +1,8 @@
 import React, { Component, useState } from "react";
 import { View, ScrollView, Text, StyleSheet, TouchableOpacity, ActivityIndicator, TouchableHighlight, TouchableWithoutFeedback } from "react-native";
-import { Tile, Image, ButtonGroup, Rating } from "react-native-elements";
+import { Tile, Image, Button, ButtonGroup, Rating } from "react-native-elements";
 import { FontAwesome } from "@expo/vector-icons";
+import { useNavigation } from '@react-navigation/native';
 
 const workoutsData = [
     {
@@ -58,6 +59,7 @@ export class WorkoutView extends Component {
                         creator={workout.creator} 
                         duration={workout.duration} 
                         fav={workout.fav}
+                        workout={workout}
                     />
                 );
             }         
@@ -95,11 +97,14 @@ export class WorkoutView extends Component {
 
 const WorkoutTile = (props) => {
     const [fav, setFav] = useState(props.fav);
+    const navigation = useNavigation();
+    const workout = props.workout;
 
     return (
         <View style={styles.workoutTile}>
             <TouchableOpacity 
                 style={{alignItems: 'center'}}
+                onPress={() => navigation.navigate('Workout Details', { workout })} 
                 // title={props.title}
                 // style={workoutStyles.button}
                 activeOpacity={0.5}>
@@ -123,11 +128,30 @@ const WorkoutTile = (props) => {
             </View>
         </View>
     );
-
 };
 
-export const WorkoutDetailView = () => {
+export const WorkoutDetailScreen = ({ route, navigation }) => {
+    const { workout } = route.params;
 
+    return (
+        <View style={{flex: 1}}>
+            <Image
+                style={{width: "100%", height: 300}}
+                source={workout.image}
+                PlaceholderContent={<ActivityIndicator />}
+                >
+                <Text style={styles.workoutDetailTitle}>
+                    {workout.title}
+                </Text>
+            </Image>
+            <View style={styles.bottom}>
+            <Button
+                // style={styles.workoutDetailStartButton}
+                title="Start Workout"
+                disabled
+                onPress={() => navigation.navigate('Workout', {})} /></View>
+        </View>
+    );
 };
 
 const styles = StyleSheet.create({
@@ -176,5 +200,17 @@ const styles = StyleSheet.create({
         margin: "5%",
         color: "#e31b23",
         fontSize: 18,
+    },
+    workoutDetailTitle: {
+        marginTop: 10,
+        marginLeft: 10,
+        fontSize: 20,
+        fontWeight: "bold", 
+        color: "white",
+    },
+    bottom: {
+        flex: 1,
+        justifyContent: "flex-end",
+        marginBottom: 20,
     },
 });
