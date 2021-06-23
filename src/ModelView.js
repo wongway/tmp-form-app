@@ -195,11 +195,12 @@ function ModelCamera({ model, setPredictions }) {
         // console.log(predictions[0].keypoints[0]);
         setPredictions(predictions);
 
-        if (Date.now() - lastPic.current > 5000) {
-          const jpeg = await encodeJpeg(nextImageTensor);
-          lastPic.current = Date.now();
-          console.log('JPEG: ', jpeg);
-        }
+        // Saves a jpeg to your photos every 5 seconds for debugging
+        // if (Date.now() - lastPic.current > 5000) {
+        //   const jpeg = await encodeJpeg(nextImageTensor);
+        //   lastPic.current = Date.now();
+        //   console.log('JPEG: ', jpeg);
+        // }
 
         raf.current = requestAnimationFrame(loop);
       };
