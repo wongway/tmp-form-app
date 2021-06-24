@@ -1,0 +1,65 @@
+{
+    "$jsonSchema": {
+        "type": "object",
+        "required": [ "name", "creator", "duration", "sets", "steps" ],
+        "additionalProperties": false,
+
+        "properties": {
+            "name": {
+                "type": "string",
+                "description": "must be a string and is required"
+            },
+            "creator": {
+                "type": "string",
+                "description": "must be a string and is required"
+            },
+            "duration": {
+                "type": "number",
+                "minimum": 0,
+                "description": "must be an numbereger >0 and is required"
+            },
+            "sets": {
+                "type": "number",
+                "minimum": 0,
+                "description": "must be an numbereger >0 and is required"
+            },
+
+            "derived_from": {
+                "type": "string",
+                "description": ""
+            },
+            "tags": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "minItems": 0,
+                "uniqueItems": true
+            },
+            "hidden_tags": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "minItems": 0,
+                "uniqueItems": true
+            },
+            "reviews": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "minItems": 0,
+                "uniqueItems": true
+            },
+            "rating": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 5
+            },
+            "number_workouts": {
+                "type": "number"
+            }
+        }
+    }
+}

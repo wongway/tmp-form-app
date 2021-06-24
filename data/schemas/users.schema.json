@@ -1,0 +1,23 @@
+{
+    "$jsonSchema": {
+        "type": "object",
+        "required": [ "name", "email" ],
+        "additionalProperties": false,
+
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "email": {
+                "type": "string"
+            },
+            "fav_workouts": {
+                "type": "array",
+                "items": {
+                    "type": "number"
+                },
+                "uniqueItems": true
+            }
+        }
+    }
+}
