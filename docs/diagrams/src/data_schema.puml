@@ -10,6 +10,7 @@ entity "**User**" as User {
     ---
     * name : string
     * email : string
+    fav_workouts : workout_id []
 }
 
 entity "**Workout**" as Workout {
@@ -21,9 +22,10 @@ entity "**Workout**" as Workout {
     * duration : time
     * tags : []
     * hidden_tags : []
+    * sets : uint8
     * steps : embedded []
     reviews : embedded []
-    rating : int (0-5)
+    rating : uint8 (0-5)
     number_workouts : int
 }
 

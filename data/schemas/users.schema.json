@@ -1,15 +1,17 @@
 {
     "$jsonSchema": {
         "type": "object",
-        "required": [ "name", "email" ],
+        "required": [ "username", "email" ],
         "additionalProperties": false,
 
         "properties": {
-            "name": {
+            "username": {
                 "type": "string"
             },
             "email": {
                 "type": "string"
+            },
+            "fullname": {
             },
             "fav_workouts": {
                 "type": "array",
