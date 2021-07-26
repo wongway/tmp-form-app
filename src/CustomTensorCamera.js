@@ -84,11 +84,11 @@ import React from 'react';
 //   "3264x1836",
 // ]
 
-// const TEXTURE_SIZE = { width: 1080, height: 1920 };
+const TEXTURE_SIZE = { width: 1080, height: 1920 };
 // const TEXTURE_SIZE = { width: 1600, height: 1200 }; // magic numbers from tfjs 
 // const TEXTURE_SIZE = { width: 1200, height: 1600 }; // magic numbers from tfjs 
 // const TEXTURE_SIZE = { width: 1280, height: 960 }; // empirically derived for pixel 4
-const TEXTURE_SIZE = { width: 1280, height: 960 }; // empirically derived for pixel 4
+// const TEXTURE_SIZE = { width: 1280, height: 960 }; // empirically derived for pixel 4
 
 const TENSOR_WIDTH = 152;
 
