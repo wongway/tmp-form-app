@@ -2,7 +2,7 @@
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import { Camera } from 'expo-camera';
 import React from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View, Text } from 'react-native';
 import { PixelRatio, Dimensions } from 'react-native';
 
 // import Canvas from 'react-native-canvas';
@@ -51,10 +51,10 @@ export function ModelView() {
   });
   const logs = React.useRef([]);
   const scaleFactor = 2.58;
-  const zscoreLag = 50;
   // const scaleFactor = 2.75;
   // const scaleFactor = 7.1;
   const size = useWindowDimensions();
+  const zscoreLag = 50;
 
   const poseHistory = React.useRef(CBuffer(zscoreLag*2));
 
@@ -79,22 +79,25 @@ export function ModelView() {
     if (poseHistory.current.push(poses[0].keypoints[KEYPOINTS.LEFT_HIP].y) >= zscoreLag + 2) {
       let signal = smoothed_z_score(poseHistory.current.toArray());
       let i = signal[0].length - 1;
+      let rep = false;
+
+      rep = is_rep(signal[0]);
+
+      if (rep) {
+        setRepCount(repCount+1);
+      }
+
       console.log(Date.now(), 
+                  rep,
                   poses[0].keypoints[KEYPOINTS.LEFT_HIP].x,
                   poses[0].keypoints[KEYPOINTS.LEFT_HIP].y, 
                   poses[0].keypoints[KEYPOINTS.LEFT_HIP].score,
                   signal[0][i], // zscore value
                   signal[1][i], // moving average
                   signal[2][i], // moving stddev
-                  signal[2][i]/signal[1][i] // moving normalized stddev
+                  signal[2][i]/signal[1][i], // moving normalized stddev
                   );
 
-        if (is_rep(signal[0])) {
-          setRepCount(repCount+1);
-        }
-        
-    // } else {
-      // console.log(poseHistory.current.length);
     }
 
   }, [poses]);
@@ -109,12 +112,6 @@ export function ModelView() {
     }
 
   };
-
-  // const handleCanvas = (canvas) => {
-  //   const ctx = canvas.getContext('2d');
-  //   ctx.fillStyle = 'purple';
-  //   ctx.fillRect(0,0,100,100);
-  // };
 
   const onLayout = (event) => {
     const {x, y, height, width} = event.nativeEvent.layout;
@@ -229,8 +226,8 @@ export function ModelView() {
             />
           </Svg> */}
         {markKeypoints()}
+        <Text style={styles.reps}>{repCount}</Text>
       </View>
-      <Text style={styles.reps}>{repCount}</Text>
     </View>
   );
 }
@@ -319,6 +316,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     color: "white",
     backgroundColor: "black",
+    fontSize: 50,
+    zIndex: 100,
   },
   // keypointRightEye: {
   //   r: "5",
