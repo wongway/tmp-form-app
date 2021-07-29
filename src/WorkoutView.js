@@ -148,7 +148,7 @@ export const WorkoutDetailScreen = ({ route, navigation }) => {
             <Button
                 // style={styles.workoutDetailStartButton}
                 title="Start Workout"
-                disabled
+                // disabled
                 onPress={() => navigation.navigate('Workout', {})} /></View>
         </View>
     );
