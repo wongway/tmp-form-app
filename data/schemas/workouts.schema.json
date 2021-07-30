@@ -1,17 +1,26 @@
 {
     "$jsonSchema": {
         "type": "object",
-        "required": [ "name", "creator", "duration", "sets", "steps" ],
+        "required": [ 
+            "_id",
+            "name", 
+            "creator", 
+            "duration", 
+            "sets", 
+            "steps" 
+        ],
         "additionalProperties": false,
 
         "properties": {
+            "_id": {
+                "bsonType": "objectId"
+            },
             "name": {
                 "type": "string",
                 "description": "must be a string and is required"
             },
             "creator": {
-                "type": "string",
-                "description": "must be a string and is required"
+                "bsonType": "objectId"
             },
             "duration": {
                 "type": "number",

@@ -46,9 +46,24 @@ entity "**WorkoutLog**" as WorkoutLog {
     * stats on steps
 }
 
+entity "**WorkoutData**" as WorkoutData {
+    * _id
+    ---
+    * time : time
+    * is_rep : boolean
+    * x : float
+    * y : float
+    * confidence : float
+    * zscore : float
+    * avg : float
+    * stddev : float
+    * n_stddev : float
+}
+
 Workout ||--|{ Steps
 Workout ||--o{ WorkoutLog
 User ||--o{ WorkoutLog
 User ||--|| Workout
+WorkoutLog ||--o{ WorkoutData
 
 @enduml

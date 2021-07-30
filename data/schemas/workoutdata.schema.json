@@ -1,0 +1,54 @@
+{
+    "$jsonSchema": {
+        "type": "object",
+        "required": [ 
+            "workoutlog_id",
+            "timestamp",
+            "is_rep",
+            "x",
+            "y",
+            "confidence",
+            "zscore",
+            "avg",
+            "stddev",
+            "n_stddev"
+            ],
+        "additionalProperties": false,
+
+        "properties": {
+            "_id": {
+                "bsonType": "objectId"
+            },
+            "workoutlog_id": {
+                "type": "object"
+            },
+            "timestamp": {
+                "bsonType": "timestamp"
+            },
+            "is_rep": {
+                "type": "boolean"
+            },
+            "x": {
+                "type": "number"
+            },
+            "y": {
+                "type": "number"
+            },
+            "confidence": {
+                "type": "number"
+            },
+            "zscore": {
+                "type": "number"
+            },
+            "avg": {
+                "type": "number"
+            },
+            "stddev": {
+                "type": "number"
+            },
+            "n_stddev": {
+                "type": "number"
+            }
+        }
+    }
+}

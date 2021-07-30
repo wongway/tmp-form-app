@@ -1,10 +1,17 @@
 {
     "$jsonSchema": {
         "type": "object",
-        "required": [ "username", "email" ],
+        "required": [
+            "_id",
+             "username", 
+             "email" 
+        ],
         "additionalProperties": false,
 
         "properties": {
+            "_id": {
+                "bsonType": "objectId"
+            },
             "username": {
                 "type": "string"
             },
@@ -16,7 +23,7 @@
             "fav_workouts": {
                 "type": "array",
                 "items": {
-                    "type": "number"
+                    "type": "object"
                 },
                 "uniqueItems": true
             }
