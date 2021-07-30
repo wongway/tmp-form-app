@@ -1,0 +1,69 @@
+@startuml data_schema
+
+title Entity Relationship Diagram
+
+hide circle
+skinparam linetype ortho
+
+entity "**User**" as User {
+    * _id : ObjectId
+    ---
+    * name : string
+    * email : string
+    fav_workouts : workout_id []
+}
+
+entity "**Workout**" as Workout {
+    * _id : ObjectId
+    ---
+    * name : string
+    * creator : user_id <ObjectId>
+    * derived_from : workout_id <ObjectId>
+    * duration : time
+    * tags : []
+    * hidden_tags : []
+    * sets : uint8
+    * steps : embedded []
+    reviews : embedded []
+    rating : uint8 (0-5)
+    number_workouts : int
+}
+
+entity "**Steps**" as Steps {
+    embedded in Workout
+    ---
+    * name : e.g. squats
+    * type : duration or reps
+    * count : int or time
+}
+
+entity "**WorkoutLog**" as WorkoutLog {
+    * _id
+    ---
+    * user_id : id
+    * workout_id : id
+    * timestamp : time
+    * stats on steps
+}
+
+entity "**WorkoutData**" as WorkoutData {
+    * _id
+    ---
+    * time : time
+    * is_rep : boolean
+    * x : float
+    * y : float
+    * confidence : float
+    * zscore : float
+    * avg : float
+    * stddev : float
+    * n_stddev : float
+}
+
+Workout ||--|{ Steps
+Workout ||--o{ WorkoutLog
+User ||--o{ WorkoutLog
+User ||--|| Workout
+WorkoutLog ||--o{ WorkoutData
+
+@enduml

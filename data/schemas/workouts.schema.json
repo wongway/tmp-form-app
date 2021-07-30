@@ -1,0 +1,78 @@
+{
+    "$jsonSchema": {
+        "type": "object",
+        "required": [ 
+            "_id",
+            "name", 
+            "creator", 
+            "duration", 
+            "sets", 
+            "steps" 
+        ],
+        "additionalProperties": false,
+
+        "properties": {
+            "_id": {
+                "bsonType": "objectId"
+            },
+            "name": {
+                "type": "string",
+                "description": "must be a string and is required"
+            },
+            "creator": {
+                "bsonType": "objectId"
+            },
+            "duration": {
+                "type": "number",
+                "minimum": 0,
+                "description": "must be an numbereger >0 and is required"
+            },
+            "sets": {
+                "type": "number",
+                "minimum": 0,
+                "description": "must be an numbereger >0 and is required"
+            },
+            "steps": {
+                "type": "array",
+                "minItems": 1
+            },
+
+            "derived_from": {
+                "type": "string",
+                "description": ""
+            },
+            "tags": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "minItems": 0,
+                "uniqueItems": true
+            },
+            "hidden_tags": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "minItems": 0,
+                "uniqueItems": true
+            },
+            "reviews": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "minItems": 0,
+                "uniqueItems": true
+            },
+            "rating": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 5
+            },
+            "number_workouts": {
+                "type": "number"
+            }
+        }
+    }
+}
