@@ -1,4 +1,4 @@
-# Silver Owl Technologies Fitness App
+# Form: Fitness App
 
 <p>
   <!-- iOS -->
@@ -7,13 +7,25 @@
   <img alt="Supports Expo Android" longdesc="Supports Expo Android" src="https://img.shields.io/badge/Android-4630EB.svg?style=flat-square&logo=ANDROID&labelColor=A4C639&logoColor=fff" />
 </p>
 
-Identify objects in real time using `@tensorflow/tfjs`, `expo-camera`, and `expo-gl` (for native acceleration).
+Uses `@tensorflow/tfjs`, `expo-camera`, and `expo-gl` (for native acceleration).
 
 ## Running the App
 
 > `npm run android`
 
 - Runs `expo start`, open on a native device (simulator, emulator, and browser are not supported).
+
+Running as a "production" build
+
+> `expo start --no-dev --minify`
+
+## Building the App with EAS Build
+
+Follow the directions [here](https://docs.expo.dev/build/setup/) for setting up an EAS account with expo.dev and installing the EAS cli tool.
+
+Building for internal distribution: 
+
+> `eas build -p android --profile preview`
 
 ## 📝 Notes
 

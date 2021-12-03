@@ -1,5 +1,8 @@
 {
   "expo": {
+    "name": "Form",
+    "slug": "form",
+    "icon": "icon.png",
     "android": {
       "package": "com.silverowltech.form"
     },
