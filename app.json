@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "android": {
+      "package": "com.silverowltech.form"
+    },
+    "ios": {
+      "bundleIdentifier": "com.silverowltech.form"
+    }
+  }
+}
