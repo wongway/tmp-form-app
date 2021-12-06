@@ -11,27 +11,32 @@ import { LoadingView } from "./src/LoadingView";
 import { ModelView } from "./src/ModelView";
 import { WorkoutView, WorkoutDetailScreen } from "./src/WorkoutView";
 import { ActivityFeedView } from "./src/ActivityFeed";
+import { WelcomeView } from "./src/views/WelcomeView";
 import { useTensorFlowLoaded } from "./src/useTensorFlow";
+
+import { AuthProvider } from "./src/providers/AuthProvider";
 
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Welcome"
-          component={WelcomeScreen}
-          options={{ title: 'Welcome' }}
-        />
-        <Stack.Screen name="Workout" component={WorkoutScreen} />
-        <Stack.Screen name="Workout Details" component={WorkoutDetailScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+    <AuthProvider>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen name="Welcome" component={WelcomeView} />
+          <Stack.Screen
+            name="Main"
+            component={MainScreen}
+            options={{ title: 'Main' }}
+          />
+          <Stack.Screen name="Workout" component={WorkoutScreen} />
+          <Stack.Screen name="Workout Details" component={WorkoutDetailScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AuthProvider>  );
 };
 
-const WelcomeScreen = ({ navigation }) => {
+const MainScreen = ({ navigation }) => {
   return (
     <ScrollView>
       <Text style={styles.titleText}>Choose Your Workout</Text>
