@@ -1,0 +1,8 @@
+{
+    "workout": {
+        "ref": "#/relationship/mongodb-atlas/test/workouts",
+        "source_key": "workout",
+        "foreign_key": "_id",
+        "is_list": false
+    }
+}

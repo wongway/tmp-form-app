@@ -1,0 +1,43 @@
+{
+    "bsonType": "object",
+    "properties": {
+        "_id": {
+            "bsonType": "objectId"
+        },
+        "channel": {
+            "bsonType": "objectId"
+        },
+        "name": {
+            "bsonType": "string"
+        },
+        "sets": {
+            "bsonType": "int"
+        },
+        "steps": {
+            "bsonType": "array",
+            "items": {
+                "title": "WorkoutStep",
+                "bsonType": "object",
+                "properties": {
+                    "count": {
+                        "bsonType": "int"
+                    },
+                    "name": {
+                        "bsonType": "string"
+                    },
+                    "type": {
+                        "bsonType": "string"
+                    }
+                },
+                "required": [ "count", "name", "type" ]
+            }
+        }
+    },
+    "required": [
+        "_id",
+        "channel",
+        "name",
+        "sets"
+    ],
+    "title": "Workout"
+}

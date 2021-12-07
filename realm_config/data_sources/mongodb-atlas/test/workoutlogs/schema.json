@@ -1,0 +1,38 @@
+{
+    "bsonType": "object",
+    "properties": {
+        "_id": {
+            "bsonType": "objectId"
+        },
+        "data": {
+            "bsonType": "array",
+            "items": {
+                "title": "WorkoutData",
+                "bsonType": "object",
+                "properties": {
+                    "timestamp": { "bsonType": "date" },
+                    "is_rep": { "bsonType": "bool" },
+                    "x": { "bsonType": "double" },
+                    "y": { "bsonType": "double" },
+                    "confidence": { "bsonType": "double" },
+                    "zscore": { "bsonType": "double" },
+                    "avg": { "bsonType": "double" },
+                    "stddev": { "bsonType": "double" },
+                    "n_stddev": { "bsonType": "double" }
+                }
+            }
+        },
+        "timestamp": {
+            "bsonType": "date"
+        },
+        "workout": {
+            "bsonType": "objectId"
+        }
+    },
+    "required": [
+        "_id",
+        "workout",
+        "timestamp"
+    ],
+    "title": "WorkoutLog"
+}

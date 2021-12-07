@@ -5,31 +5,68 @@ title Entity Relationship Diagram
 hide circle
 skinparam linetype ortho
 
+entity "**App Users**" as AppUser {
+    * _id : ObjectId
+    ---
+    * name : string
+    * email : string
+}
+
 entity "**User**" as User {
     * _id : ObjectId
     ---
     * name : string
     * email : string
-    fav_workouts : workout_id []
+    * is_creator : boolean
+    followed_channels : embedded []
+    payments : embedded []
+}
+
+entity "**FollowedChannel**" as FollowedChannel {
+    embedded in User
+    ---
+    channel : channel_id <ObjectId>
+
+}
+
+entity "**Payment**" as Payment {
+    embedded in User
+    ---
+    channel : channel_id <ObjectId>
+    date : timestamp
+    expiry : timestamp
+
+}
+
+entity "**Channel**" as Channel {
+    * _id : ObjectId
+    ---
+    * creator : user_id <ObjectId>
+    * name : string
+    * description : string
+    ---
+    reviews : embedded []
+    rating : uint8 (0-5)
 }
 
 entity "**Workout**" as Workout {
     * _id : ObjectId
     ---
     * name : string
-    * creator : user_id <ObjectId>
-    * derived_from : workout_id <ObjectId>
+    * channel : channel_id <ObjectId>
+    * sets : uint8
+    * steps : embedded Step []
+    ---
     * duration : time
     * tags : []
     * hidden_tags : []
-    * sets : uint8
-    * steps : embedded []
-    reviews : embedded []
-    rating : uint8 (0-5)
-    number_workouts : int
+    reviews : embedded Review []
+    rating : aggregation uint8 (0-5)
+    times_completed : aggregation int
+    likes : int
 }
 
-entity "**Steps**" as Steps {
+entity "**WorkoutStep**" as Step {
     embedded in Workout
     ---
     * name : e.g. squats
@@ -40,14 +77,14 @@ entity "**Steps**" as Steps {
 entity "**WorkoutLog**" as WorkoutLog {
     * _id
     ---
-    * user_id : id
-    * workout_id : id
-    * timestamp : time
-    * stats on steps
+    * user_id : objectid
+    * workout_id : objectid
+    * timestamp : timestamp
+    * data : embedded WorkoutData []
 }
 
 entity "**WorkoutData**" as WorkoutData {
-    * _id
+    embedded in WorkoutLog
     ---
     * time : time
     * is_rep : boolean
@@ -60,10 +97,15 @@ entity "**WorkoutData**" as WorkoutData {
     * n_stddev : float
 }
 
-Workout ||--|{ Steps
+Workout ||--|{ Step
 Workout ||--o{ WorkoutLog
+
 User ||--o{ WorkoutLog
-User ||--|| Workout
+User ||--o| Channel
+User --o{ FollowedChannel
+User --o{ Payment
+
+Channel ||--o{ Workout
 WorkoutLog ||--o{ WorkoutData
 
 @enduml
