@@ -1,18 +1,12 @@
 {
     "bsonType": "object",
     "properties": {
-        "_id": {
-            "bsonType": "objectId"
-        },
-        "channel": {
-            "bsonType": "objectId"
-        },
-        "name": {
-            "bsonType": "string"
-        },
-        "sets": {
-            "bsonType": "int"
-        },
+        "_id": { "bsonType": "objectId" },
+        "workout_id": { "bsonType": "string" },
+        "realm_id": { "bsonType": "string" },
+        "channel_id": { "bsonType": "string" },
+        "name": { "bsonType": "string" },
+        "sets": { "bsonType": "int" },
         "steps": {
             "bsonType": "array",
             "items": {
@@ -35,7 +29,9 @@
     },
     "required": [
         "_id",
-        "channel",
+        "workout_id",
+        "realm_id",
+        "channel_id",
         "name",
         "sets"
     ],

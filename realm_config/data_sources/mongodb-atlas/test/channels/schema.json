@@ -1,22 +1,18 @@
 {
     "bsonType": "object",
     "properties": {
-        "_id": {
-            "bsonType": "objectId"
-        },
-        "creator": {
-            "bsonType": "objectId"
-        },
-        "description": {
-            "bsonType": "string"
-        },
-        "name": {
-            "bsonType": "string"
-        }
+        "_id": { "bsonType": "objectId" },
+        "realm_id": { "bsonType": "string" },
+        "channel_id": { "bsonType": "string" },
+        "creator_id": { "bsonType": "string" },
+        "description": { "bsonType": "string" },
+        "name": { "bsonType": "string" }
     },
     "required": [
         "_id",
-        "creator",
+        "realm_id",
+        "channel_id",
+        "creator_id",
         "name",
         "description"
     ],

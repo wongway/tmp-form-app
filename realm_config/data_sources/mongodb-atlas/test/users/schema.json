@@ -1,12 +1,10 @@
 {
     "bsonType": "object",
     "properties": {
-        "_id": {
-            "bsonType": "objectId"
-        },
-        "email": {
-            "bsonType": "string"
-        },
+        "_id": { "bsonType": "objectId" },
+        "user_id": { "bsonType": "string" },
+        "realm_id": { "bsonType": "string" },
+        "email": { "bsonType": "string" },
         "followed_channels": {
             "bsonType": "array",
             "items": {
@@ -22,6 +20,8 @@
     },
     "required": [
         "_id",
+        "user_id",
+        "realm_id",
         "email",
         "name",
         "is_creator"

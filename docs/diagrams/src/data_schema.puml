@@ -12,8 +12,10 @@ entity "**App Users**" as AppUser {
     * email : string
 }
 
-entity "**User**" as User {
+entity "**Users**" as User {
     * _id : ObjectId
+    * user_id : string
+    * realm_id : string
     ---
     * name : string
     * email : string
@@ -25,23 +27,25 @@ entity "**User**" as User {
 entity "**FollowedChannel**" as FollowedChannel {
     embedded in User
     ---
-    channel : channel_id <ObjectId>
+    channel : string <Channels.channel_id>
 
 }
 
 entity "**Payment**" as Payment {
     embedded in User
     ---
-    channel : channel_id <ObjectId>
-    date : timestamp
-    expiry : timestamp
+    channel : string <Channels.channel_id>
+    date : date
+    expiry : date
 
 }
 
-entity "**Channel**" as Channel {
+entity "**Channels**" as Channel {
     * _id : ObjectId
+    * channel_id : string
+    * realm_id : string
     ---
-    * creator : user_id <ObjectId>
+    * creator : string <Users.user_id>
     * name : string
     * description : string
     ---
@@ -51,9 +55,11 @@ entity "**Channel**" as Channel {
 
 entity "**Workout**" as Workout {
     * _id : ObjectId
+    * workout_id : string
+    * realm_id : string
     ---
     * name : string
-    * channel : channel_id <ObjectId>
+    * channel : string <Channels.channel_id>
     * sets : uint8
     * steps : embedded Step []
     ---
@@ -75,26 +81,27 @@ entity "**WorkoutStep**" as Step {
 }
 
 entity "**WorkoutLog**" as WorkoutLog {
-    * _id
+    * _id : ObjectId
+    * realm_id : string
     ---
-    * user_id : objectid
-    * workout_id : objectid
-    * timestamp : timestamp
+    * user_id : string <Users.user_id>
+    * workout_id : string <Workouts.workout_id>
+    * timestamp : date
     * data : embedded WorkoutData []
 }
 
 entity "**WorkoutData**" as WorkoutData {
     embedded in WorkoutLog
     ---
-    * time : time
-    * is_rep : boolean
-    * x : float
-    * y : float
-    * confidence : float
-    * zscore : float
-    * avg : float
-    * stddev : float
-    * n_stddev : float
+    * time : date
+    * is_rep : bool
+    * x : double
+    * y : double
+    * confidence : double
+    * zscore : double
+    * avg : double
+    * stddev : double
+    * n_stddev : double
 }
 
 Workout ||--|{ Step
