@@ -1,12 +1,12 @@
 {
     "workout_id": {
         "ref": "#/relationship/mongodb-atlas/test/workouts",
-        "foreign_key": "workout_id",
+        "foreign_key": "_id",
         "is_list": false
     },
     "user_id": {
         "ref": "#/relationship/mongodb-atlas/test/users",
-        "foreign_key": "user_id",
+        "foreign_key": "_id",
         "is_list": false
     }
 }

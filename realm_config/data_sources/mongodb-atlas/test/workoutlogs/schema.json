@@ -4,8 +4,8 @@
     "properties": {
         "_id": { "bsonType": "objectId" },
         "realm_id": { "bsonType": "string" },
-        "user_id": { "bsonType": "string" },
-        "workout_id": { "bsonType": "string" },
+        "user_id": { "bsonType": "objectId" },
+        "workout_id": { "bsonType": "objectId" },
         "timestamp": { "bsonType": "date" },
         "data": {
             "bsonType": "array",
@@ -29,8 +29,6 @@
     "required": [
         "_id",
         "realm_id",
-        "user_id",
-        "workout_id",
         "timestamp"
     ]
 }

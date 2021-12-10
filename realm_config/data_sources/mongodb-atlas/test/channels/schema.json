@@ -4,7 +4,7 @@
         "_id": { "bsonType": "objectId" },
         "realm_id": { "bsonType": "string" },
         "channel_id": { "bsonType": "string" },
-        "creator_id": { "bsonType": "string" },
+        "creator_id": { "bsonType": "objectId" },
         "description": { "bsonType": "string" },
         "name": { "bsonType": "string" }
     },
@@ -12,7 +12,6 @@
         "_id",
         "realm_id",
         "channel_id",
-        "creator_id",
         "name",
         "description"
     ],

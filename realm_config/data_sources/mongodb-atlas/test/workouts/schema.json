@@ -4,7 +4,7 @@
         "_id": { "bsonType": "objectId" },
         "workout_id": { "bsonType": "string" },
         "realm_id": { "bsonType": "string" },
-        "channel_id": { "bsonType": "string" },
+        "channel_id": { "bsonType": "objectId" },
         "name": { "bsonType": "string" },
         "sets": { "bsonType": "int" },
         "steps": {
@@ -31,7 +31,6 @@
         "_id",
         "workout_id",
         "realm_id",
-        "channel_id",
         "name",
         "sets"
     ],

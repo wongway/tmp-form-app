@@ -1,7 +1,7 @@
 {
     "creator_id": {
         "ref": "#/relationship/mongodb-atlas/test/users",
-        "foreign_key": "user_id",
+        "foreign_key": "_id",
         "is_list": false
     }
 }
