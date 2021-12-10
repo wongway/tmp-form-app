@@ -7,45 +7,55 @@ import { Image } from "react-native-elements";
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { LoadingView } from "./src/LoadingView";
-import { ModelView } from "./src/ModelView";
-import { WorkoutView, WorkoutDetailScreen } from "./src/WorkoutView";
-import { ActivityFeedView } from "./src/ActivityFeed";
+import { LoadingView } from "./src/views/LoadingView";
+import { ModelView } from "./src/views/ModelView";
+import { WorkoutView, WorkoutDetailScreen } from "./src/views/WorkoutView";
+import { ActivityFeedView } from "./src/views/ActivityFeedView";
 import { WelcomeView } from "./src/views/WelcomeView";
 import { useTensorFlowLoaded } from "./src/useTensorFlow";
 
 import { AuthProvider, useAuth } from "./src/providers/AuthProvider";
+import { ChannelsProvider, useChannels } from "./src/providers/ChannelsProvider";
 
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
     <AuthProvider>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Welcome" component={WelcomeView} />
-          <Stack.Screen
-            name="Main"
-            component={MainScreen}
-            options={{ title: 'Main' }}
-          />
-          <Stack.Screen name="Workout" component={WorkoutScreen} />
-          <Stack.Screen name="Workout Details" component={WorkoutDetailScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <ChannelsProvider>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="Welcome" component={WelcomeView} />
+              <Stack.Screen
+                name="Main"
+                component={MainScreen}
+                options={{ title: 'Main' }}
+              />
+            <Stack.Screen name="Workout" component={WorkoutScreen} />
+            <Stack.Screen name="Workout Details" component={WorkoutDetailScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </ChannelsProvider>
     </AuthProvider>  );
 };
 
 const MainScreen = ({ navigation }) => {
   const { user } = useAuth();
+  const { channels } = useChannels();
 
   console.log("User: ", user, user.profile);
 
   return (
     <ScrollView>
-      <Text style={styles.titleText}>Choose Your Workout</Text>
-      <WorkoutView 
-      />
+      <Text style={styles.titleText}>Channels</Text>
+      <View>
+        {channels.map((channel) => 
+          channel ? <ChannelItem key={`${channel._id}`} channel={channel} /> : null
+        )}
+      </View>
+
+      {/* <WorkoutView 
+      /> */}
       {/* <Button
         title="Start Workout"
         disabled
