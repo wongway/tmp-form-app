@@ -10,28 +10,28 @@ const workoutsData = [
         creator: "squatmaven",
         duration: "10",
         fav: true,
-        image: require("./assets/anastase-maragos-9dzWZQWZMdE-unsplash.jpeg"),
+        image: require("../assets/anastase-maragos-9dzWZQWZMdE-unsplash.jpeg"),
     },
     {
         title: "HIIT Abs",
         creator: "sixpacksam",
         duration: "12",
         fav: false,
-        image: require("./assets/mathilde-langevin-aLpt9nRnnDQ-unsplash.jpeg"),
+        image: require("../assets/mathilde-langevin-aLpt9nRnnDQ-unsplash.jpeg"),
     },
     {
         title: "Pull Up Party",
         creator: "monkeygirl21",
         duration: "8",
         fav: false,
-        image: require("./assets/damir-spanic-22L7do1cOho-unsplash.jpeg"),
+        image: require("../assets/damir-spanic-22L7do1cOho-unsplash.jpeg"),
     },
     {
         title: "Bicycles",
         creator: "mynameissoverylong",
         duration: "999",
         fav: true,
-        image: require("./assets/mor-shani-li4dxZ0KYRw-unsplash.jpeg"),
+        image: require("../assets/mor-shani-li4dxZ0KYRw-unsplash.jpeg"),
     },
 ];
 
