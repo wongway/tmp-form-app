@@ -1,10 +1,12 @@
 {
     "bsonType": "object",
     "properties": {
-        "_id": { "bsonType": "objectId" },
-        "user_id": { "bsonType": "string" },
-        "realm_id": { "bsonType": "string" },
-        "email": { "bsonType": "string" },
+        "_id": {
+            "bsonType": "objectId"
+        },
+        "email": {
+            "bsonType": "string"
+        },
         "followed_channels": {
             "bsonType": "array",
             "items": {
@@ -15,6 +17,12 @@
             "bsonType": "bool"
         },
         "name": {
+            "bsonType": "string"
+        },
+        "realm_id": {
+            "bsonType": "string"
+        },
+        "user_id": {
             "bsonType": "string"
         }
     },

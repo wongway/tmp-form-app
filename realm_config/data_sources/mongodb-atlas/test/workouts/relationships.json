@@ -1,6 +1,7 @@
 {
-    "channel_id": {
+    "": {
         "ref": "#/relationship/mongodb-atlas/test/channels",
+        "source_key": "",
         "foreign_key": "_id",
         "is_list": false
     }

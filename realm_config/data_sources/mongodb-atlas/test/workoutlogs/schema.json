@@ -1,34 +1,62 @@
 {
-    "title": "WorkoutLog",
     "bsonType": "object",
     "properties": {
-        "_id": { "bsonType": "objectId" },
-        "realm_id": { "bsonType": "string" },
-        "user_id": { "bsonType": "objectId" },
-        "workout_id": { "bsonType": "objectId" },
-        "timestamp": { "bsonType": "date" },
+        "_id": {
+            "bsonType": "objectId"
+        },
         "data": {
             "bsonType": "array",
             "items": {
-                "title": "WorkoutData",
                 "bsonType": "object",
                 "properties": {
-                    "timestamp": { "bsonType": "date" },
-                    "is_rep": { "bsonType": "bool" },
-                    "x": { "bsonType": "double" },
-                    "y": { "bsonType": "double" },
-                    "confidence": { "bsonType": "double" },
-                    "zscore": { "bsonType": "double" },
-                    "avg": { "bsonType": "double" },
-                    "stddev": { "bsonType": "double" },
-                    "n_stddev": { "bsonType": "double" }
-                }
+                    "avg": {
+                        "bsonType": "double"
+                    },
+                    "confidence": {
+                        "bsonType": "double"
+                    },
+                    "is_rep": {
+                        "bsonType": "bool"
+                    },
+                    "n_stddev": {
+                        "bsonType": "double"
+                    },
+                    "stddev": {
+                        "bsonType": "double"
+                    },
+                    "timestamp": {
+                        "bsonType": "date"
+                    },
+                    "x": {
+                        "bsonType": "double"
+                    },
+                    "y": {
+                        "bsonType": "double"
+                    },
+                    "zscore": {
+                        "bsonType": "double"
+                    }
+                },
+                "title": "WorkoutData"
             }
+        },
+        "realm_id": {
+            "bsonType": "string"
+        },
+        "timestamp": {
+            "bsonType": "date"
+        },
+        "user_id": {
+            "bsonType": "objectId"
+        },
+        "workout_id": {
+            "bsonType": "objectId"
         }
     },
     "required": [
         "_id",
         "realm_id",
         "timestamp"
-    ]
+    ],
+    "title": "WorkoutLog"
 }
