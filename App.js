@@ -49,9 +49,11 @@ const MainScreen = ({ navigation }) => {
     <ScrollView>
       <Text style={styles.titleText}>Channels</Text>
       <View>
-        {channels.map((channel) => 
-          channel ? <ChannelItem key={`${channel._id}`} channel={channel} /> : null
-        )}
+        {channels.map((channel) => {
+          if (channel) {
+            return(<ChannelItem channel={channel} />);
+          }
+        })}
       </View>
 
       {/* <WorkoutView 

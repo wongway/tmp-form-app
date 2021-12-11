@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Text, ListItem } from "react-native-elements";
-import { useChannels } from "../providers/ChannelsProvider";
+// import { useChannels } from "../providers/ChannelsProvider";
 // import { ActionSheet } from "./ActionSheet";
-import { Channel } from "../datamodel/datamodel";
+// import { Channel } from "../datamodel/datamodel";
 
 export function ChannelItem({ channel }) {
-  const { channels } = useChannels();
+//   const { channels } = useChannels();
 
 //   // For each possible status other than the current status, make an action to
 //   // move the task into that status. Rather than creating a generic method to
@@ -47,21 +47,12 @@ export function ChannelItem({ channel }) {
         }}
         actions={actions}
       /> */}
-      <ListItem
-        key={channel._id}
-        // onPress={() => {
-        //   setActionSheetVisible(true);
-        // }}
-        title={channel.name}
-        bottomDivider
-        // checkmark={
-        //   task.status === Task.STATUS_COMPLETE ? (
-        //     <Text>&#10004; {/* checkmark */}</Text>
-        //   ) : task.status === Task.STATUS_IN_PROGRESS ? (
-        //     <Text>In Progress</Text>
-        //   ) : null
-        // }
-      />
+        <ListItem key={channel._id} bottomDivider> 
+            <ListItem.Content> 
+                <ListItem.Title> {channel.name} </ListItem.Title>
+                <ListItem.Subtitle> {channel.description} </ListItem.Subtitle>
+            </ListItem.Content> 
+        </ListItem>
     </>
   );
 }

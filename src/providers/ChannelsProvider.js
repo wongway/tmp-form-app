@@ -5,7 +5,7 @@ import { useAuth } from "./AuthProvider";
 
 const ChannelsContext = React.createContext(null);
 
-const ChannelsProvider = ({ children, projectPartition }) => {
+const ChannelsProvider = ({ children }) => {
   const [channels, setChannels] = useState([]);
   const { user } = useAuth();
 
@@ -15,12 +15,24 @@ const ChannelsProvider = ({ children, projectPartition }) => {
   const realmRef = useRef(null);
 
   useEffect(() => {
+    if (!user) {
+      console.log("Error: user isn't logged in");
+      return;
+    }
+
     const config = {
       sync: {
         user: user,
         partitionValue: "form",
+        error: (_session, error) => {
+          (error) => {
+            console.log("Sync error:", error.name, error.message);
+          };
+        },
       },
     };
+
+    console.log("Opening realm");
     // open a realm for this particular project
     Realm.open(config).then((projectRealm) => {
       realmRef.current = projectRealm;
@@ -32,6 +44,7 @@ const ChannelsProvider = ({ children, projectPartition }) => {
         setChannels([...sortedChannels]);
       });
     });
+    console.log("Opened realm");
 
     return () => {
       // cleanup function
@@ -42,21 +55,21 @@ const ChannelsProvider = ({ children, projectPartition }) => {
         setChannels([]);
       }
     };
-  }, [user, projectPartition]);
+  }, [user]);
 
-  const createChannel = (newChannelName) => {
-    const projectRealm = realmRef.current;
-    projectRealm.write(() => {
-      // Create a new task in the same partition -- that is, in the same project.
-      projectRealm.create(
-        "Channel",
-        new Channel({
-          name: newChannelName || "New Channel",
-          partition: projectPartition,
-        })
-      );
-    });
-  };
+  // const createChannel = (newChannelName) => {
+  //   const projectRealm = realmRef.current;
+  //   projectRealm.write(() => {
+  //     // Create a new task in the same partition -- that is, in the same project.
+  //     projectRealm.create(
+  //       "Channel",
+  //       new Channel({
+  //         name: newChannelName || "New Channel",
+  //         partition: "form",
+  //       })
+  //     );
+  //   });
+  // };
 
   // const setTaskStatus = (task, status) => {
   //   // One advantage of centralizing the realm functionality in this provider is
@@ -78,13 +91,13 @@ const ChannelsProvider = ({ children, projectPartition }) => {
   // };
 
   // Define the function for deleting a task.
-  const deleteChannel = (channel) => {
-    const projectRealm = realmRef.current;
-    projectRealm.write(() => {
-      projectRealm.channel(channel);
-      setChannels([...projectRealm.objects("Channel").sorted("name")]);
-    });
-  };
+  // const deleteChannel = (channel) => {
+  //   const projectRealm = realmRef.current;
+  //   projectRealm.write(() => {
+  //     projectRealm.channel(channel);
+  //     setChannels([...projectRealm.objects("Channel").sorted("name")]);
+  //   });
+  // };
 
   // Render the children within the TaskContext's provider. The value contains
   // everything that should be made available to descendants that use the
@@ -92,8 +105,8 @@ const ChannelsProvider = ({ children, projectPartition }) => {
   return (
     <ChannelsContext.Provider
       value={{
-        createChannel,
-        deleteChannel,
+        // createChannel,
+        // deleteChannel,
         channels,
       }}
     >
@@ -107,7 +120,7 @@ const ChannelsProvider = ({ children, projectPartition }) => {
 // create, update, and delete the tasks in that project.
 const useChannels = () => {
   const channel = useContext(ChannelsContext);
-  if (task == null) {
+  if (channel == null) {
     throw new Error("useChannels() called outside of a ChannelsProvider?"); // an alert is not placed because this is an error for the developer not the user
   }
   return channel;
