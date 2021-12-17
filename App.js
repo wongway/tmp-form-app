@@ -8,6 +8,7 @@ import { NavigationContainer } from '@react-navigation/native';
 // import { createStackNavigator } from '@react-navigation/stack';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import { ChannelsView } from "./src/views/ChannelsView";
 import { LoadingView } from "./src/views/LoadingView";
 import { ModelView } from "./src/views/ModelView";
 import { WorkoutView, WorkoutDetailScreen } from "./src/views/WorkoutView";
@@ -16,7 +17,7 @@ import { WelcomeView } from "./src/views/WelcomeView";
 import { useTensorFlowLoaded } from "./src/useTensorFlow";
 
 import { AuthProvider, useAuth } from "./src/providers/AuthProvider";
-// import { ChannelsProvider, useChannels } from "./src/providers/ChannelsProvider";
+import { ChannelsProvider, useChannels } from "./src/providers/ChannelsProvider";
 
 import { ChannelItem } from "./src/components/ChannelItem";
 
@@ -26,80 +27,80 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   return (
     <AuthProvider>
-      {/* <ChannelsProvider> */}
+      <ChannelsProvider>
         <NavigationContainer>
           <Stack.Navigator>
             <Stack.Screen name="Welcome" component={WelcomeView} />
               <Stack.Screen
                 name="Main"
                 component={MainScreen}
-                options={{ title: 'Main' }}
+                options={{ title: 'Form' }}
               />
             <Stack.Screen name="Workout" component={WorkoutScreen} />
             <Stack.Screen name="Workout Details" component={WorkoutDetailScreen} />
           </Stack.Navigator>
         </NavigationContainer>
-      {/* </ChannelsProvider> */}
+      </ChannelsProvider>
     </AuthProvider>  );
 };
 
 const MainScreen = ({ navigation }) => {
   const { user, signOut } = useAuth();
   // const { channels } = useChannels();
-  const [channels, setChannels] = useState([]);
+  // const [channels, setChannels] = useState([]);
 
   // Use a Ref to store the realm rather than the state because it is not
   // directly rendered, so updating it should not trigger a re-render as using
   // state would.
-  const realmRef = useRef(null);
+  // const realmRef = useRef(null);
 
-  useEffect(() => {
-    if (!user) {
-      console.log("Error: user isn't logged in");
-      return;
-    }
+  // useEffect(() => {
+  //   if (!user) {
+  //     console.log("Error: user isn't logged in");
+  //     return;
+  //   }
 
-    const config = {
-      sync: {
-        user: user,
-        partitionValue: "form",
-        error: (_session, error) => {
-          (error) => {
-            console.log("Sync error:", error.name, error.message);
-          };
-        },
-      },
-    };
+  //   const config = {
+  //     sync: {
+  //       user: user,
+  //       partitionValue: "form",
+  //       error: (_session, error) => {
+  //         (error) => {
+  //           console.log("Sync error:", error.name, error.message);
+  //         };
+  //       },
+  //     },
+  //   };
 
-    // open a realm for this particular project
-    Realm.open(config).then((projectRealm) => {
-      realmRef.current = projectRealm;
+  //   // open a realm for this particular project
+  //   Realm.open(config).then((projectRealm) => {
+  //     realmRef.current = projectRealm;
 
-      const syncChannels = projectRealm.objects("Channel");
-      console.log("Synced channels:", syncChannels.length);
-      console.log(syncChannels);
-      let sortedChannels = syncChannels.sorted("name");
-      // sortedChannels.map((object, index, collection) => {
-      //   console.log("Channel", index, object.name);
-      // });
-      setChannels([...sortedChannels]);
+  //     const syncChannels = projectRealm.objects("Channel");
+  //     console.log("Synced channels:", syncChannels.length);
+  //     console.log(syncChannels);
+  //     let sortedChannels = syncChannels.sorted("name");
+  //     // sortedChannels.map((object, index, collection) => {
+  //     //   console.log("Channel", index, object.name);
+  //     // });
+  //     setChannels([...sortedChannels]);
 
-      sortedChannels.addListener(() => {
-        // console.log("Collection update on channels");
-        setChannels([...sortedChannels]);
-      });
-    });
+  //     sortedChannels.addListener(() => {
+  //       // console.log("Collection update on channels");
+  //       setChannels([...sortedChannels]);
+  //     });
+  //   });
 
-    return () => {
-      // cleanup function
-      const projectRealm = realmRef.current;
-      if (projectRealm) {
-        projectRealm.close();
-        realmRef.current = null;
-        setChannels([]);
-      }
-    };
-  }, [user]);
+  //   return () => {
+  //     // cleanup function
+  //     const projectRealm = realmRef.current;
+  //     if (projectRealm) {
+  //       projectRealm.close();
+  //       realmRef.current = null;
+  //       setChannels([]);
+  //     }
+  //   };
+  // }, [user]);
 
   console.log("User: ", user, user.profile);
 
@@ -110,13 +111,14 @@ const MainScreen = ({ navigation }) => {
   return (
     <ScrollView>
       <Text style={styles.titleText}>Your Channels</Text>
-      <View>
+      <ChannelsView />
+      {/* <View>
         {channels.map((channel) => {
           if (channel) {
             return(<ChannelItem key={channel._id} channel={channel} />);
           }
         })}
-      </View>
+      </View> */}
 
       {/* <WorkoutView 
       /> */}

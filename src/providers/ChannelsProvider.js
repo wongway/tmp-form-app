@@ -32,7 +32,7 @@ const ChannelsProvider = ({ children }) => {
       },
     };
 
-    console.log("Opening realm");
+    // console.log("Opening realm");
     // open a realm for this particular project
     Realm.open(config).then((projectRealm) => {
       realmRef.current = projectRealm;
@@ -40,11 +40,13 @@ const ChannelsProvider = ({ children }) => {
       const syncChannels = projectRealm.objects("Channel");
       let sortedChannels = syncChannels.sorted("name");
       setChannels([...sortedChannels]);
+      console.log("Channels:", sortedChannels.length);
+      console.log(sortedChannels);
       sortedChannels.addListener(() => {
         setChannels([...sortedChannels]);
       });
     });
-    console.log("Opened realm");
+    // console.log("Opened realm");
 
     return () => {
       // cleanup function
