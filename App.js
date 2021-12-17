@@ -17,9 +17,10 @@ import { WelcomeView } from "./src/views/WelcomeView";
 import { useTensorFlowLoaded } from "./src/useTensorFlow";
 
 import { AuthProvider, useAuth } from "./src/providers/AuthProvider";
-import { ChannelsProvider, useChannels } from "./src/providers/ChannelsProvider";
+import { ChannelsProvider } from "./src/providers/ChannelsProvider";
+import { ChannelScreen } from "./src/screens/ChannelScreen";
 
-import { ChannelItem } from "./src/components/ChannelItem";
+import styles from "./src/stylesheet";
 
 // const Stack = createStackNavigator();
 const Stack = createNativeStackNavigator();
@@ -37,7 +38,8 @@ export default function App() {
                 options={{ title: 'Form' }}
               />
             <Stack.Screen name="Workout" component={WorkoutScreen} />
-            <Stack.Screen name="Workout Details" component={WorkoutDetailScreen} />
+            <Stack.Screen name="Workout Details" component={WorkoutDetailScreen} options={({ route }) => ({ title: route.params.name })}/>
+            <Stack.Screen name="Channel" component={ChannelScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </ChannelsProvider>
@@ -46,65 +48,11 @@ export default function App() {
 
 const MainScreen = ({ navigation }) => {
   const { user, signOut } = useAuth();
-  // const { channels } = useChannels();
-  // const [channels, setChannels] = useState([]);
-
-  // Use a Ref to store the realm rather than the state because it is not
-  // directly rendered, so updating it should not trigger a re-render as using
-  // state would.
-  // const realmRef = useRef(null);
-
-  // useEffect(() => {
-  //   if (!user) {
-  //     console.log("Error: user isn't logged in");
-  //     return;
-  //   }
-
-  //   const config = {
-  //     sync: {
-  //       user: user,
-  //       partitionValue: "form",
-  //       error: (_session, error) => {
-  //         (error) => {
-  //           console.log("Sync error:", error.name, error.message);
-  //         };
-  //       },
-  //     },
-  //   };
-
-  //   // open a realm for this particular project
-  //   Realm.open(config).then((projectRealm) => {
-  //     realmRef.current = projectRealm;
-
-  //     const syncChannels = projectRealm.objects("Channel");
-  //     console.log("Synced channels:", syncChannels.length);
-  //     console.log(syncChannels);
-  //     let sortedChannels = syncChannels.sorted("name");
-  //     // sortedChannels.map((object, index, collection) => {
-  //     //   console.log("Channel", index, object.name);
-  //     // });
-  //     setChannels([...sortedChannels]);
-
-  //     sortedChannels.addListener(() => {
-  //       // console.log("Collection update on channels");
-  //       setChannels([...sortedChannels]);
-  //     });
-  //   });
-
-  //   return () => {
-  //     // cleanup function
-  //     const projectRealm = realmRef.current;
-  //     if (projectRealm) {
-  //       projectRealm.close();
-  //       realmRef.current = null;
-  //       setChannels([]);
-  //     }
-  //   };
-  // }, [user]);
 
   console.log("User: ", user, user.profile);
 
   const onSignOut = async () => {
+    navigation.replace('Welcome');
     await signOut();
   }
 
@@ -112,20 +60,12 @@ const MainScreen = ({ navigation }) => {
     <ScrollView>
       <Text style={styles.titleText}>Your Channels</Text>
       <ChannelsView />
-      {/* <View>
-        {channels.map((channel) => {
-          if (channel) {
-            return(<ChannelItem key={channel._id} channel={channel} />);
-          }
-        })}
-      </View> */}
 
-      {/* <WorkoutView 
-      /> */}
       {/* <Button
         title="Start Workout"
         disabled
         onPress={() => navigation.navigate('Workout', {})} /> */}
+
       <Text style={styles.titleText}>Activity Feed</Text>
       <ActivityFeedView />
       {/* <Image 
@@ -167,12 +107,3 @@ const WorkoutScreen = ({ navigation, route }) => {
 
   return <ModelView />;
 };
-
-const styles = StyleSheet.create({
-  titleText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginVertical: 5,
-    marginHorizontal: 20,
-  }
-});

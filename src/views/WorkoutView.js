@@ -4,96 +4,124 @@ import { Tile, Image, Button, ButtonGroup, Rating } from "react-native-elements"
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
 
-const workoutsData = [
-    {
-        title: "10-Week Glut Guarantee",
-        creator: "squatmaven",
-        duration: "10",
-        fav: true,
-        image: require("../assets/anastase-maragos-9dzWZQWZMdE-unsplash.jpeg"),
-    },
-    {
-        title: "HIIT Abs",
-        creator: "sixpacksam",
-        duration: "12",
-        fav: false,
-        image: require("../assets/mathilde-langevin-aLpt9nRnnDQ-unsplash.jpeg"),
-    },
-    {
-        title: "Pull Up Party",
-        creator: "monkeygirl21",
-        duration: "8",
-        fav: false,
-        image: require("../assets/damir-spanic-22L7do1cOho-unsplash.jpeg"),
-    },
-    {
-        title: "Bicycles",
-        creator: "mynameissoverylong",
-        duration: "999",
-        fav: true,
-        image: require("../assets/mor-shani-li4dxZ0KYRw-unsplash.jpeg"),
-    },
-];
+import { useChannels } from "../providers/ChannelsProvider";
 
-export class WorkoutView extends Component {
-    constructor() {
-        super();
-        this.state = {
-            selectedIndex: 0
-        }
-        this.updateIndex = this.updateIndex.bind(this)
-    }
+// const workoutsData = [
+//     {
+//         title: "10-Week Glut Guarantee",
+//         creator: "squatmaven",
+//         duration: "10",
+//         fav: true,
+//         image: require("../assets/anastase-maragos-9dzWZQWZMdE-unsplash.jpeg"),
+//     },
+//     {
+//         title: "HIIT Abs",
+//         creator: "sixpacksam",
+//         duration: "12",
+//         fav: false,
+//         image: require("../assets/mathilde-langevin-aLpt9nRnnDQ-unsplash.jpeg"),
+//     },
+//     {
+//         title: "Pull Up Party",
+//         creator: "monkeygirl21",
+//         duration: "8",
+//         fav: false,
+//         image: require("../assets/damir-spanic-22L7do1cOho-unsplash.jpeg"),
+//     },
+//     {
+//         title: "Bicycles",
+//         creator: "mynameissoverylong",
+//         duration: "999",
+//         fav: true,
+//         image: require("../assets/mor-shani-li4dxZ0KYRw-unsplash.jpeg"),
+//     },
+// ];
+
+// export class WorkoutViewOld extends Component {
+//     constructor() {
+//         super();
+//         this.state = {
+//             selectedIndex: 0
+//         }
+//         this.updateIndex = this.updateIndex.bind(this)
+//     }
       
-    updateIndex (selectedIndex) {
-        this.setState({selectedIndex})
-    }
+//     updateIndex (selectedIndex) {
+//         this.setState({selectedIndex})
+//     }
 
-    getWorkoutTiles (selectedIndex) {
-        const tileList = workoutsData.map((workout) => {
-            if (selectedIndex != 0 || workout.fav) {
-                return (
-                    <WorkoutTile 
-                        key={workout.title} 
-                        title={workout.title} 
-                        image={workout.image}
-                        creator={workout.creator} 
-                        duration={workout.duration} 
-                        fav={workout.fav}
-                        workout={workout}
-                    />
-                );
-            }         
-        });
+//     getWorkoutTiles (selectedIndex) {
+//         const tileList = workoutsData.map((workout) => {
+//             if (selectedIndex != 0 || workout.fav) {
+//                 return (
+//                     <WorkoutTile 
+//                         key={workout.title} 
+//                         title={workout.title} 
+//                         image={workout.image}
+//                         creator={workout.creator} 
+//                         duration={workout.duration} 
+//                         fav={workout.fav}
+//                         workout={workout}
+//                     />
+//                 );
+//             }         
+//         });
 
-        return (<>{tileList}</>);
-    }
+//         return (<>{tileList}</>);
+//     }
       
-    render() {
-        const buttons = ['Favorites', 'Custom', 'Trending'];
-        const { selectedIndex } = this.state;
+//     render() {
+//         const buttons = ['Favorites', 'Custom', 'Trending'];
+//         const { selectedIndex } = this.state;
 
-        return (
-            <View style={{marginHorizontal: 10}}>
-                <ButtonGroup 
-                    // width="100%"
-                    onPress={this.updateIndex}
-                    selectedIndex={selectedIndex}
-                    buttons={buttons}
-                    containerStyle={{height: 30}}
-                />
-                <View style={styles.container}>
-                    {this.getWorkoutTiles(selectedIndex)}
-                    {/* <View style={{height: 150, width: '50%', backgroundColor: 'powderblue'}} />
-                    <View style={{height: 150, width: '50%', backgroundColor: 'skyblue'}} />
-                    <View style={{height: 150, width: '50%', backgroundColor: 'steelblue'}} />
-                    <View style={{height: 150, width: '50%', backgroundColor: 'powderblue'}} /> */}
+//         return (
+//             <View style={{marginHorizontal: 10}}>
+//                 <ButtonGroup 
+//                     // width="100%"
+//                     onPress={this.updateIndex}
+//                     selectedIndex={selectedIndex}
+//                     buttons={buttons}
+//                     containerStyle={{height: 30}}
+//                 />
+//                 <View style={styles.container}>
+//                     {this.getWorkoutTiles(selectedIndex)}
+//                     {/* <View style={{height: 150, width: '50%', backgroundColor: 'powderblue'}} />
+//                     <View style={{height: 150, width: '50%', backgroundColor: 'skyblue'}} />
+//                     <View style={{height: 150, width: '50%', backgroundColor: 'steelblue'}} />
+//                     <View style={{height: 150, width: '50%', backgroundColor: 'powderblue'}} /> */}
 
-                </View>
+//                 </View>
+//             </View>
+
+//         );
+//     }
+// };
+
+export const WorkoutView = () => {
+    const { workouts } = useChannels();
+    const image_asset = require("../assets/anastase-maragos-9dzWZQWZMdE-unsplash.jpeg");
+    return(
+        <View style={{marginHorizontal: 10}}>
+            <View style={styles.container}>
+            {
+                workouts.map((workout, i) => {
+                    return(
+                        <WorkoutTile
+                            key={i}
+                            title={workout.name} 
+                            image={image_asset}
+                            creator={workout.channel_id._id} 
+                            duration={workout.sets} 
+                            fav={true}
+                            workout={workout}
+                        />
+                    )
+                })
+            }    
             </View>
-
-        );
-    }
-};
+        </View>
+    );
+}
 
 const WorkoutTile = (props) => {
     const [fav, setFav] = useState(props.fav);
@@ -104,7 +132,7 @@ const WorkoutTile = (props) => {
         <View style={styles.workoutTile}>
             <TouchableOpacity 
                 style={{alignItems: 'center'}}
-                onPress={() => navigation.navigate('Workout Details', { workout })} 
+                onPress={() => navigation.navigate('Workout Details', { name: workout.name, workout: workout })} 
                 // title={props.title}
                 // style={workoutStyles.button}
                 activeOpacity={0.5}>
@@ -135,15 +163,11 @@ export const WorkoutDetailScreen = ({ route, navigation }) => {
 
     return (
         <View style={{flex: 1}}>
-            <Image
-                style={{width: "100%", height: 300}}
-                source={workout.image}
-                PlaceholderContent={<ActivityIndicator />}
-                >
-                <Text style={styles.workoutDetailTitle}>
-                    {workout.title}
-                </Text>
-            </Image>
+            {
+                workout.steps.map((step, i) => {
+                    return(<Text key={i}>{step.name} {step.count} {step.type}</Text>)
+                })
+            }
             <View style={styles.bottom}>
             <Button
                 // style={styles.workoutDetailStartButton}

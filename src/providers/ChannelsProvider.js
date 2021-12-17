@@ -1,12 +1,15 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import Realm from "realm";
 // import { Channel } from "../datamodel/datamodel";
+import { ChannelSchema, WorkoutSchema } from "../datamodel/schema";
 import { useAuth } from "./AuthProvider";
 
 const ChannelsContext = React.createContext(null);
 
 const ChannelsProvider = ({ children }) => {
   const [channels, setChannels] = useState([]);
+  const [currentChannel, setCurrentChannel] = useState(null);
+  const [workouts, setWorkouts] = useState([]);
   const { user } = useAuth();
 
   // Use a Ref to store the realm rather than the state because it is not
@@ -23,6 +26,7 @@ const ChannelsProvider = ({ children }) => {
     const config = {
       sync: {
         user: user,
+        schema: [ChannelSchema, WorkoutSchema],
         partitionValue: "form",
         error: (_session, error) => {
           (error) => {
@@ -32,10 +36,11 @@ const ChannelsProvider = ({ children }) => {
       },
     };
 
-    // console.log("Opening realm");
+    console.log("Opening realm");
     // open a realm for this particular project
     Realm.open(config).then((projectRealm) => {
       realmRef.current = projectRealm;
+      console.log("Realm:", projectRealm);
 
       const syncChannels = projectRealm.objects("Channel");
       let sortedChannels = syncChannels.sorted("name");
@@ -45,11 +50,21 @@ const ChannelsProvider = ({ children }) => {
       sortedChannels.addListener(() => {
         setChannels([...sortedChannels]);
       });
+
+      // console.log("Users:", projectRealm.objects("User"));
+
+      // const syncWorkouts = projectRealm.objects("Workout");
+      // let sortedWorkouts = syncWorkouts.sorted("name");
+      // setWorkouts([...sortedWorkouts]);
+      // console.log("Workouts:", sortedWorkouts.length, sortedWorkouts);
+      // sortedWorkouts.addListener(() => {
+      //   setWorkouts([...sortedWorkouts]);
+      // });
     });
-    // console.log("Opened realm");
 
     return () => {
       // cleanup function
+      console.log("Cleaning up realm connection for channels");
       const projectRealm = realmRef.current;
       if (projectRealm) {
         projectRealm.close();
@@ -58,6 +73,27 @@ const ChannelsProvider = ({ children }) => {
       }
     };
   }, [user]);
+
+  useEffect(() => {
+    const realm = realmRef.current;
+    if (!realm) {
+      console.log("Error: Realm not connected");
+      return;
+    }
+
+    const syncWorkouts = realm.objects("Workout");
+    let sortedWorkouts = syncWorkouts.sorted("name");
+    setWorkouts(sortedWorkouts);
+    console.log("Workouts:", sortedWorkouts.length, sortedWorkouts);
+    sortedWorkouts.addListener(() => {
+      setWorkouts(sortedWorkouts);
+    });
+
+    return () => {
+      setWorkouts(null);
+    };
+
+  }, [currentChannel]);
 
   // const createChannel = (newChannelName) => {
   //   const projectRealm = realmRef.current;
@@ -109,6 +145,8 @@ const ChannelsProvider = ({ children }) => {
       value={{
         // createChannel,
         // deleteChannel,
+        setCurrentChannel,
+        workouts,
         channels,
       }}
     >

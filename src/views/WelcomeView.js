@@ -11,7 +11,10 @@ export function WelcomeView({ navigation }) {
   useEffect(() => {
     // If there is a user logged in, go to the Projects page.
     if (user != null) {
-      navigation.navigate("Main");
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Main" }]
+      });
     }
   }, [user]);
 
@@ -67,9 +70,11 @@ export function WelcomeView({ navigation }) {
           secureTextEntry
         />
       </View>
-      <Button onPress={onPressSignIn} title="Sign In" />
-      <Button onPress={onPressSignUp} title="Sign Up" />
-      <Button onPress={onPressSignInAnonymous} title="Sign In as Guest" />
+      <View style={styles.fixToText}>
+        <Button onPress={onPressSignIn} title="Sign In" />
+        <Button onPress={onPressSignUp} title="Sign Up" />
+        <Button onPress={onPressSignInAnonymous} title="Sign In as Guest" />
+      </View>
     </View>
   );
 }
