@@ -71,6 +71,12 @@ const AuthProvider = ({ children }) => {
     setUser(newUser);
   };
 
+  const signInAnonymous = async () => {
+    const creds = Realm.Credentials.anonymous();
+    const newUser = await app.logIn(creds);
+    setUser(newUser);
+  }
+
   // The signUp function takes an email and password and uses the
   // emailPassword authentication provider to register the user.
   const signUp = async (email, password) => {
@@ -93,6 +99,7 @@ const AuthProvider = ({ children }) => {
       value={{
         signUp,
         signIn,
+        signInAnonymous,
         signOut,
         user,
         // projectData, // list of projects the user is a memberOf

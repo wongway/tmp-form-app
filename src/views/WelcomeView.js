@@ -6,7 +6,7 @@ import styles from "../stylesheet";
 export function WelcomeView({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { user, signUp, signIn } = useAuth();
+  const { user, signUp, signIn, signInAnonymous } = useAuth();
 
   useEffect(() => {
     // If there is a user logged in, go to the Projects page.
@@ -37,6 +37,15 @@ export function WelcomeView({ navigation }) {
     }
   };
 
+  const onPressSignInAnonymous = async () => {
+    try {
+      await signInAnonymous();
+    } catch (error) {
+      Alert.alert(`Failed to sign in: ${error.message}`);
+    }
+
+  }
+
   return (
     <View>
       <Text>Signup or Signin:</Text>
@@ -60,6 +69,7 @@ export function WelcomeView({ navigation }) {
       </View>
       <Button onPress={onPressSignIn} title="Sign In" />
       <Button onPress={onPressSignUp} title="Sign Up" />
+      <Button onPress={onPressSignInAnonymous} title="Sign In as Guest" />
     </View>
   );
 }

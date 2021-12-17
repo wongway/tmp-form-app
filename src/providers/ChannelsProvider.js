@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import Realm from "realm";
-import { Channel } from "../datamodel/datamodel";
+// import { Channel } from "../datamodel/datamodel";
 import { useAuth } from "./AuthProvider";
 
 const ChannelsContext = React.createContext(null);

@@ -47,7 +47,7 @@ export function ChannelItem({ channel }) {
         }}
         actions={actions}
       /> */}
-        <ListItem key={channel._id} bottomDivider> 
+        <ListItem key={channel.channel_id} bottomDivider> 
             <ListItem.Content> 
                 <ListItem.Title> {channel.name} </ListItem.Title>
                 <ListItem.Subtitle> {channel.description} </ListItem.Subtitle>

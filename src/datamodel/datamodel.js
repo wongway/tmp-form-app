@@ -2,7 +2,7 @@ import { ChannelSchema } from "./schema";
 
 const REALM_ID = "form";
 
-class Channel {
+export class Channel {
     constructor ({
         name,
         id = new ObjectId(),
@@ -14,3 +14,5 @@ class Channel {
 
     static schema = ChannelSchema;
 }
+
+// export { Channel };
