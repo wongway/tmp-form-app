@@ -19,7 +19,7 @@ export const ChannelsView = () => {
             channels.map((channel, i) => {
                 return (
                     <TouchableOpacity key={i}>
-                    <ListItem key={i} bottomDivider onPress={() => navigation.navigate("Channel", { channel })}>
+                    <ListItem key={i} bottomDivider onPress={() => navigation.navigate("Channel", { name: channel.name, channel_id: channel.channel_id })}>
                         <Avatar
                             size="small"
                             rounded

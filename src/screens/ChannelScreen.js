@@ -5,10 +5,12 @@ import { WorkoutView } from "../views/WorkoutView";
 import { useChannels } from "../providers/ChannelsProvider";
 
 export const ChannelScreen = ({ route, navigation }) => {
-    const { channel } = route.params;
-    const { setCurrentChannel, workouts } = useChannels();
+    const { channel_id } = route.params;
+    const { setCurrentChannelId, getChannel } = useChannels();
 
-    setCurrentChannel(channel.channel_id);
+    setCurrentChannelId(channel_id);
+    channel = getChannel(channel_id);
+    console.log(channel);
 
     return (
         <View style={{flex: 1}}>
