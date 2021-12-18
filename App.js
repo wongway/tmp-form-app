@@ -49,7 +49,7 @@ export default function App() {
 const MainScreen = ({ navigation }) => {
   const { user, signOut } = useAuth();
 
-  console.log("User: ", user, user.profile);
+  if (user) { console.log("User: ", user, user.profile); }
 
   const onSignOut = async () => {
     navigation.replace('Welcome');
@@ -77,7 +77,12 @@ const MainScreen = ({ navigation }) => {
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
       </Text>
       <Text style={{ marginHorizontal: 20, marginVertical: 10 }}>
-        Logged in as: { user.id } ({ user.profile.email })
+        {/* {
+          if (user) { return ( */}
+            Logged in as: { user.id } ({ user.profile.email })
+          {/* )}
+
+        } */}
       </Text>
       <Button onPress={onSignOut} title='Logout' />
     </ScrollView>
