@@ -3,6 +3,7 @@
     "@expo/vector-icons": "^12.0.0",
     "@mediapipe/pose": "^0.3.1621277220",
     "@react-native-community/async-storage": "~1.12.1",
+    "@react-navigation/bottom-tabs": "^6.0.9",
     "@react-navigation/native": "^6.0.6",
     "@react-navigation/native-stack": "^6.2.5",
     "@react-navigation/stack": "^5.14.5",
