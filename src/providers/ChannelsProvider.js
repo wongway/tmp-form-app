@@ -8,7 +8,7 @@ const ChannelsContext = React.createContext(null);
 
 const ChannelsProvider = ({ children }) => {
   const [channels, setChannels] = useState([]);
-  const [currentChannel, setCurrentChannel] = useState(null);
+  const [currentChannelId, setCurrentChannelId] = useState(null);
   const [workouts, setWorkouts] = useState([]);
   const { user } = useAuth();
 
@@ -93,7 +93,29 @@ const ChannelsProvider = ({ children }) => {
       setWorkouts(null);
     };
 
-  }, [currentChannel]);
+  }, [currentChannelId]);
+
+  const getChannel = (channel_id) => {
+    const realm = realmRef.current;
+
+    if (!realm) {
+      console.log("Error: realm not open");
+    }
+
+    const channelResults =  realm.objects("Channel").filtered('channel_id == $0', channel_id);
+
+    if (channelResults.length > 1) {
+      console.log("Error: more than 1 channel has channel_id of", channel_id);
+      return null;
+    }
+
+    if (channelResults.length == 1) {
+      return channelResults[0];
+    }
+
+    console.log("Error: NO channels with id", channel_id);
+    return null;
+  }
 
   // const createChannel = (newChannelName) => {
   //   const projectRealm = realmRef.current;
@@ -145,7 +167,9 @@ const ChannelsProvider = ({ children }) => {
       value={{
         // createChannel,
         // deleteChannel,
-        setCurrentChannel,
+        currentChannelId,
+        setCurrentChannelId,
+        getChannel,
         workouts,
         channels,
       }}
