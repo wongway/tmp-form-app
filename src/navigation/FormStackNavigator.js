@@ -1,6 +1,6 @@
 import React from "react";
 
-import { View, Text } from 'react-native';
+import { Button, View, Text } from 'react-native';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -11,11 +11,13 @@ import { ChannelScreen } from "../screens/ChannelScreen";
 import { WorkoutScreen } from "../screens/WorkoutScreen";
 import { ActivityFeedScreen } from "../screens/ActivityFeedScreen";
 
+import { useAuth } from "../providers/AuthProvider";
+
 const Stack = createNativeStackNavigator();
 
 const ChannelStackNavigator = () => {
     return (
-          <Stack.Navigator>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Welcome" component={WelcomeView} />
               <Stack.Screen
                 name="Main"
@@ -30,7 +32,7 @@ const ChannelStackNavigator = () => {
 
 const FeedStackNavigator = () => {
     return (
-          <Stack.Navigator>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
               <Stack.Screen
                 name="Activity Feed"
                 component={ActivityFeedScreen}
@@ -40,8 +42,26 @@ const FeedStackNavigator = () => {
 }
 
 const ProfileStackNavigator = () => {
+    const { user, signOut } = useAuth();
+
+    const onSignOut = async () => {
+        navigation.replace('Welcome');
+        await signOut();
+    }
+
+    if (!user) {
+        return (
+            <Text> Not logged in </Text>
+        )
+    }
+
     return (
-        <View><Text> Profile ! </Text></View>
+        <>
+      <Text style={{ marginHorizontal: 20, marginVertical: 10 }}>
+            Logged in as: { user.id } ({ user.profile.email })
+      </Text>
+      <Button onPress={onSignOut} title='Logout' />
+      </>
     );
 }
 

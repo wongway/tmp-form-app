@@ -4,19 +4,9 @@ import { Button, Text, ScrollView } from "react-native";
 
 import { ActivityFeedView } from "../views/ActivityFeedView";
 
-import { useAuth } from "../providers/AuthProvider";
-
 import styles from "../stylesheet";
 
 export const ActivityFeedScreen = ({ navigation }) => {
-  const { user, signOut } = useAuth();
-
-  if (user) { console.log("User: ", user, user.profile); }
-
-  const onSignOut = async () => {
-    navigation.replace('Welcome');
-    await signOut();
-  }
 
   return (
     <ScrollView>
@@ -31,15 +21,6 @@ export const ActivityFeedScreen = ({ navigation }) => {
       <Text style={{ marginHorizontal: 20, marginVertical: 10 }}>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
       </Text>
-      <Text style={{ marginHorizontal: 20, marginVertical: 10 }}>
-        {/* {
-          if (user) { return ( */}
-            Logged in as: { user.id } ({ user.profile.email })
-          {/* )}
-
-        } */}
-      </Text>
-      <Button onPress={onSignOut} title='Logout' />
     </ScrollView>
   )
 }
