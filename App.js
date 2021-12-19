@@ -1,51 +1,71 @@
 import * as Camera from "expo-camera";
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 import { Button, StyleSheet, Text, View, ScrollView, ActivityIndicator } from "react-native";
 import { Image } from "react-native-elements";
 
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+// import { createStackNavigator } from '@react-navigation/stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { LoadingView } from "./src/LoadingView";
-import { ModelView } from "./src/ModelView";
-import { WorkoutView, WorkoutDetailScreen } from "./src/WorkoutView";
-import { ActivityFeedView } from "./src/ActivityFeed";
+import { ChannelsView } from "./src/views/ChannelsView";
+import { LoadingView } from "./src/views/LoadingView";
+import { ModelView } from "./src/views/ModelView";
+import { WorkoutView, WorkoutDetailScreen } from "./src/views/WorkoutView";
+import { ActivityFeedView } from "./src/views/ActivityFeedView";
 import { WelcomeView } from "./src/views/WelcomeView";
 import { useTensorFlowLoaded } from "./src/useTensorFlow";
 
-import { AuthProvider } from "./src/providers/AuthProvider";
+import { AuthProvider, useAuth } from "./src/providers/AuthProvider";
+import { ChannelsProvider } from "./src/providers/ChannelsProvider";
+import { ChannelScreen } from "./src/screens/ChannelScreen";
 
-const Stack = createStackNavigator();
+import styles from "./src/stylesheet";
+
+// const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <AuthProvider>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Welcome" component={WelcomeView} />
-          <Stack.Screen
-            name="Main"
-            component={MainScreen}
-            options={{ title: 'Main' }}
-          />
-          <Stack.Screen name="Workout" component={WorkoutScreen} />
-          <Stack.Screen name="Workout Details" component={WorkoutDetailScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <ChannelsProvider>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="Welcome" component={WelcomeView} />
+              <Stack.Screen
+                name="Main"
+                component={MainScreen}
+                options={{ title: 'Form' }}
+              />
+            <Stack.Screen name="Workout" component={WorkoutScreen} />
+            <Stack.Screen name="Workout Details" component={WorkoutDetailScreen} options={({ route }) => ({ title: route.params.name })}/>
+            <Stack.Screen name="Channel" component={ChannelScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </ChannelsProvider>
     </AuthProvider>  );
 };
 
 const MainScreen = ({ navigation }) => {
+  const { user, signOut } = useAuth();
+
+  if (user) { console.log("User: ", user, user.profile); }
+
+  const onSignOut = async () => {
+    navigation.replace('Welcome');
+    await signOut();
+  }
+
   return (
     <ScrollView>
-      <Text style={styles.titleText}>Choose Your Workout</Text>
-      <WorkoutView 
-      />
+      <Text style={styles.titleText}>Your Channels</Text>
+      <ChannelsView />
+
       {/* <Button
         title="Start Workout"
         disabled
         onPress={() => navigation.navigate('Workout', {})} /> */}
+
       <Text style={styles.titleText}>Activity Feed</Text>
       <ActivityFeedView />
       {/* <Image 
@@ -56,6 +76,15 @@ const MainScreen = ({ navigation }) => {
       <Text style={{ marginHorizontal: 20, marginVertical: 10 }}>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
       </Text>
+      <Text style={{ marginHorizontal: 20, marginVertical: 10 }}>
+        {/* {
+          if (user) { return ( */}
+            Logged in as: { user.id } ({ user.profile.email })
+          {/* )}
+
+        } */}
+      </Text>
+      <Button onPress={onSignOut} title='Logout' />
     </ScrollView>
   )
 }
@@ -83,12 +112,3 @@ const WorkoutScreen = ({ navigation, route }) => {
 
   return <ModelView />;
 };
-
-const styles = StyleSheet.create({
-  titleText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginVertical: 5,
-    marginHorizontal: 20,
-  }
-});

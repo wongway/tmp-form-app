@@ -33,6 +33,16 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "400",
   },
+  fixToText: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  titleText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginVertical: 5,
+    marginHorizontal: 20,
+  }
 });
 
 export default styles;

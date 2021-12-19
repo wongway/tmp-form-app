@@ -9,14 +9,14 @@ import { PixelRatio, Dimensions } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
 import CBuffer from 'cbuffer';
-import smoothed_z_score from './utils/smoothed_z_score';
+import smoothed_z_score from '../utils/smoothed_z_score';
 
-import { CustomTensorCamera } from './CustomTensorCamera';
+import { CustomTensorCamera } from '../CustomTensorCamera';
 import { LoadingView } from './LoadingView';
-import { PredictionList } from './PredictionList';
-import { useTensorFlowModel } from './useTensorFlow';
-import { encodeJpeg, getCameraRollPermissions } from './utils.js';
-import is_rep from './utils/rep_count';
+import { PredictionList } from '../PredictionList';
+import { useTensorFlowModel } from '../useTensorFlow';
+import { encodeJpeg, getCameraRollPermissions } from '../utils.js';
+import is_rep from '../utils/rep_count';
 
 const KEYPOINTS = {
   NOSE: 0,
