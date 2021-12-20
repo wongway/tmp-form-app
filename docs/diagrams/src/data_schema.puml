@@ -1,6 +1,7 @@
 @startuml data_schema
 
 title Entity Relationship Diagram
+' Follows the standards in: https://plantuml.com/ie-diagram
 
 hide circle
 skinparam linetype ortho
@@ -14,7 +15,7 @@ entity "**App Users**" as AppUser {
 
 entity "**Users**" as User {
     * _id : ObjectId
-    * user_id : string
+    * user_id : string <AppUser._id>
     * realm_id : string
     ---
     * name : string
@@ -27,14 +28,14 @@ entity "**Users**" as User {
 entity "**FollowedChannel**" as FollowedChannel {
     embedded in User
     ---
-    channel : string <Channels.channel_id>
+    channel : ObjectId <Channels.channel_id>
 
 }
 
 entity "**Payment**" as Payment {
     embedded in User
     ---
-    channel : string <Channels.channel_id>
+    channel : ObjectId <Channels.channel_id>
     date : date
     expiry : date
 
@@ -42,10 +43,10 @@ entity "**Payment**" as Payment {
 
 entity "**Channels**" as Channel {
     * _id : ObjectId
-    * channel_id : string
+    ' * channel_id : string
     * realm_id : string
     ---
-    * creator : string <Users.user_id>
+    * creator : ObjectId <Users.user_id>
     * name : string
     * description : string
     ---
@@ -59,7 +60,7 @@ entity "**Workout**" as Workout {
     * realm_id : string
     ---
     * name : string
-    * channel : string <Channels.channel_id>
+    * channel : ObjectId <Channels.channel_id>
     * sets : uint8
     * steps : embedded Step []
     ---
@@ -72,6 +73,7 @@ entity "**Workout**" as Workout {
     likes : int
 }
 
+' TODO: Probably want some sort of enum for type
 entity "**WorkoutStep**" as Step {
     embedded in Workout
     ---
@@ -85,7 +87,7 @@ entity "**WorkoutLog**" as WorkoutLog {
     * _id : ObjectId
     * realm_id : string
     ---
-    * user_id : string <Users.user_id>
+    * user_id : ObjectId <Users.user_id>
     * workout_id : ObjectId <Workouts.workout_id>
     * timestamp : date
     * steps : embedded WorkoutStepLog []
@@ -125,6 +127,7 @@ User --o{ Payment
 FollowedChannel ||--|| Channel
 Payment ||--|| Channel
 
+Channel ||--o| User
 Channel ||--o{ Workout
 WorkoutLog ||--o{ WorkoutData
 
