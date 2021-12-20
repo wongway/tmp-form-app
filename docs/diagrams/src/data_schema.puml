@@ -20,8 +20,8 @@ entity "**Users**" as User {
     * name : string
     * email : string
     * is_creator : boolean
-    followed_channels : embedded []
-    payments : embedded []
+    followed_channels : embedded FollowedChannel []
+    payments : embedded Payment []
 }
 
 entity "**FollowedChannel**" as FollowedChannel {
@@ -75,6 +75,7 @@ entity "**Workout**" as Workout {
 entity "**WorkoutStep**" as Step {
     embedded in Workout
     ---
+    * index : int
     * name : e.g. squats
     * type : duration or reps
     * count : int or time
@@ -85,9 +86,17 @@ entity "**WorkoutLog**" as WorkoutLog {
     * realm_id : string
     ---
     * user_id : string <Users.user_id>
-    * workout_id : string <Workouts.workout_id>
+    * workout_id : ObjectId <Workouts.workout_id>
     * timestamp : date
+    * steps : embedded WorkoutStepLog []
     * data : embedded WorkoutData []
+}
+
+entity "**WorkoutStepLog**" as WorkoutLogStep {
+    embedded in WorkoutLog
+    ---
+    * index : int
+    * count : int
 }
 
 entity "**WorkoutData**" as WorkoutData {
@@ -107,10 +116,14 @@ entity "**WorkoutData**" as WorkoutData {
 Workout ||--|{ Step
 Workout ||--o{ WorkoutLog
 
+WorkoutLog ||--o{ WorkoutLogStep
+
 User ||--o{ WorkoutLog
-User ||--o| Channel
 User --o{ FollowedChannel
 User --o{ Payment
+
+FollowedChannel ||--|| Channel
+Payment ||--|| Channel
 
 Channel ||--o{ Workout
 WorkoutLog ||--o{ WorkoutData
