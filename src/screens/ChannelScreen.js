@@ -15,7 +15,8 @@ export const ChannelScreen = ({ route, navigation }) => {
     return (
         <View style={{flex: 1}}>
             <Text style={styles.titleText}> {channel.name} </Text>
-            <Text> {channel.description} </Text>
+            <Text style={styles.normalBlockText}> {channel.description} </Text>
+            <Text style={styles.h2Text}> Workouts </Text>
 
             <WorkoutView />
             {/* <Image

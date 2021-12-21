@@ -1,10 +1,12 @@
 import React, { Component, useState } from "react";
 import { View, ScrollView, Text, StyleSheet, TouchableOpacity, ActivityIndicator, TouchableHighlight, TouchableWithoutFeedback } from "react-native";
 import { Tile, Image, Button, ButtonGroup, Rating } from "react-native-elements";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
 
 import { useChannels } from "../providers/ChannelsProvider";
+
+import styles from "../stylesheet";
 
 export const WorkoutView = () => {
     const { workouts } = useChannels();
@@ -75,9 +77,14 @@ export const WorkoutDetailScreen = ({ route, navigation }) => {
 
     return (
         <View style={{flex: 1}}>
+            <Text style={styles.titleText}>{workout.name}</Text>
+            <Text style={styles.h2Text}>Set <Entypo name="cycle" size={20} /> { workout.sets } </Text> 
             {
                 workout.steps.map((step, i) => {
-                    return(<Text key={i}>{step.name} {step.count} {step.type}</Text>)
+                    return(<Text style={[styles.normalBlockText, { fontWeight: "bold"}]} key={i}>
+                        <Entypo name="chevron-right" size={12} />
+                        {step.count}{step.type == 'reps' ? 'x' : ' sec'} {step.name}
+                        </Text>)
                 })
             }
             <View style={styles.bottom}>
@@ -89,64 +96,3 @@ export const WorkoutDetailScreen = ({ route, navigation }) => {
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-    },
-    button: {
-        aspectRatio: 1,
-        borderRadius: 10,
-        width: '90%',
-        // marginHorizontal: 16
-        // height: 50,
-        // marginVertical: 10,
-    },
-    tile: {
-        flex: 1,    
-        marginHorizontal: 10,
-        width: '45%',
-    },
-    tileImage: {
-        aspectRatio: 1,
-        borderRadius: 10,
-        marginVertical: 10,
-    },
-    tileContent: {
-        height: 100,
-        width: "50%",
-        backgroundColor: "#ccc",
-    },
-    duration: {
-        fontWeight: "bold"
-    },
-    placeholder: {
-        backgroundColor: "#ccc",
-        // width: 100,
-        // height: 100,
-    },
-    workoutTile: {
-        // backgroundColor: "#ccc",
-        width: '50%',
-        alignItems: 'center',
-        marginVertical: 5,
-    },
-    workoutFav: {
-        margin: "5%",
-        color: "#e31b23",
-        fontSize: 18,
-    },
-    workoutDetailTitle: {
-        marginTop: 10,
-        marginLeft: 10,
-        fontSize: 20,
-        fontWeight: "bold", 
-        color: "white",
-    },
-    bottom: {
-        flex: 1,
-        justifyContent: "flex-end",
-        marginBottom: 20,
-    },
-});
