@@ -10,6 +10,7 @@ const ChannelsProvider = ({ children }) => {
   const [channels, setChannels] = useState([]);
   const [currentChannelId, setCurrentChannelId] = useState(null);
   const [workouts, setWorkouts] = useState([]);
+  const [workoutLogs, setWorkoutLogs] = useState([]);
   const { user } = useAuth();
 
   // Use a Ref to store the realm rather than the state because it is not
@@ -36,7 +37,9 @@ const ChannelsProvider = ({ children }) => {
       },
     };
 
-    console.log("Opening realm");
+    // console.log("Opening realm");
+    console.log("User: ", user.id);
+
     // open a realm for this particular project
     Realm.open(config).then((projectRealm) => {
       realmRef.current = projectRealm;
@@ -53,13 +56,13 @@ const ChannelsProvider = ({ children }) => {
 
       // console.log("Users:", projectRealm.objects("User"));
 
-      // const syncWorkouts = projectRealm.objects("Workout");
-      // let sortedWorkouts = syncWorkouts.sorted("name");
-      // setWorkouts([...sortedWorkouts]);
-      // console.log("Workouts:", sortedWorkouts.length, sortedWorkouts);
-      // sortedWorkouts.addListener(() => {
-      //   setWorkouts([...sortedWorkouts]);
-      // });
+      const syncWorkoutLogs = projectRealm.objects("WorkoutLog").filtered('user_id == $0', Realm.BSON.ObjectId(user.id));
+      let sortedWorkoutLogs = syncWorkoutLogs.sorted("timestamp", true);
+      setWorkouts([...sortedWorkoutLogs]);
+      console.log("Workout Logs:", sortedWorkoutLogs.length, sortedWorkoutLogs);
+      sortedWorkoutLogs.addListener(() => {
+        setWorkoutLogs([...sortedWorkoutLogs]);
+      });
     });
 
     return () => {
@@ -172,6 +175,7 @@ const ChannelsProvider = ({ children }) => {
         getChannel,
         workouts,
         channels,
+        workoutLogs,
       }}
     >
       {children}
