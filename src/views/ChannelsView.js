@@ -5,10 +5,6 @@ import { Badge, Card, ListItem, Avatar } from "react-native-elements";
 import { useChannels } from "../providers/ChannelsProvider";
 import { useNavigation } from "@react-navigation/native";
 
-import ColorHash from 'color-hash';
-
-var colorHash = new ColorHash();
-
 export const ChannelsView = () => {
     const { channels } = useChannels();
     const navigation = useNavigation();
@@ -17,14 +13,15 @@ export const ChannelsView = () => {
         <Card containerStyle={{padding: 0}} >
         {
             channels.map((channel, i) => {
+
+                const image_url = `https://i.pravatar.cc/64?u=${channel._id}`;
                 return (
                     <TouchableOpacity key={i}>
                     <ListItem key={i} bottomDivider onPress={() => navigation.navigate("Channel", { name: channel.name, channel_id: channel.channel_id })}>
                         <Avatar
                             size="small"
                             rounded
-                            overlayContainerStyle={{backgroundColor: colorHash.hex(channel.name)}}
-                            title={channel.name[0]}
+                            source={image_url ? { uri: image_url } : {}}
                             activeOpacity={0.7}
                         />
                         <ListItem.Content>
