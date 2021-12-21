@@ -58,7 +58,7 @@ const ChannelsProvider = ({ children }) => {
 
       const syncWorkoutLogs = projectRealm.objects("WorkoutLog").filtered('user_id == $0', Realm.BSON.ObjectId(user.id));
       let sortedWorkoutLogs = syncWorkoutLogs.sorted("timestamp", true);
-      setWorkouts([...sortedWorkoutLogs]);
+      setWorkoutLogs([...sortedWorkoutLogs]);
       console.log("Workout Logs:", sortedWorkoutLogs.length, sortedWorkoutLogs);
       sortedWorkoutLogs.addListener(() => {
         setWorkoutLogs([...sortedWorkoutLogs]);
@@ -120,6 +120,36 @@ const ChannelsProvider = ({ children }) => {
     return null;
   }
 
+  const getDocumentById = (documentType, id) => {
+    const realm = realmRef.current;
+
+    if (!realm) {
+      console.log("Error: realm not open");
+    }
+
+    const results =  realm.objects(documentType).filtered('_id == $0', id);
+
+    if (results.length > 1) {
+      console.log("Error: more than 1 document has _id of", id);
+      return null;
+    }
+
+    if (results.length == 1) {
+      return results[0];
+    }
+
+    console.log("Error: NO documents with id", id);
+    return null;
+  }
+
+  const getUserById = (id) => {
+    return getDocumentById("User", id);
+  }
+
+  const getWorkoutById = (id) => {
+    return getDocumentById("Workout", id);
+  }
+
   // const createChannel = (newChannelName) => {
   //   const projectRealm = realmRef.current;
   //   projectRealm.write(() => {
@@ -176,6 +206,8 @@ const ChannelsProvider = ({ children }) => {
         workouts,
         channels,
         workoutLogs,
+        getWorkoutById,
+        getUserById,
       }}
     >
       {children}
