@@ -28,14 +28,14 @@ entity "**Users**" as User {
 entity "**FollowedChannel**" as FollowedChannel {
     embedded in User
     ---
-    channel : ObjectId <Channels.channel_id>
+    channel : ObjectId <Channels._id>
 
 }
 
 entity "**Payment**" as Payment {
     embedded in User
     ---
-    channel : ObjectId <Channels.channel_id>
+    channel : ObjectId <Channels._id>
     date : date
     expiry : date
 
@@ -60,7 +60,7 @@ entity "**Workout**" as Workout {
     * realm_id : string
     ---
     * name : string
-    * channel : ObjectId <Channels.channel_id>
+    * channel : ObjectId <Channels._id>
     * sets : uint8
     * steps : embedded Step []
     ---
@@ -87,8 +87,8 @@ entity "**WorkoutLog**" as WorkoutLog {
     * _id : ObjectId
     * realm_id : string
     ---
-    * user_id : ObjectId <Users.user_id>
-    * workout_id : ObjectId <Workouts.workout_id>
+    * user_id : ObjectId <Users._id>
+    * workout_id : ObjectId <Workouts._id>
     * timestamp : date
     * steps : embedded WorkoutStepLog []
     * data : embedded WorkoutData []
