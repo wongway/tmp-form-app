@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 24,
     fontWeight: "bold",
-    marginVertical: 5,
+    marginVertical: 10,
     marginHorizontal: 20,
   }
 });
