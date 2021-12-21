@@ -13,7 +13,6 @@
     "@tensorflow/tfjs-core": "^2.8.6",
     "@tensorflow/tfjs-react-native": "^0.5.0",
     "cbuffer": "^2.2.0",
-    "color-hash": "^2.0.1",
     "expo": "^44.0.0",
     "expo-barcode-scanner": "~11.2.0",
     "expo-camera": "~12.1.0",

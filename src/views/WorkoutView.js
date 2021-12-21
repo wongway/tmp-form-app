@@ -6,97 +6,6 @@ import { useNavigation } from '@react-navigation/native';
 
 import { useChannels } from "../providers/ChannelsProvider";
 
-// const workoutsData = [
-//     {
-//         title: "10-Week Glut Guarantee",
-//         creator: "squatmaven",
-//         duration: "10",
-//         fav: true,
-//         image: require("../assets/anastase-maragos-9dzWZQWZMdE-unsplash.jpeg"),
-//     },
-//     {
-//         title: "HIIT Abs",
-//         creator: "sixpacksam",
-//         duration: "12",
-//         fav: false,
-//         image: require("../assets/mathilde-langevin-aLpt9nRnnDQ-unsplash.jpeg"),
-//     },
-//     {
-//         title: "Pull Up Party",
-//         creator: "monkeygirl21",
-//         duration: "8",
-//         fav: false,
-//         image: require("../assets/damir-spanic-22L7do1cOho-unsplash.jpeg"),
-//     },
-//     {
-//         title: "Bicycles",
-//         creator: "mynameissoverylong",
-//         duration: "999",
-//         fav: true,
-//         image: require("../assets/mor-shani-li4dxZ0KYRw-unsplash.jpeg"),
-//     },
-// ];
-
-// export class WorkoutViewOld extends Component {
-//     constructor() {
-//         super();
-//         this.state = {
-//             selectedIndex: 0
-//         }
-//         this.updateIndex = this.updateIndex.bind(this)
-//     }
-      
-//     updateIndex (selectedIndex) {
-//         this.setState({selectedIndex})
-//     }
-
-//     getWorkoutTiles (selectedIndex) {
-//         const tileList = workoutsData.map((workout) => {
-//             if (selectedIndex != 0 || workout.fav) {
-//                 return (
-//                     <WorkoutTile 
-//                         key={workout.title} 
-//                         title={workout.title} 
-//                         image={workout.image}
-//                         creator={workout.creator} 
-//                         duration={workout.duration} 
-//                         fav={workout.fav}
-//                         workout={workout}
-//                     />
-//                 );
-//             }         
-//         });
-
-//         return (<>{tileList}</>);
-//     }
-      
-//     render() {
-//         const buttons = ['Favorites', 'Custom', 'Trending'];
-//         const { selectedIndex } = this.state;
-
-//         return (
-//             <View style={{marginHorizontal: 10}}>
-//                 <ButtonGroup 
-//                     // width="100%"
-//                     onPress={this.updateIndex}
-//                     selectedIndex={selectedIndex}
-//                     buttons={buttons}
-//                     containerStyle={{height: 30}}
-//                 />
-//                 <View style={styles.container}>
-//                     {this.getWorkoutTiles(selectedIndex)}
-//                     {/* <View style={{height: 150, width: '50%', backgroundColor: 'powderblue'}} />
-//                     <View style={{height: 150, width: '50%', backgroundColor: 'skyblue'}} />
-//                     <View style={{height: 150, width: '50%', backgroundColor: 'steelblue'}} />
-//                     <View style={{height: 150, width: '50%', backgroundColor: 'powderblue'}} /> */}
-
-//                 </View>
-//             </View>
-
-//         );
-//     }
-// };
-
 export const WorkoutView = () => {
     const { workouts } = useChannels();
     const image_asset = require("../../assets/anastase-maragos-9dzWZQWZMdE-unsplash.jpeg");
@@ -105,12 +14,13 @@ export const WorkoutView = () => {
             <View style={styles.container}>
             {
                 workouts.map((workout, i) => {
+                    console.log("Workout:", workout);
                     return(
                         <WorkoutTile
                             key={i}
                             title={workout.name} 
                             image={image_asset}
-                            creator={workout.channel_id._id} 
+                            creator={workout.channel_id.name} 
                             duration={workout.sets} 
                             fav={true}
                             workout={workout}
@@ -128,6 +38,8 @@ const WorkoutTile = (props) => {
     const navigation = useNavigation();
     const workout = props.workout;
 
+    const image_url = `https://picsum.photos/seed/${workout._id}/200/200`;
+
     return (
         <View style={styles.workoutTile}>
             <TouchableOpacity 
@@ -138,7 +50,8 @@ const WorkoutTile = (props) => {
                 activeOpacity={0.5}>
                 <Image 
                     style={styles.button}
-                    source={props.image}
+                    // source={props.image}
+                    source={image_url ? { uri: image_url } : {}}
                     PlaceholderContent={<ActivityIndicator />}
                 >
                     <TouchableWithoutFeedback onPress={() => { console.log("*boop*"); fav ? setFav(false) : setFav(true) }}>
