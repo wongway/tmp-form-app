@@ -10,6 +10,7 @@ import { WelcomeView } from "../views/WelcomeView";
 import { ChannelScreen } from "../screens/ChannelScreen";
 import { WorkoutScreen } from "../screens/WorkoutScreen";
 import { ActivityFeedScreen } from "../screens/ActivityFeedScreen";
+import { UserProfileScreen } from "../screens/UserProfileScreen";
 
 import { useAuth } from "../providers/AuthProvider";
 
@@ -56,12 +57,12 @@ const ProfileStackNavigator = () => {
     }
 
     return (
-        <>
-      <Text style={{ marginHorizontal: 20, marginVertical: 10 }}>
-            Logged in as: { user.id } ({ user.profile.email })
-      </Text>
-      <Button onPress={onSignOut} title='Logout' />
-      </>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+              <Stack.Screen
+                name="User Profile"
+                component={UserProfileScreen}
+              />
+          </Stack.Navigator>
     );
 }
 

@@ -8,7 +8,6 @@ import { useChannels } from "../providers/ChannelsProvider";
 
 export const WorkoutView = () => {
     const { workouts } = useChannels();
-    const image_asset = require("../../assets/anastase-maragos-9dzWZQWZMdE-unsplash.jpeg");
     return(
         <View style={{marginHorizontal: 10}}>
             <View style={styles.container}>
@@ -19,7 +18,7 @@ export const WorkoutView = () => {
                         <WorkoutTile
                             key={i}
                             title={workout.name} 
-                            image={image_asset}
+                            // image={image_asset}
                             creator={workout.channel_id.name} 
                             duration={workout.sets} 
                             fav={true}
