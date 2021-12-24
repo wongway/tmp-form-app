@@ -2,7 +2,7 @@
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import { Camera } from 'expo-camera';
 import React from 'react';
-import { StyleSheet, useWindowDimensions, View, Text } from 'react-native';
+import { StyleSheet, useWindowDimensions, View, Text, Button } from 'react-native';
 import { PixelRatio, Dimensions } from 'react-native';
 
 // import Canvas from 'react-native-canvas';
@@ -13,7 +13,6 @@ import smoothed_z_score from '../utils/smoothed_z_score';
 
 import { CustomTensorCamera } from '../CustomTensorCamera';
 import { LoadingView } from './LoadingView';
-import { PredictionList } from '../PredictionList';
 import { useTensorFlowModel } from '../useTensorFlow';
 import { encodeJpeg, getCameraRollPermissions } from '../utils.js';
 import is_rep from '../utils/rep_count';
@@ -37,6 +36,148 @@ const KEYPOINTS = {
   LEFT_ANKLE: 15,
   RIGHT_ANKLE: 16
 };
+
+export const ModelViewNoPrediction = () => {
+  const [repCount, setRepCount] = React.useState(10);
+  const size = useWindowDimensions();
+  const dims = React.useRef({
+      height: 0,
+      width: 0,
+      left: 0,
+      top: 0,
+  });
+
+  const onLayout = (event) => {
+    const {x, y, height, width} = event.nativeEvent.layout;
+
+    const newLayout = {
+      height: height,
+      width: width,
+      left: x,
+      top: y,
+    };
+
+    console.log("View Dims: ", width, height);
+    console.log("Dimensions: ", Dimensions.get('window'));
+    console.log("useWindowDimensions: ", size);
+    console.log("PixelRatio: ", PixelRatio.get(), PixelRatio.getPixelSizeForLayoutSize(width), PixelRatio.getPixelSizeForLayoutSize(height));
+
+    dims.current = newLayout;
+
+  };
+
+  const addRep = () => {
+    setRepCount(repCount+1);
+  }
+
+  return (
+    <View
+      style={{ flex: 1, backgroundColor: "black", justifyContent: "center" }}
+    >
+      <View style={{ borderRadius: 20, overflow: "hidden" }} onLayout={(event) => onLayout(event)}>
+        <ModelCameraNoPrediction /> 
+          {/* <Svg style={styles.overlay}>
+            <Circle
+              cx="0"
+              cy="0"
+              r="20"
+              stroke="white"
+              strokeWidth="5"
+              opacity="0.5"
+            />
+            <Circle
+              cx={`${dims.current.width}`}
+              cy="0"
+              r="20"
+              stroke="white"
+              strokeWidth="5"
+              opacity="0.5"
+            />
+            <Circle
+              cx="0"
+              cy={`${dims.current.height}`}
+              r="20"
+              stroke="white"
+              strokeWidth="5"
+              opacity="0.5"
+            />
+            <Circle
+              cx={`${dims.current.width}`}
+              cy={`${dims.current.height}`}
+              r="20"
+              stroke="white"
+              strokeWidth="5"
+              opacity="0.5"
+            />
+          </Svg> */}
+          {/* <View style={{ zIndex: 1000, backgroundColor: "#BD3886" }}> */}
+        <Text style={styles.reps}>{repCount}</Text></View>
+        <Button style={styles.repButton} title="+" onPress={addRep} />
+      {/* </View> */}
+    </View>
+  );
+}
+
+function ModelCameraNoPrediction() {
+  const raf = React.useRef(null);
+  const size = useWindowDimensions();
+  const posePromiseResolved = React.useRef(true);
+
+  React.useEffect(() => {
+    return () => {
+      cancelAnimationFrame(raf.current);
+    };
+  }, []);
+
+  // const onReady = React.useCallback(
+  //   (images) => {
+  //     const loop = async () => {
+  //       if (posePromiseResolved) {
+  //         posePromiseResolved.current = false;
+  //         const nextImageTensor = images.next().value;
+  //         // const predictions = await model.estimatePoses(nextImageTensor);
+  //         model.estimatePoses(nextImageTensor).then((result) => {
+  //           setPredictions(result);
+  //           // console.log(Date.now());
+  //           posePromiseResolved.current = true;
+  //           return result;
+  //         });
+  //         // setKeypoints(predictions[0].keypoints);
+  //         // console.log(predictions[0].keypoints[0]);
+  //         // setPredictions(predictions);
+  
+  //       }
+        
+  //       // Saves a jpeg to your photos every 5 seconds for debugging
+  //       // if (Date.now() - lastPic.current > 5000) {
+  //       //   const jpeg = await encodeJpeg(nextImageTensor);
+  //       //   lastPic.current = Date.now();
+  //       //   console.log('JPEG: ', jpeg);
+  //       // }
+
+  //       raf.current = requestAnimationFrame(loop);
+  //     };
+  //     loop();
+  //   },
+  //   [setPredictions]
+  // );
+
+
+  return React.useMemo(
+    () => (
+      <>
+        <CustomTensorCamera
+          width={size.width}
+          style={styles.camera}
+          type={Camera.Constants.Type.front}
+          // onReady={onReady}
+          autorender />
+      </>
+    ),
+    [size.width]
+    // [onReady, size.width]
+  );
+}
 
 export function ModelView() {
   const [predictions, setPredictions] = React.useState([]);
@@ -312,10 +453,23 @@ const styles = StyleSheet.create({
   },
   reps: {
     position: "absolute",
+    top: 10,
+    left: 10,
     alignItems: "center",
     justifyContent: "center",
     color: "white",
-    backgroundColor: "black",
+    // backgroundColor: "black",
+    textShadowColor: "black",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+    fontSize: 50,
+    zIndex: 100,
+  },
+  repButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    color: "#BD3886",
     fontSize: 50,
     zIndex: 100,
   },

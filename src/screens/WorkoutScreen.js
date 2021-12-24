@@ -2,12 +2,13 @@ import * as Camera from "expo-camera";
 import React from "react";
 
 import { LoadingView } from "../views/LoadingView";
-import { ModelView } from "../views/ModelView";
+import { ModelView, ModelViewNoPrediction } from "../views/ModelView";
 import { useTensorFlowLoaded } from "../useTensorFlow";
 
 import styles from "../stylesheet";
 
 export const WorkoutScreen = ({ navigation, route }) => {
+  const { repCounter } = route.params;
   const isLoaded = useTensorFlowLoaded();
 
   const [hasPermission, setHasPermission] = React.useState(null);
@@ -28,5 +29,9 @@ export const WorkoutScreen = ({ navigation, route }) => {
     return <LoadingView>Loading TensorFlow</LoadingView>;
   }
 
-  return <ModelView />;
+  if (repCounter) {
+    return <ModelView />;
+  } else {
+    return <ModelViewNoPrediction />;
+  }
 };

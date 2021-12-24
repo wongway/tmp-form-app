@@ -27,8 +27,10 @@ export const FormBottomTabNavigator = () => {
           // You can return any component that you like here!
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: 'tomato',
+        tabBarActiveTintColor: '#F2790F',
+        // tabBarActiveTintColor: '#BD3886',
         tabBarInactiveTintColor: 'gray',
+        tabBarShowLabel: false,
         headerShown: false,
       })}
       >

@@ -103,6 +103,7 @@ const ChannelsProvider = ({ children }) => {
 
     if (!realm) {
       console.log("Error: realm not open");
+      return null;
     }
 
     const channelResults =  realm.objects("Channel").filtered('channel_id == $0', channel_id);
@@ -125,6 +126,7 @@ const ChannelsProvider = ({ children }) => {
 
     if (!realm) {
       console.log("Error: realm not open");
+      return null;
     }
 
     const results =  realm.objects(documentType).filtered('_id == $0', id);
@@ -148,6 +150,27 @@ const ChannelsProvider = ({ children }) => {
 
   const getWorkoutById = (id) => {
     return getDocumentById("Workout", id);
+  }
+
+  const getUserByAppId = (app_id) => {
+    const realm = realmRef.current;
+    if (!realm) {
+      return null;
+    }
+
+    const results = realm.objects("User").filtered('user_id == $0', app_id);
+
+    if (results.length > 1) {
+      console.log("Error: more than 1 document has _id of", app_id);
+      return null;
+    }
+
+    if (results.length == 1) {
+      return results[0];
+    }
+
+    console.log("Error: NO users with app_id", app_id);
+    return null;
   }
 
   // const createChannel = (newChannelName) => {
@@ -208,6 +231,7 @@ const ChannelsProvider = ({ children }) => {
         workoutLogs,
         getWorkoutById,
         getUserById,
+        getUserByAppId,
       }}
     >
       {children}
