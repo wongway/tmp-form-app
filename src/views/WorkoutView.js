@@ -8,8 +8,13 @@ import { useChannels } from "../providers/ChannelsProvider";
 
 import styles from "../stylesheet";
 
-export const WorkoutView = () => {
-    const { workouts } = useChannels();
+export const WorkoutView = (props) => {
+    const { getWorkoutsByChannelId } = useChannels();
+
+    const workouts = getWorkoutsByChannelId(props.channel_id);
+
+    console.log(props, workouts);
+
     return(
         <View style={{marginHorizontal: 10}}>
             <View style={styles.container}>
@@ -83,7 +88,7 @@ export const WorkoutDetailScreen = ({ route, navigation }) => {
                 workout.steps.map((step, i) => {
                     return(<Text style={[styles.normalBlockText, { fontWeight: "bold"}]} key={i}>
                         <Entypo name="chevron-right" size={12} />
-                        {step.count}{step.type == 'reps' ? 'x' : ' sec'} {step.name}
+                        {step.count}{step.type == 'RepWorkoutStep' ? 'x' : ' sec'} {step.name}
                         </Text>)
                 })
             }

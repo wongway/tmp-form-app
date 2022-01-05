@@ -27,7 +27,7 @@ const ChannelsProvider = ({ children }) => {
     const config = {
       sync: {
         user: user,
-        schema: [ChannelSchema, WorkoutSchema],
+        // schema: [ChannelSchema, WorkoutSchema],
         partitionValue: "form",
         error: (_session, error) => {
           (error) => {
@@ -106,7 +106,7 @@ const ChannelsProvider = ({ children }) => {
       return null;
     }
 
-    const channelResults =  realm.objects("Channel").filtered('channel_id == $0', channel_id);
+    const channelResults =  realm.objects("Channel").filtered('_id == $0', channel_id);
 
     if (channelResults.length > 1) {
       console.log("Error: more than 1 channel has channel_id of", channel_id);
@@ -121,15 +121,30 @@ const ChannelsProvider = ({ children }) => {
     return null;
   }
 
-  const getDocumentById = (documentType, id) => {
+  const getDocumentsById = (documentType, id, id_field) => {
+    id_field = id_field || "_id";
     const realm = realmRef.current;
 
     if (!realm) {
       console.log("Error: realm not open");
       return null;
     }
+    
+    const filter_string = `${id_field} == $0`
+    // console.log(filter_string);
 
-    const results =  realm.objects(documentType).filtered('_id == $0', id);
+    // console.log(realm.objects(documentType));
+    const results = realm.objects(documentType).filtered(filter_string, Realm.BSON.ObjectId(id));
+    // const results = realm.objects(documentType).filtered('$0 == $1', id_field, id);
+    // const results = realm.objects(documentType).filtered(id_field + ' == ' + id);
+    // const results = realm.objects(documentType).filtered(`${id_field} == ${id}`);
+    // console.log(results);
+
+    return results;
+  }
+
+  const getDocumentById = (documentType, id, id_field) => {
+    const results = getDocumentsById(documentType, id, id_field);
 
     if (results.length > 1) {
       console.log("Error: more than 1 document has _id of", id);
@@ -144,12 +159,20 @@ const ChannelsProvider = ({ children }) => {
     return null;
   }
 
+  const getChannelById = (id) => {
+    return getDocumentById("Channel", id);
+  }
+
   const getUserById = (id) => {
     return getDocumentById("User", id);
   }
 
   const getWorkoutById = (id) => {
     return getDocumentById("Workout", id);
+  }
+
+  const getWorkoutsByChannelId = (channel_id) => {
+    return getDocumentsById("Workout", channel_id, "channel_id");
   }
 
   const getUserByAppId = (app_id) => {
@@ -229,7 +252,9 @@ const ChannelsProvider = ({ children }) => {
         workouts,
         channels,
         workoutLogs,
+        getChannelById,
         getWorkoutById,
+        getWorkoutsByChannelId,
         getUserById,
         getUserByAppId,
       }}

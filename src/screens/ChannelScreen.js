@@ -6,11 +6,10 @@ import { useChannels } from "../providers/ChannelsProvider";
 
 export const ChannelScreen = ({ route, navigation }) => {
     const { channel_id } = route.params;
-    const { setCurrentChannelId, getChannel } = useChannels();
+    const { getChannelById } = useChannels();
 
-    setCurrentChannelId(channel_id);
-    channel = getChannel(channel_id);
-    console.log(channel);
+    const channel = getChannelById(channel_id);
+    console.log("Channel Screen:", channel_id, channel);
 
     return (
         <View style={{flex: 1}}>
@@ -18,7 +17,7 @@ export const ChannelScreen = ({ route, navigation }) => {
             <Text style={styles.normalBlockText}> {channel.description} </Text>
             <Text style={styles.h2Text}> Workouts </Text>
 
-            <WorkoutView />
+            <WorkoutView channel_id={channel_id} />
             {/* <Image
                 style={{width: "100%", height: 300}}
                 source={workout.image}
