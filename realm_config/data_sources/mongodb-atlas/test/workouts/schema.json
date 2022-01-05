@@ -19,33 +19,53 @@
         "steps": {
             "bsonType": "array",
             "items": {
-                "bsonType": "object",
-                "properties": {
-                    "count": {
-                        "bsonType": "int"
+                "anyOf": [
+                    {
+                        "bsonType": "object",
+                        "properties": {
+                            "index": { "bsonType": "int" },
+                            "duration": {
+                                "bsonType": "int"
+                            },
+                            "name": {
+                                "bsonType": "string"
+                            }
+                        },
+                        "required": [
+                            "duration",
+                            "name",
+                            "index"
+                        ],
+                        "title": "TimedWorkoutStep"
                     },
-                    "name": {
-                        "bsonType": "string"
-                    },
-                    "type": {
-                        "bsonType": "string"
+                    {
+                        "bsonType": "object",
+                        "properties": {
+                            "index": { "bsonType": "int" },
+                            "count": {
+                                "bsonType": "int"
+                            },
+                            "name": {
+                                "bsonType": "string"
+                            }
+                        },
+                        "required": [
+                            "count",
+                            "name",
+                            "index"
+                        ],
+                        "title": "RepWorkoutStep"
+
                     }
-                },
-                "required": [
-                    "count",
-                    "name",
-                    "type"
-                ],
-                "title": "WorkoutStep"
+                ]
             }
         },
         "workout_id": {
-            "bsonType": "string"
+            "bsonType": "objectId"
         }
     },
     "required": [
         "_id",
-        "workout_id",
         "realm_id",
         "name",
         "sets"

@@ -4,15 +4,56 @@
         "_id": {
             "bsonType": "objectId"
         },
+        "steps": {
+            "bsonType": "array",
+            "items": {
+                "anyOf": [
+                    {
+                        "bsonType": "object",
+                        "properties": {
+                            "index": { "bsonType": "int" },
+                            "duration": {
+                                "bsonType": "int"
+                            },
+                            "name": {
+                                "bsonType": "string"
+                            }
+                        },
+                        "required": [
+                            "duration",
+                            "name",
+                            "index"
+                        ],
+                        "title": "TimedWorkoutStep"
+                    },
+                    {
+                        "bsonType": "object",
+                        "properties": {
+                            "index": { "bsonType": "int" },
+                            "count": {
+                                "bsonType": "int"
+                            },
+                            "name": {
+                                "bsonType": "string"
+                            }
+                        },
+                        "required": [
+                            "count",
+                            "name",
+                            "index"
+                        ],
+                        "title": "RepWorkoutStep"
+
+                    }
+                ]
+            }
+        },
         "data": {
             "bsonType": "array",
             "items": {
                 "bsonType": "object",
                 "properties": {
                     "avg": {
-                        "bsonType": "double"
-                    },
-                    "confidence": {
                         "bsonType": "double"
                     },
                     "is_rep": {
@@ -24,17 +65,29 @@
                     "stddev": {
                         "bsonType": "double"
                     },
+                    "zscore": {
+                        "bsonType": "double"
+                    },
                     "timestamp": {
                         "bsonType": "date"
                     },
-                    "x": {
-                        "bsonType": "double"
-                    },
-                    "y": {
-                        "bsonType": "double"
-                    },
-                    "zscore": {
-                        "bsonType": "double"
+                    "raw": {
+                        "bsonType": "object",
+                        "properties": {
+                            "x": {
+                                "bsonType": "double"
+                            },
+                            "y": {
+                                "bsonType": "double"
+                            },
+                            "confidence": {
+                                "bsonType": "double"
+                            },
+                            "algorithm": { "bsonType": "string" },
+                            "keypoint": { "bsonType": "string" }
+                        },
+                        "required": [ "x", "y", "confidence", "keypoint" ],
+                        "title": "PoseEstimationData"
                     }
                 },
                 "title": "WorkoutData"
