@@ -46,7 +46,7 @@ entity "**Channels**" as Channel {
     ' * channel_id : string
     * realm_id : string
     ---
-    * creator : ObjectId <Users.user_id>
+    * creator_id : ObjectId <Users.user_id>
     * name : string
     * description : string
     ---
@@ -56,14 +56,14 @@ entity "**Channels**" as Channel {
 
 entity "**Workout**" as Workout {
     * _id : ObjectId
-    * workout_id : string
     * realm_id : string
     ---
     * name : string
-    * channel : ObjectId <Channels._id>
+    * channel_id : ObjectId <Channels._id>
     * sets : uint8
-    * steps : embedded Step []
-    ---
+    * steps : embedded WorkoutStep (Timed or Rep) []
+    ===
+    Not implemented yet
     * duration : time
     * tags : []
     * hidden_tags : []
@@ -74,13 +74,22 @@ entity "**Workout**" as Workout {
 }
 
 ' TODO: Probably want some sort of enum for type
-entity "**WorkoutStep**" as Step {
-    embedded in Workout
+entity "**RepWorkoutStep**" as RepWorkoutStep {
+    embedded in Workout or WorkoutLog
     ---
     * index : int
-    * name : e.g. squats
-    * type : duration or reps
-    * count : int or time
+    * name : string (e.g. squats)
+    * count : int
+    timestamp : date
+}
+
+entity "**TimedWorkoutStep**" as TimedWorkoutStep {
+    embedded in Workout or WorkoutLog
+    ---
+    * index : int
+    * name : string (e.g. squats)
+    * duration : int (time in seconds)
+    timestamp : date
 }
 
 entity "**WorkoutLog**" as WorkoutLog {
@@ -94,31 +103,36 @@ entity "**WorkoutLog**" as WorkoutLog {
     * data : embedded WorkoutData []
 }
 
-entity "**WorkoutStepLog**" as WorkoutLogStep {
-    embedded in WorkoutLog
-    ---
-    * index : int
-    * count : int
-}
-
 entity "**WorkoutData**" as WorkoutData {
     embedded in WorkoutLog
     ---
-    * time : date
-    * is_rep : bool
+    * timestamp : date
+    is_rep : bool
+    raw: PoseEstimationData []
+    zscore : double
+    avg : double
+    stddev : double
+    n_stddev : double
+}
+
+entity "**PoseEstimationData**" as PoseEstimationData {
+    embedded in WorkoutData
+    ---
+    * keypoint : string 
     * x : double
     * y : double
     * confidence : double
-    * zscore : double
-    * avg : double
-    * stddev : double
-    * n_stddev : double
+    algorithm : string
 }
 
-Workout ||--|{ Step
+AppUser ||--|| User
+
+Workout ||--|{ TimedWorkoutStep
+Workout ||--|{ RepWorkoutStep
 Workout ||--o{ WorkoutLog
 
-WorkoutLog ||--o{ WorkoutLogStep
+WorkoutLog ||--|{ TimedWorkoutStep
+WorkoutLog ||--|{ RepWorkoutStep
 
 User ||--o{ WorkoutLog
 User --o{ FollowedChannel
@@ -130,5 +144,6 @@ Payment ||--|| Channel
 Channel ||--o| User
 Channel ||--o{ Workout
 WorkoutLog ||--o{ WorkoutData
+WorkoutData ||--o{ PoseEstimationData
 
 @enduml
