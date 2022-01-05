@@ -40,14 +40,14 @@ export function WelcomeView({ navigation }) {
     }
   };
 
-  const onPressSignInAnonymous = async () => {
-    try {
-      await signInAnonymous();
-    } catch (error) {
-      Alert.alert(`Failed to sign in: ${error.message}`);
-    }
+  // const onPressSignInAnonymous = async () => {
+  //   try {
+  //     await signInAnonymous();
+  //   } catch (error) {
+  //     Alert.alert(`Failed to sign in: ${error.message}`);
+  //   }
 
-  }
+  // }
 
   return (
     <View>
@@ -73,7 +73,7 @@ export function WelcomeView({ navigation }) {
       <View style={styles.fixToText}>
         <Button onPress={onPressSignIn} title="Sign In" />
         <Button onPress={onPressSignUp} title="Sign Up" />
-        <Button onPress={onPressSignInAnonymous} title="Sign In as Guest" />
+        {/* <Button onPress={onPressSignInAnonymous} title="Sign In as Guest" /> */}
       </View>
     </View>
   );
