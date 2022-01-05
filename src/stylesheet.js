@@ -49,10 +49,16 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     marginHorizontal: 20,
   },
-  normalBlockText : {
+  normalBlockText: {
     marginVertical: 10,
     marginHorizontal: 20,
   },
+  workoutStepText: {
+
+    marginVertical: 10,
+    marginHorizontal: 20,
+  },
+
     container: {
         flexDirection: 'row',
         flexWrap: 'wrap',
