@@ -1,4 +1,5 @@
 import React from "react";
+import { View, Text, Image } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import { ChannelStackNavigator, FeedStackNavigator, ProfileStackNavigator   } from "./FormStackNavigator";
@@ -31,7 +32,24 @@ export const FormBottomTabNavigator = () => {
         // tabBarActiveTintColor: '#BD3886',
         tabBarInactiveTintColor: 'gray',
         tabBarShowLabel: false,
-        headerShown: false,
+        // headerShown: false,
+        headerStyle: {
+          // backgroundColor: "#F2A649",
+          height: 40,
+        },
+        headerTitle: (props) => (
+          <View style={{ 
+            // backgroundColor: "lightgray", 
+            padding: 0, 
+            justifyContent: "center", 
+            flexDirection: "row" 
+          }} >
+            <Text style={{ fontSize: 20, fontFamily: "FreeLine" }} > form </Text>
+          {/* <Image 
+            style={{ width: 70,  resizeMode: "contain" }}
+            source={require("../../assets/form-logo-black.png")} /> */}
+            </View>
+        )
       })}
       >
       <Tab.Screen name="Channels" component={ChannelStackNavigator} />
