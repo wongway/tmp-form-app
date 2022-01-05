@@ -5,7 +5,7 @@ import { useChannels } from "../providers/ChannelsProvider";
 import { useAuth } from "../providers/AuthProvider";
 import { Avatar } from "react-native-elements";
 
-export const UserProfileScreen = () => {
+export const UserProfileScreen = ({route, navigation}) => {
     const { user, signOut } = useAuth();
     const { getUserByAppId } = useChannels();
 
@@ -21,6 +21,13 @@ export const UserProfileScreen = () => {
     }
 
     const formUser = getUserByAppId(user.id);
+
+    // if (!formUser) {
+    //     onSignOut();
+    //     return (
+    //         <Text> Not logged in </Text>
+    //     )
+    // }
 
     const image_url = `https://i.pravatar.cc/64?u=${user.id}`;
 
