@@ -179,7 +179,7 @@ function ModelCameraNoPrediction() {
   );
 }
 
-export function ModelView() {
+export function ModelView2() {
   const [predictions, setPredictions] = React.useState([]);
   const [detector, setDetector] = React.useState(null);
   const [poses, setPoses] = React.useState([]);

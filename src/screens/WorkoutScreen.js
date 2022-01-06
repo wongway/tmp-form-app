@@ -2,7 +2,8 @@ import * as Camera from "expo-camera";
 import React from "react";
 
 import { LoadingView } from "../views/LoadingView";
-import { ModelView, ModelViewNoPrediction } from "../views/ModelView";
+import { ModelView } from "../views/ModelView";
+import { ModelViewNoPrediction } from "../views/ModelView2";
 import { useTensorFlowLoaded } from "../useTensorFlow";
 
 import styles from "../stylesheet";
