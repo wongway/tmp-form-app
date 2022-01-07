@@ -76,9 +76,11 @@ export function ModelView()  {
   const [fps, setFps] = useState(0);
   const isKeypointSet = useRef(false);
   const keypointHeight = useRef(0);
+  const poseScale = useRef(0);
+  const outOfView = useRef(false);
   const algo = useRef(0);
   const showCountdown = useRef(true);
-  const [isPlaying, setIsPlaying] = React.useState(true)
+  const [isPlaying, setIsPlaying] = React.useState(false)
   const [orientation, setOrientation] = 
     useState<ScreenOrientation.Orientation>();
   const [cameraType, setCameraType] = useState<CameraType>(
@@ -157,62 +159,99 @@ export function ModelView()  {
       );
 
       if (poses.length > 0) {
-        let rep = false;
+        if (showCountdown.current === false) {
+          let rep = false;
 
-        if (poses[0].keypoints[KEYPOINTS.LEFT_HIP].score > MIN_KEYPOINT_SCORE) {
-          if (algo.current === 0) { // keypoint algorithm 
-            const cy =
-              (poses[0].keypoints[KEYPOINTS.LEFT_HIP].y / getOutputTensorHeight()) *
-              (isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
+          if (poses[0].keypoints[KEYPOINTS.LEFT_HIP].score > MIN_KEYPOINT_SCORE) {
+            if (algo.current === 0) { // keypoint algorithm 
+              const cy =
+                (poses[0].keypoints[KEYPOINTS.LEFT_HIP].y / getOutputTensorHeight()) *
+                (isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
 
-            console.log("cy: ", cy);
+              console.log("cy: ", cy);
 
-            // set the starting keypoint for the first time
-            if (isKeypointSet.current == false) {
-              keypointHeight.current =  cy;
-              console.log("Keypoint height set: ", keypointHeight.current);
-              isKeypointSet.current = true;
-            }
-            
-            // update the keypoint if the height is higher and within 2/3 of the screen height and we are still before the first squat
-            if (repCount.current == 0) {
-              console.log(1/3*(isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH));
-              if (cy < keypointHeight.current && cy > 2/3*(isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH)){
-                  keypointHeight.current =  cy;
-                  console.log("Keypoint height changed: ", keypointHeight.current);
+              // set the starting keypoint for the first time
+              if (isKeypointSet.current == false) {
+                keypointHeight.current =  cy;
+                console.log("Keypoint height set: ", keypointHeight.current);
+                isKeypointSet.current = true;
+              }
+              
+              // update the keypoint if the height is higher and within 2/3 of the screen height and we are still before the first squat
+              if (repCount.current == 0) {
+                console.log(1/3*(isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH));
+                if (cy < keypointHeight.current && cy > 2/3*(isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH)){
+                    keypointHeight.current =  cy;
+                    console.log("Keypoint height changed: ", keypointHeight.current);
+                }
+              }
+              
+              // downward motion
+              if (repStatus.current == 0 && cy > keypointHeight.current + 0.13*CAM_PREVIEW_HEIGHT ){
+                repStatus.current = 1;
+                console.log("Down");
+              }
+
+              //upward motion
+              if (repStatus.current == 1 && cy < keypointHeight.current + 0.13*CAM_PREVIEW_HEIGHT){
+                repStatus.current = 2;
+                console.log("Up");
+              }
+
+              // count the rep
+              if (repStatus.current == 2 && cy < keypointHeight.current + 0.1*CAM_PREVIEW_HEIGHT){
+                repStatus.current = 0;
+                console.log("Count");
+                rep = true;
+              }
+            } else { // zscore algorithm
+              if (poseHistory.current.push(poses[0].keypoints[KEYPOINTS.LEFT_HIP].y) >= ZSCORE_LAG + 2) {
+                console.log("y= ", poses[0].keypoints[KEYPOINTS.LEFT_HIP].y);
+                let signal = smoothed_z_score(poseHistory.current.toArray());
+                console.log("signal= ", signal[0]);
+                rep = is_rep(signal[0]);
               }
             }
+            if (rep) {
+              repCount.current++;
+            }
+          }
+        } else {
+          if (poses[0].keypoints[KEYPOINTS.NOSE].score > MIN_KEYPOINT_SCORE) {
+
+            const nose_y = (poses[0].keypoints[KEYPOINTS.NOSE].y / getOutputTensorHeight()) *
+              (isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
+            let left_ankle_y = 0;
+            let right_ankle_y  = 0;
+
+            if (poses[0].keypoints[KEYPOINTS.LEFT_ANKLE].score > MIN_KEYPOINT_SCORE) {
+              left_ankle_y = (poses[0].keypoints[KEYPOINTS.LEFT_ANKLE].y / getOutputTensorHeight()) *
+              (isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
+            }
+            if (poses[0].keypoints[KEYPOINTS.RIGHT_ANKLE].score > MIN_KEYPOINT_SCORE) {
+              right_ankle_y = (poses[0].keypoints[KEYPOINTS.RIGHT_ANKLE].y / getOutputTensorHeight()) *
+              (isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
+            }
             
-            // downward motion
-            if (repStatus.current == 0 && cy > keypointHeight.current + 0.13*CAM_PREVIEW_HEIGHT ){
-              repStatus.current = 1;
-              console.log("Down");
+            const ankle_y = Math.max(left_ankle_y, right_ankle_y);
+            console.log("left ankle", left_ankle_y);
+            console.log("right ankle", right_ankle_y);
+            if (ankle_y > 0) {
+              poseScale.current = (ankle_y - nose_y)/(isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
+              console.log("Pose Scale: ", poseScale);
+              outOfView.current = false;
+              setIsPlaying(true);
+            } else {
+              console.log("Out of view ankles");
+              outOfView.current = true;
+              setIsPlaying(false);
             }
-
-            //upward motion
-            if (repStatus.current == 1 && cy < keypointHeight.current + 0.13*CAM_PREVIEW_HEIGHT){
-              repStatus.current = 2;
-              console.log("Up");
-            }
-
-            // count the rep
-            if (repStatus.current == 2 && cy < keypointHeight.current + 0.1*CAM_PREVIEW_HEIGHT){
-              repStatus.current = 0;
-              console.log("Count");
-              rep = true;
-            }
-          } else { // zscore algorithm
-            if (poseHistory.current.push(poses[0].keypoints[KEYPOINTS.LEFT_HIP].y) >= ZSCORE_LAG + 2) {
-              console.log("y= ", poses[0].keypoints[KEYPOINTS.LEFT_HIP].y);
-              let signal = smoothed_z_score(poseHistory.current.toArray());
-              console.log("signal= ", signal[0]);
-              rep = is_rep(signal[0]);
-            }
+          } else {
+            console.log("Out of view nose");
+            outOfView.current = true;
+            setIsPlaying(false);
           }
-          if (rep) {
-            repCount.current++;
-          }
-        }
+        }  
       } else {
         //console.log("No Keypoints");
       }
@@ -317,71 +356,10 @@ export function ModelView()  {
       </View>
     );
 
-    /*
-    return (
-      <div className="countdownContainer">
-        <div key={remainingTime} className={`${isTimeUp ? "timeWrapperTimeUp" : "timeWrapperTime"}`}>
-          {remainingTime}
-        </div>
-        {prevTime.current !== null && (
-          <div
-            key={prevTime.current}
-            className={`${!isTimeUp ? "timeWrapperTimeDown" : "timeWrapperTime"}`}
-          >
-            {prevTime.current}
-          </div>
-        )}
-      </div>
-    );
-    <Text style={`${isTimeUp ? "timeWrapperTimeUp" : "timeWrapperTime"}`}>{remainingTime}</Text>
-    
-   
-    
-    if (prevTime.current !== null) {
-      if (isTimeUp) {
-        console.log("time up");
-        return (
-          <View>
-            <Text style={[styles.timeWrapperTime, {transform: [{ scale: 1}]}]}>
-              {remainingTime}
-            </Text>
-          </View>
-        );
-      } else {
-        console.log("time prev");
-        return (
-          <View>
-            <Text style={[styles.countdownText, {transform: [{ scale: 8}]}]}>
-              {remainingTime}
-            </Text>
-          </View>
-        );
-      }
-    } else {
-      if (isTimeUp) {
-        console.log("time down");
-        return (
-          <View>
-            <Text style={[styles.timeWrapperTime, {transform: [{ scale: 8}]}]}>
-              {remainingTime}
-            </Text>
-          </View>
-        );
-      } else {
-        console.log("time no prev");
-        return (
-          <View>
-            <Text style={[styles.countdownText, {transform: [{ scale: 1}]}]}>
-              {remainingTime}
-            </Text>
-          </View>
-        );
-      }
-    }
-    */
   };
 
   const renderCountdown = () => {
+    console.log (isPlaying);
     if (showCountdown.current === true) {
       return (
         <View style={styles.countdownContainer}>
@@ -389,8 +367,8 @@ export function ModelView()  {
             isPlaying={isPlaying}
             duration={5}
             size={200}
-            strokeWidth={1}
-            colors={[["#000000"]]}
+            strokeWidth={15}
+            colors={[["#100000"]]}
         >{renderTime}
         </CountdownCircleTimer>
       </View>
@@ -401,14 +379,18 @@ export function ModelView()  {
   };
 
   const renderReps = () => {
-    return (
-      <View
-        style={styles.repsContainer}
-      >
-        <Text style={styles.reps} >
-        {repCount.current}</Text>
-      </View>
-    );
+    if (showCountdown.current === false) {
+      return (
+        <View
+          style={styles.repsContainer}
+        >
+          <Text style={styles.reps} >
+          {repCount.current}</Text>
+        </View>
+      );
+    } else {
+      return null;
+    }
   };
 
   const renderCameraTypeSwitcher = () => {
@@ -581,7 +563,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
-    width: 180,
+    width: 240,
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, .7)',
     borderRadius: 2,
@@ -618,11 +600,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     justifyContent: 'center',
     alignItems: 'center',
-
-    //paddingTop: Constants.statusBarHeight,
-    //backgroundColor: '#ecf0f1',
-    //padding: 8,
-
     zIndex: 100,
   },
   countdownText: {
@@ -634,16 +611,5 @@ const styles = StyleSheet.create({
     fontSize: 100,
     zIndex: 110,
     opacity: 1,
-  },
-  timeWrapperTime: {
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
-    textAlign: 'left',
-    color: 'white',
-    fontSize: 100,
-    zIndex: 110,
-    opacity: 0,
-
   },
 });
