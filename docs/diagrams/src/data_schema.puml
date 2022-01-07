@@ -77,6 +77,7 @@ entity "**Workout**" as Workout {
 entity "**RepWorkoutStep**" as RepWorkoutStep {
     embedded in Workout or WorkoutLog
     ---
+    * type: static string "RepWorkoutStep"
     * index : int
     * name : string (e.g. squats)
     * count : int
@@ -86,6 +87,7 @@ entity "**RepWorkoutStep**" as RepWorkoutStep {
 entity "**TimedWorkoutStep**" as TimedWorkoutStep {
     embedded in Workout or WorkoutLog
     ---
+    * type: static string "TimedWorkoutStep"
     * index : int
     * name : string (e.g. squats)
     * duration : int (time in seconds)
@@ -98,9 +100,10 @@ entity "**WorkoutLog**" as WorkoutLog {
     ---
     * user_id : ObjectId <Users._id>
     * workout_id : ObjectId <Workouts._id>
-    * timestamp : date
-    * steps : embedded WorkoutStepLog []
-    * data : embedded WorkoutData []
+    * start_time : date
+    end_time : date
+    steps : embedded WorkoutStepLog []
+    data : embedded WorkoutData []
 }
 
 entity "**WorkoutData**" as WorkoutData {

@@ -1,0 +1,47 @@
+{
+    "properties": {
+        "_id": {
+            "bsonType": "objectId"
+        },
+        "channel_id": {
+            "bsonType": "objectId"
+        },
+        "name": {
+            "bsonType": "string"
+        },
+        "realm_id": {
+            "bsonType": "string"
+        },
+        "sets": {
+            "bsonType": "int"
+        },
+        "steps": {
+            "bsonType": "array",
+            "items": {
+                "bsonType": "object",
+                "properties": {
+                    "index": {
+                        "bsonType": "int"
+                    },
+                    "name": {
+                        "bsonType": "string"
+                    },
+                    "type": {
+                        "bsonType": "string"
+                    },
+                    "count": {
+                        "bsonType": "int"
+                    },
+                    "duration": {
+                        "bsonType": "int"
+                    },
+                    "timestamp": {
+                        "bsonType": "date"
+                    }
+                }
+            }
+        }
+    },
+    "required": [ "realm_id" ],
+    "title": "workout"
+}
