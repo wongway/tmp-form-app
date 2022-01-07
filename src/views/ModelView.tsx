@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, Text, View, Dimensions, Platform } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Platform, Animated } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as tf from '@tensorflow/tfjs';
 import * as posedetection from '@tensorflow-models/pose-detection';
@@ -13,6 +13,8 @@ import smoothed_z_score from '../utils/smoothed_z_score';
 import is_rep from '../utils/rep_count';
 import { LoadingView } from './LoadingView';
 import { useLinkProps } from '@react-navigation/native';
+import Constants from 'expo-constants';
+import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 
 const TensorCamera = cameraWithTensors(Camera);
 const IS_ANDROID = Platform.OS === 'android';
@@ -66,6 +68,7 @@ const KEYPOINTS = {
 export function ModelView()  {
   const cameraRef = useRef(null);
   const [tfReady, setTfReady] = useState(false);
+  const [countdownComplete, setCountdownComplete] = useState(false);
   const [model, setModel] = useState<posedetection.PoseDetector>();
   const [poses, setPoses] = useState<posedetection.Pose[]>();
   const repCount = useRef(0);
@@ -74,6 +77,8 @@ export function ModelView()  {
   const isKeypointSet = useRef(false);
   const keypointHeight = useRef(0);
   const algo = useRef(0);
+  const showCountdown = useRef(true);
+  const [isPlaying, setIsPlaying] = React.useState(true)
   const [orientation, setOrientation] = 
     useState<ScreenOrientation.Orientation>();
   const [cameraType, setCameraType] = useState<CameraType>(
@@ -233,7 +238,7 @@ export function ModelView()  {
   };
 
   const renderPose = () => {
-    if (poses != null && poses.length > 0) {
+    if (poses != null && poses.length > 0 && showCountdown.current === false) {
       const keypoints = poses[0].keypoints
         .filter((k) => (k.score ?? 0) > MIN_KEYPOINT_SCORE)
         .map((k) => {
@@ -282,6 +287,117 @@ export function ModelView()  {
         <Text>{algo.current ? 'zscore' : 'keypoint'}</Text>
       </View>
     );
+  };
+  const renderTime = ({ remainingTime }) => {
+
+    const currentTime = useRef(remainingTime);
+    const prevTime = useRef(null);
+    const isNewTimeFirstTick = useRef(false);
+  
+    if (currentTime.current !== remainingTime) {
+      isNewTimeFirstTick.current = true;
+      prevTime.current = currentTime.current;
+      currentTime.current = remainingTime;
+    } else {
+      isNewTimeFirstTick.current = false;
+    }
+
+    const isTimeUp = isNewTimeFirstTick.current;
+
+
+    if (remainingTime === 0){
+      showCountdown.current = false;
+    }
+
+    return (
+      <View>
+        <Text style={[styles.countdownText, {transform: [{ scale: 1}]}]}>
+        {remainingTime}
+        </Text>
+      </View>
+    );
+
+    /*
+    return (
+      <div className="countdownContainer">
+        <div key={remainingTime} className={`${isTimeUp ? "timeWrapperTimeUp" : "timeWrapperTime"}`}>
+          {remainingTime}
+        </div>
+        {prevTime.current !== null && (
+          <div
+            key={prevTime.current}
+            className={`${!isTimeUp ? "timeWrapperTimeDown" : "timeWrapperTime"}`}
+          >
+            {prevTime.current}
+          </div>
+        )}
+      </div>
+    );
+    <Text style={`${isTimeUp ? "timeWrapperTimeUp" : "timeWrapperTime"}`}>{remainingTime}</Text>
+    
+   
+    
+    if (prevTime.current !== null) {
+      if (isTimeUp) {
+        console.log("time up");
+        return (
+          <View>
+            <Text style={[styles.timeWrapperTime, {transform: [{ scale: 1}]}]}>
+              {remainingTime}
+            </Text>
+          </View>
+        );
+      } else {
+        console.log("time prev");
+        return (
+          <View>
+            <Text style={[styles.countdownText, {transform: [{ scale: 8}]}]}>
+              {remainingTime}
+            </Text>
+          </View>
+        );
+      }
+    } else {
+      if (isTimeUp) {
+        console.log("time down");
+        return (
+          <View>
+            <Text style={[styles.timeWrapperTime, {transform: [{ scale: 8}]}]}>
+              {remainingTime}
+            </Text>
+          </View>
+        );
+      } else {
+        console.log("time no prev");
+        return (
+          <View>
+            <Text style={[styles.countdownText, {transform: [{ scale: 1}]}]}>
+              {remainingTime}
+            </Text>
+          </View>
+        );
+      }
+    }
+    */
+  };
+
+  const renderCountdown = () => {
+    if (showCountdown.current === true) {
+      return (
+        <View style={styles.countdownContainer}>
+          <CountdownCircleTimer
+            isPlaying={isPlaying}
+            duration={5}
+            size={200}
+            strokeWidth={1}
+            colors={[["#000000"]]}
+        >{renderTime}
+        </CountdownCircleTimer>
+      </View>
+      );
+    } else {
+      return null;
+    }
   };
 
   const renderReps = () => {
@@ -400,6 +516,7 @@ export function ModelView()  {
           rotation={getTextureRotationAngleInDegrees()}
           onReady={handleCameraStream}
         />
+        {renderCountdown()}
         {renderPose()}
         {renderFps()}
         {renderReps()}
@@ -496,5 +613,37 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, .7)',
     fontSize: 100,
     zIndex: 20,
+  },
+  countdownContainer: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    //paddingTop: Constants.statusBarHeight,
+    //backgroundColor: '#ecf0f1',
+    //padding: 8,
+
+    zIndex: 100,
+  },
+  countdownText: {
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'left',
+    color: 'white',
+    fontSize: 100,
+    zIndex: 110,
+    opacity: 1,
+  },
+  timeWrapperTime: {
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'left',
+    color: 'white',
+    fontSize: 100,
+    zIndex: 110,
+    opacity: 0,
+
   },
 });
