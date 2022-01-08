@@ -77,7 +77,7 @@ export function ModelView()  {
   const isKeypointSet = useRef(false);
   const keypointHeight = useRef(0);
   const poseScale = useRef(0);
-  const outOfView = useRef(false);
+  const outOfView = useRef(0);
   const algo = useRef(0);
   const showCountdown = useRef(true);
   const [isPlaying, setIsPlaying] = React.useState(false)
@@ -234,21 +234,23 @@ export function ModelView()  {
             }
             
             const ankle_y = Math.max(left_ankle_y, right_ankle_y);
-            console.log("left ankle", left_ankle_y);
-            console.log("right ankle", right_ankle_y);
+
             if (ankle_y > 0) {
               poseScale.current = (ankle_y - nose_y)/(isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
-              console.log("Pose Scale: ", poseScale);
-              outOfView.current = false;
-              setIsPlaying(true);
+              
+              if (poseScale.current > 0.5) {
+                outOfView.current = 0;
+                setIsPlaying(true);
+              } else {
+                outOfView.current = 1;
+                setIsPlaying(false);
+              }
             } else {
-              console.log("Out of view ankles");
-              outOfView.current = true;
+              outOfView.current = 2;
               setIsPlaying(false);
             }
           } else {
-            console.log("Out of view nose");
-            outOfView.current = true;
+            outOfView.current = 3;
             setIsPlaying(false);
           }
         }  
@@ -318,6 +320,22 @@ export function ModelView()  {
     );
   };
 
+  const renderFeedback = () => {
+    if (
+      showCountdown.current === true) {
+      //console.log(outOfView.current);
+      return (
+        <View style={styles.feedbackContainer}>
+          <Text style={styles.feedback}>
+            {outOfView.current === 0 ? '' : (outOfView.current === 1 ? 'Move Forward' : (outOfView.current === 2 ? 'Lower Camera' : (outOfView.current === 3 ? 'Raise Camera' : (''))))}
+          </Text>
+        </View>
+      );
+    } else {
+      return null;
+    }
+  };
+
   const renderAlgo = () => {
     return (
       <View
@@ -359,16 +377,16 @@ export function ModelView()  {
   };
 
   const renderCountdown = () => {
-    console.log (isPlaying);
     if (showCountdown.current === true) {
       return (
         <View style={styles.countdownContainer}>
           <CountdownCircleTimer
             isPlaying={isPlaying}
             duration={5}
-            size={200}
+            size={220}
             strokeWidth={15}
-            colors={[["#100000"]]}
+            strokeLinecap={'square'}
+            colors={[["#808080"]]}
         >{renderTime}
         </CountdownCircleTimer>
       </View>
@@ -504,6 +522,7 @@ export function ModelView()  {
         {renderReps()}
         {renderCameraTypeSwitcher()}
         {renderAlgo()}
+        {renderFeedback()}
       </View>
     );
   };
@@ -563,7 +582,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
-    width: 240,
+    width: 210,
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, .7)',
     borderRadius: 2,
@@ -577,21 +596,21 @@ const styles = StyleSheet.create({
     zIndex: 20,
   },
   reps: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 10,
-    color: "white",
+    color: 'white',
     backgroundColor: 'rgba(255, 255, 255, 0)',
-    textShadowColor: "black",
+    textShadowColor: 'black',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
     fontSize: 100,
     zIndex: 20,
   },
   algorithm: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 40,
     right: 40,
-    color: "white",
+    color: 'white',
     backgroundColor: 'rgba(255, 255, 255, .7)',
     fontSize: 100,
     zIndex: 20,
@@ -606,10 +625,25 @@ const styles = StyleSheet.create({
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
-    textAlign: 'left',
-    color: 'white',
-    fontSize: 100,
+    backgroundColor: 'rgba(255, 255, 255, 0)',
+    textShadowColor: 'black',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 2,
+    color: 'violet',
+    fontSize: 150,
     zIndex: 110,
     opacity: 1,
+  },
+  feedbackContainer: {
+    position: 'absolute',
+    top: 100,
+    left: 10,
+    width: 400,
+    zIndex: 120,
+  },
+  feedback: {
+    color: 'white',
+    fontSize: 50,
+    zIndex: 120,
   },
 });
