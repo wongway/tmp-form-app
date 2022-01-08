@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, Text, View, Dimensions, Platform, Animated } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Platform, Animated, Easing } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as tf from '@tensorflow/tfjs';
 import * as posedetection from '@tensorflow-models/pose-detection';
@@ -92,8 +92,10 @@ export function ModelView()  {
   // - 0: animation frame/loop has been canceled.
   // - >0: animation frame has been scheduled.
   const rafId = useRef<number | null>(null);
-
   const poseHistory = useRef(new CBuffer(ZSCORE_LAG*2));
+  
+  this.state = {hValue1: new Animated.Value(0)}
+  const progressBarToValue = useRef(0);
 
   useEffect(() => {
     async function prepare() {
@@ -167,39 +169,49 @@ export function ModelView()  {
               const cy =
                 (poses[0].keypoints[KEYPOINTS.LEFT_HIP].y / getOutputTensorHeight()) *
                 (isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
+              
+              // in case poseScale is not set before, default to 0.7 of the screen
+              if (poseScale.current === 0){
+                poseScale.current = 0.7;
+              }
 
               console.log("cy: ", cy);
 
               // set the starting keypoint for the first time
               if (isKeypointSet.current == false) {
                 keypointHeight.current =  cy;
+                progressBarToValue.current = keypointHeight.current + 0.16*poseScale.current*CAM_PREVIEW_HEIGHT;
                 console.log("Keypoint height set: ", keypointHeight.current);
                 isKeypointSet.current = true;
               }
               
               // update the keypoint if the height is higher and within 2/3 of the screen height and we are still before the first squat
               if (repCount.current == 0) {
-                console.log(1/3*(isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH));
-                if (cy < keypointHeight.current && cy > 2/3*(isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH)){
+                if (cy < keypointHeight.current){
                     keypointHeight.current =  cy;
+                    progressBarToValue.current = keypointHeight.current + 0.16*poseScale.current*CAM_PREVIEW_HEIGHT;
                     console.log("Keypoint height changed: ", keypointHeight.current);
                 }
               }
+
+              this.state.hValue1.setValue(Math.min(cy-keypointHeight.current, progressBarToValue.current));
               
+              renderVerticalProgressBar();
+
               // downward motion
-              if (repStatus.current == 0 && cy > keypointHeight.current + 0.13*CAM_PREVIEW_HEIGHT ){
+              if (repStatus.current == 0 && cy > keypointHeight.current + 0.16*poseScale.current*CAM_PREVIEW_HEIGHT ){
                 repStatus.current = 1;
                 console.log("Down");
               }
 
               //upward motion
-              if (repStatus.current == 1 && cy < keypointHeight.current + 0.13*CAM_PREVIEW_HEIGHT){
+              if (repStatus.current == 1 && cy < keypointHeight.current + 0.15*poseScale.current*CAM_PREVIEW_HEIGHT){
                 repStatus.current = 2;
                 console.log("Up");
               }
 
               // count the rep
-              if (repStatus.current == 2 && cy < keypointHeight.current + 0.1*CAM_PREVIEW_HEIGHT){
+              if (repStatus.current == 2 && cy < keypointHeight.current + 0.1*poseScale.current*CAM_PREVIEW_HEIGHT){
                 repStatus.current = 0;
                 console.log("Count");
                 rep = true;
@@ -310,6 +322,29 @@ export function ModelView()  {
     } else {
       return <View></View>;
     }
+  };
+
+ const renderVerticalProgressBar = () => {
+    
+    //console.log("hvalue1: ", this.state.hValue1);
+    console.log("toValue: ", progressBarToValue.current);
+    Animated.timing(this.state.hValue1, {
+      toValue: progressBarToValue.current,
+      duration: 5,
+      easing: Easing.linear,
+      useNativeDriver: false
+    }).start();
+  };
+
+
+
+  const renderVerticalProgress = () => {
+    return (
+      <View style={styles.content2}>
+      <Animated.View style={[styles.verticalProgress, {height: this.state.hValue1}]}>
+      </Animated.View>
+    </View>
+    );
   };
 
   const renderFps = () => {
@@ -523,6 +558,7 @@ export function ModelView()  {
         {renderCameraTypeSwitcher()}
         {renderAlgo()}
         {renderFeedback()}
+        {renderVerticalProgress()}
       </View>
     );
   };
@@ -646,4 +682,20 @@ const styles = StyleSheet.create({
     fontSize: 50,
     zIndex: 120,
   },
+  content2: {
+    position: 'absolute',
+    top: 200,
+    left: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#dcdcdc',
+    marginTop: 50,
+    height: 200,
+    zIndex: 150,
+  },
+  verticalProgress: {
+    width: 30,
+    minHeight: 0,
+    backgroundColor:'#0da3cd'
+  }
 });
+
