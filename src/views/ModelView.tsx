@@ -74,6 +74,7 @@ export function ModelView()  {
   const repCount = useRef(0);
   const repStatus = useRef(0);
   const [fps, setFps] = useState(0);
+  const [styleValue, setStyleValue] = useState('#0ac');
   const isKeypointSet = useRef(false);
   const keypointHeight = useRef(0);
   const poseScale = useRef(0);
@@ -180,7 +181,7 @@ export function ModelView()  {
               // set the starting keypoint for the first time
               if (isKeypointSet.current == false) {
                 keypointHeight.current =  cy;
-                progressBarToValue.current = keypointHeight.current + 0.16*poseScale.current*CAM_PREVIEW_HEIGHT;
+                progressBarToValue.current = 3*0.16*poseScale.current*CAM_PREVIEW_HEIGHT;
                 console.log("Keypoint height set: ", keypointHeight.current);
                 isKeypointSet.current = true;
               }
@@ -189,13 +190,13 @@ export function ModelView()  {
               if (repCount.current == 0) {
                 if (cy < keypointHeight.current){
                     keypointHeight.current =  cy;
-                    progressBarToValue.current = keypointHeight.current + 0.16*poseScale.current*CAM_PREVIEW_HEIGHT;
+                    progressBarToValue.current = 3*0.16*poseScale.current*CAM_PREVIEW_HEIGHT;
                     console.log("Keypoint height changed: ", keypointHeight.current);
                 }
               }
 
-              this.state.hValue1.setValue(Math.min(cy-keypointHeight.current, progressBarToValue.current));
-              
+              this.state.hValue1.setValue(Math.min(3*(cy-keypointHeight.current), progressBarToValue.current));
+              console.log("hvalue new:", Math.min(3*(cy-keypointHeight.current), progressBarToValue.current));
               renderVerticalProgressBar();
 
               // downward motion
@@ -328,6 +329,14 @@ export function ModelView()  {
     
     //console.log("hvalue1: ", this.state.hValue1);
     console.log("toValue: ", progressBarToValue.current);
+    console.log("hvalue1: ", this.state.hValue1._value );
+    console.log("ratio: ",this.state.hValue1._value/progressBarToValue.current);
+
+    if (this.state.hValue1._value/progressBarToValue.current > 0.9) {
+      setStyleValue('#0c0');
+    } else {
+      setStyleValue('#0ac');
+    }
     Animated.timing(this.state.hValue1, {
       toValue: progressBarToValue.current,
       duration: 5,
@@ -337,11 +346,16 @@ export function ModelView()  {
   };
 
 
+  const dynamicStyleUpdatedFromProps = {
+    backgroundColor: styleValue,
+    height: this.state.hValue1
+  };
 
   const renderVerticalProgress = () => {
+    //console.log(styleValue);
     return (
       <View style={styles.content2}>
-      <Animated.View style={[styles.verticalProgress, {height: this.state.hValue1}]}>
+      <Animated.View style={{...styles.verticalProgress, ...dynamicStyleUpdatedFromProps}}>
       </Animated.View>
     </View>
     );
@@ -689,13 +703,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#dcdcdc',
     marginTop: 50,
-    height: 200,
+    height: 300,
     zIndex: 150,
   },
   verticalProgress: {
     width: 30,
     minHeight: 0,
-    backgroundColor:'#0da3cd'
+    //backgroundColor:'#0da3cd'
   }
 });
 
