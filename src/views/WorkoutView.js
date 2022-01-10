@@ -50,7 +50,7 @@ const WorkoutTile = (props) => {
         <View style={styles.workoutTile}>
             <TouchableOpacity 
                 style={{alignItems: 'center'}}
-                onPress={() => navigation.navigate('Workout Details', { name: workout.name, workout: workout })} 
+                onPress={() => navigation.navigate('Workout Details', { name: workout.name, workout_id: workout._id.toHexString() })} 
                 // title={props.title}
                 // style={workoutStyles.button}
                 activeOpacity={0.5}>
@@ -78,7 +78,10 @@ const WorkoutTile = (props) => {
 };
 
 export const WorkoutDetailScreen = ({ route, navigation }) => {
-    const { workout } = route.params;
+    const { workout_id } = route.params;
+    const { getWorkoutById, createWorkoutLog, completeWorkoutLog } = useChannels();
+
+    const workout = getWorkoutById(workout_id);
 
     return (
         <View style={{flex: 1}}>
@@ -103,6 +106,14 @@ export const WorkoutDetailScreen = ({ route, navigation }) => {
                 title="Start Workout without Rep Counter"
                 // disabled
                 onPress={() => navigation.navigate('Workout', { repCounter: false })} />
+            <Button
+                // style={styles.workoutDetailStartButton}
+                title="[Debug] Fake a workout"
+                // disabled
+                onPress={() => { 
+                    const workoutlog_id = createWorkoutLog(workout._id);
+                    completeWorkoutLog(workoutlog_id);
+                 }} />
             </View>
         </View>
     );

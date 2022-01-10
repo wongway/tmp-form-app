@@ -17,7 +17,7 @@ export const ChannelsView = () => {
                 const image_url = `https://i.pravatar.cc/64?u=${channel._id}`;
                 return (
                     <TouchableOpacity key={i}>
-                    <ListItem key={i} bottomDivider onPress={() => navigation.navigate("Channel", { name: channel.name, channel_id: channel._id })}>
+                    <ListItem key={i} bottomDivider onPress={() => navigation.navigate("Channel", { name: channel.name, channel_id: channel._id.toHexString() })}>
                         <Avatar
                             size="small"
                             rounded

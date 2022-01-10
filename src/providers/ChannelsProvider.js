@@ -1,9 +1,9 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import Realm from "realm";
+import ObjectID from "bson-objectid";
 // import { Channel } from "../datamodel/datamodel";
 // import { ChannelSchema, WorkoutSchema } from "../datamodel/schema";
-import { workoutlog, workoutlogSchema } from "../datamodel/WorkoutLogSchema";
-import { ObjectId } from "mongodb";
+// import { workoutlog, workoutlogSchema } from "../datamodel/WorkoutLogSchema";
 
 import { useAuth } from "./AuthProvider";
 
@@ -61,8 +61,8 @@ const ChannelsProvider = ({ children }) => {
 
       // console.log("Users:", projectRealm.objects("User"));
 
-      const syncWorkoutLogs = projectRealm.objects("WorkoutLog").filtered('user_id == $0', Realm.BSON.ObjectId(user.id));
-      let sortedWorkoutLogs = syncWorkoutLogs.sorted("timestamp", true);
+      const syncWorkoutLogs = projectRealm.objects("WorkoutLog");//.filtered('user_id == $0', Realm.BSON.ObjectId(user.id));
+      let sortedWorkoutLogs = syncWorkoutLogs.sorted("end_time", true);
       setWorkoutLogs([...sortedWorkoutLogs]);
       console.log("Workout Logs:", sortedWorkoutLogs.length, sortedWorkoutLogs);
       sortedWorkoutLogs.addListener(() => {
@@ -176,6 +176,10 @@ const ChannelsProvider = ({ children }) => {
     return getDocumentById("Workout", id);
   }
 
+  const getWorkoutLogById = (id) => {
+    return getDocumentById("WorkoutLog", id);
+  }
+
   const getWorkoutsByChannelId = (channel_id) => {
     return getDocumentsById("Workout", channel_id, "channel_id");
   }
@@ -208,11 +212,15 @@ const ChannelsProvider = ({ children }) => {
       return false;
     }
 
-    var newlog;
-    newlog._id = ObjectId();
-    newlog.user_id = user._id;
-    newlog.workout_id = workout_id;
-    newlog.start_time = Date.now();
+    const newlog = {
+      _id: ObjectID(),
+      realm_id: PARTITION_VALUE,
+      user_id: ObjectID(user.id),
+      workout_id: workout_id,
+      start_time: new Date(Date.now()),
+    };
+
+    console.log(newlog);
 
     realm.write(() => {
       realm.create(
@@ -220,21 +228,49 @@ const ChannelsProvider = ({ children }) => {
         newlog
       )
     });
+
+    return newlog._id;
   };
 
-  // const createChannel = (newChannelName) => {
-  //   const projectRealm = realmRef.current;
-  //   projectRealm.write(() => {
-  //     // Create a new task in the same partition -- that is, in the same project.
-  //     projectRealm.create(
-  //       "Channel",
-  //       new Channel({
-  //         name: newChannelName || "New Channel",
-  //         partition: "form",
-  //       })
-  //     );
-  //   });
-  // };
+  const completeWorkoutLog = (workoutlog_id) => {
+    const realm = realmRef.current;
+    if (!realm) {
+      return false;
+    }
+
+    const workoutLog = getWorkoutLogById(workoutlog_id);
+    if (!workoutLog) {
+      return false;
+    }
+
+    realm.write(() => {
+      workoutLog.end_time = new Date(Date.now())
+    });
+  }
+
+  const createNewUser = () => {
+    const projectRealm = realmRef.current;
+    if (!projectRealm) {
+      return false;
+    }
+    console.log("Creating new user:", user.id);
+    projectRealm.write(() => {
+      // Create a new task in the same partition -- that is, in the same project.
+      projectRealm.create(
+        "User",
+        {
+          _id: ObjectID(user.id),
+          user_id: user.id,
+          realm_id: PARTITION_VALUE,
+          name: user.profile.name,
+          email: user.profile.email,
+          is_creator: false,
+          followed_channels: [],
+
+        }
+      );
+    });
+  };
 
   // const setTaskStatus = (task, status) => {
   //   // One advantage of centralizing the realm functionality in this provider is
@@ -284,6 +320,8 @@ const ChannelsProvider = ({ children }) => {
         getUserById,
         getUserByAppId,
         createWorkoutLog,
+        completeWorkoutLog,
+        createNewUser,
       }}
     >
       {children}
