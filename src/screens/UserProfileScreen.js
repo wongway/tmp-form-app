@@ -7,7 +7,7 @@ import { Avatar } from "react-native-elements";
 
 export const UserProfileScreen = ({route, navigation}) => {
     const { user, signOut } = useAuth();
-    const { getUserByAppId } = useChannels();
+    const { getUserByAppId, createNewUser } = useChannels();
 
     const onSignOut = async () => {
         navigation.replace('Welcome');
@@ -20,14 +20,12 @@ export const UserProfileScreen = ({route, navigation}) => {
         )
     }
 
-    const formUser = getUserByAppId(user.id);
+    var formUser = getUserByAppId(user.id);
 
-    // if (!formUser) {
-    //     onSignOut();
-    //     return (
-    //         <Text> Not logged in </Text>
-    //     )
-    // }
+    if (!formUser) {
+        createNewUser();
+        formUser = getUserByAppId(user.id);
+    }
 
     const image_url = `https://i.pravatar.cc/64?u=${user.id}`;
 
@@ -40,7 +38,7 @@ export const UserProfileScreen = ({route, navigation}) => {
                     source={image_url ? { uri: image_url } : {}}
                     activeOpacity={0.7}
                 />
-                <Text style={styles.titleText}> { formUser.name } </Text>
+                <Text style={styles.titleText}> { formUser.name ? formUser.name : "Jane Doe" } </Text>
             </View>
             <Text style={{ marginHorizontal: 20, marginVertical: 10 }}>
                 Logged in as: { user.id } ({ user.profile.email })
