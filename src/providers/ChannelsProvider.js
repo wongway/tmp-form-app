@@ -1,8 +1,13 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import Realm from "realm";
 // import { Channel } from "../datamodel/datamodel";
-import { ChannelSchema, WorkoutSchema } from "../datamodel/schema";
+// import { ChannelSchema, WorkoutSchema } from "../datamodel/schema";
+import { workoutlog, workoutlogSchema } from "../datamodel/WorkoutLogSchema";
+import { ObjectId } from "mongodb";
+
 import { useAuth } from "./AuthProvider";
+
+import { PARTITION_VALUE } from "../formConfig";
 
 const ChannelsContext = React.createContext(null);
 
@@ -28,7 +33,7 @@ const ChannelsProvider = ({ children }) => {
       sync: {
         user: user,
         // schema: [ChannelSchema, WorkoutSchema],
-        partitionValue: "form",
+        partitionValue: PARTITION_VALUE,
         error: (_session, error) => {
           (error) => {
             console.log("Sync error:", error.name, error.message);
@@ -196,6 +201,27 @@ const ChannelsProvider = ({ children }) => {
     return null;
   }
 
+  // TODO: Split this out into a WorkoutLogProvider and(?) a class
+  const createWorkoutLog = (workout_id) => {
+    const realm = realmRef.current;
+    if (!realm) {
+      return false;
+    }
+
+    var newlog;
+    newlog._id = ObjectId();
+    newlog.user_id = user._id;
+    newlog.workout_id = workout_id;
+    newlog.start_time = Date.now();
+
+    realm.write(() => {
+      realm.create(
+        "WorkoutLog",
+        newlog
+      )
+    });
+  };
+
   // const createChannel = (newChannelName) => {
   //   const projectRealm = realmRef.current;
   //   projectRealm.write(() => {
@@ -257,6 +283,7 @@ const ChannelsProvider = ({ children }) => {
         getWorkoutsByChannelId,
         getUserById,
         getUserByAppId,
+        createWorkoutLog,
       }}
     >
       {children}
