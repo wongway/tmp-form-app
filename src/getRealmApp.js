@@ -3,7 +3,8 @@ import Realm from 'realm';
 // Returns the shared instance of the Realm app.
 export function getRealmApp() {
     // const appId = 'fitness-app-zrcjq';
-    const appId = "form-app-fgkjq";
+    // const appId = "form-app-fgkjq";
+    const appId = "application-0-skvyi";
     const appConfig = {
       id: appId,
       timeout: 10000,
