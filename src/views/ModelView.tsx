@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, Text, View, Dimensions, Platform } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Platform, Animated, Easing } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as tf from '@tensorflow/tfjs';
 import * as posedetection from '@tensorflow-models/pose-detection';
@@ -13,6 +13,8 @@ import smoothed_z_score from '../utils/smoothed_z_score';
 import is_rep from '../utils/rep_count';
 import { LoadingView } from './LoadingView';
 import { useLinkProps } from '@react-navigation/native';
+import Constants from 'expo-constants';
+import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 
 const TensorCamera = cameraWithTensors(Camera);
 const IS_ANDROID = Platform.OS === 'android';
@@ -66,14 +68,20 @@ const KEYPOINTS = {
 export function ModelView()  {
   const cameraRef = useRef(null);
   const [tfReady, setTfReady] = useState(false);
+  const [countdownComplete, setCountdownComplete] = useState(false);
   const [model, setModel] = useState<posedetection.PoseDetector>();
   const [poses, setPoses] = useState<posedetection.Pose[]>();
   const repCount = useRef(0);
   const repStatus = useRef(0);
   const [fps, setFps] = useState(0);
+  const [styleValue, setStyleValue] = useState('#0ac');
   const isKeypointSet = useRef(false);
   const keypointHeight = useRef(0);
+  const poseScale = useRef(0);
+  const outOfView = useRef(0);
   const algo = useRef(0);
+  const showCountdown = useRef(true);
+  const [isPlaying, setIsPlaying] = React.useState(false)
   const [orientation, setOrientation] = 
     useState<ScreenOrientation.Orientation>();
   const [cameraType, setCameraType] = useState<CameraType>(
@@ -85,8 +93,10 @@ export function ModelView()  {
   // - 0: animation frame/loop has been canceled.
   // - >0: animation frame has been scheduled.
   const rafId = useRef<number | null>(null);
-
   const poseHistory = useRef(new CBuffer(ZSCORE_LAG*2));
+  
+  this.state = {hValue1: new Animated.Value(0)}
+  const progressBarToValue = useRef(0);
 
   useEffect(() => {
     async function prepare() {
@@ -152,62 +162,111 @@ export function ModelView()  {
       );
 
       if (poses.length > 0) {
-        let rep = false;
+        if (showCountdown.current === false) {
+          let rep = false;
 
-        if (poses[0].keypoints[KEYPOINTS.LEFT_HIP].score > MIN_KEYPOINT_SCORE) {
-          if (algo.current === 0) { // keypoint algorithm 
-            const cy =
-              (poses[0].keypoints[KEYPOINTS.LEFT_HIP].y / getOutputTensorHeight()) *
-              (isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
+          if (poses[0].keypoints[KEYPOINTS.LEFT_HIP].score > MIN_KEYPOINT_SCORE) {
+            if (algo.current === 0) { // keypoint algorithm 
+              const cy =
+                (poses[0].keypoints[KEYPOINTS.LEFT_HIP].y / getOutputTensorHeight()) *
+                (isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
+              
+              // in case poseScale is not set before, default to 0.7 of the screen
+              if (poseScale.current === 0){
+                poseScale.current = 0.7;
+              }
 
-            console.log("cy: ", cy);
+              console.log("cy: ", cy);
 
-            // set the starting keypoint for the first time
-            if (isKeypointSet.current == false) {
-              keypointHeight.current =  cy;
-              console.log("Keypoint height set: ", keypointHeight.current);
-              isKeypointSet.current = true;
-            }
-            
-            // update the keypoint if the height is higher and within 2/3 of the screen height and we are still before the first squat
-            if (repCount.current == 0) {
-              console.log(1/3*(isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH));
-              if (cy < keypointHeight.current && cy > 2/3*(isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH)){
-                  keypointHeight.current =  cy;
-                  console.log("Keypoint height changed: ", keypointHeight.current);
+              // set the starting keypoint for the first time
+              if (isKeypointSet.current == false) {
+                keypointHeight.current =  cy;
+                progressBarToValue.current = 3*0.16*poseScale.current*CAM_PREVIEW_HEIGHT;
+                console.log("Keypoint height set: ", keypointHeight.current);
+                isKeypointSet.current = true;
+              }
+              
+              // update the keypoint if the height is higher and within 2/3 of the screen height and we are still before the first squat
+              if (repCount.current == 0) {
+                if (cy < keypointHeight.current){
+                    keypointHeight.current =  cy;
+                    progressBarToValue.current = 3*0.16*poseScale.current*CAM_PREVIEW_HEIGHT;
+                    console.log("Keypoint height changed: ", keypointHeight.current);
+                }
+              }
+
+              this.state.hValue1.setValue(Math.min(3*(cy-keypointHeight.current), progressBarToValue.current));
+              console.log("hvalue new:", Math.min(3*(cy-keypointHeight.current), progressBarToValue.current));
+              renderVerticalProgressBar();
+
+              // downward motion
+              if (repStatus.current == 0 && cy > keypointHeight.current + 0.16*poseScale.current*CAM_PREVIEW_HEIGHT ){
+                repStatus.current = 1;
+                console.log("Down");
+              }
+
+              //upward motion
+              if (repStatus.current == 1 && cy < keypointHeight.current + 0.15*poseScale.current*CAM_PREVIEW_HEIGHT){
+                repStatus.current = 2;
+                console.log("Up");
+              }
+
+              // count the rep
+              if (repStatus.current == 2 && cy < keypointHeight.current + 0.1*poseScale.current*CAM_PREVIEW_HEIGHT){
+                repStatus.current = 0;
+                console.log("Count");
+                rep = true;
+              }
+            } else { // zscore algorithm
+              if (poseHistory.current.push(poses[0].keypoints[KEYPOINTS.LEFT_HIP].y) >= ZSCORE_LAG + 2) {
+                console.log("y= ", poses[0].keypoints[KEYPOINTS.LEFT_HIP].y);
+                let signal = smoothed_z_score(poseHistory.current.toArray());
+                console.log("signal= ", signal[0]);
+                rep = is_rep(signal[0]);
               }
             }
+            if (rep) {
+              repCount.current++;
+            }
+          }
+        } else {
+          if (poses[0].keypoints[KEYPOINTS.NOSE].score > MIN_KEYPOINT_SCORE) {
+
+            const nose_y = (poses[0].keypoints[KEYPOINTS.NOSE].y / getOutputTensorHeight()) *
+              (isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
+            let left_ankle_y = 0;
+            let right_ankle_y  = 0;
+
+            if (poses[0].keypoints[KEYPOINTS.LEFT_ANKLE].score > MIN_KEYPOINT_SCORE) {
+              left_ankle_y = (poses[0].keypoints[KEYPOINTS.LEFT_ANKLE].y / getOutputTensorHeight()) *
+              (isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
+            }
+            if (poses[0].keypoints[KEYPOINTS.RIGHT_ANKLE].score > MIN_KEYPOINT_SCORE) {
+              right_ankle_y = (poses[0].keypoints[KEYPOINTS.RIGHT_ANKLE].y / getOutputTensorHeight()) *
+              (isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
+            }
             
-            // downward motion
-            if (repStatus.current == 0 && cy > keypointHeight.current + 0.13*CAM_PREVIEW_HEIGHT ){
-              repStatus.current = 1;
-              console.log("Down");
-            }
+            const ankle_y = Math.max(left_ankle_y, right_ankle_y);
 
-            //upward motion
-            if (repStatus.current == 1 && cy < keypointHeight.current + 0.13*CAM_PREVIEW_HEIGHT){
-              repStatus.current = 2;
-              console.log("Up");
+            if (ankle_y > 0) {
+              poseScale.current = (ankle_y - nose_y)/(isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
+              
+              if (poseScale.current > 0.5) {
+                outOfView.current = 0;
+                setIsPlaying(true);
+              } else {
+                outOfView.current = 1;
+                setIsPlaying(false);
+              }
+            } else {
+              outOfView.current = 2;
+              setIsPlaying(false);
             }
-
-            // count the rep
-            if (repStatus.current == 2 && cy < keypointHeight.current + 0.1*CAM_PREVIEW_HEIGHT){
-              repStatus.current = 0;
-              console.log("Count");
-              rep = true;
-            }
-          } else { // zscore algorithm
-            if (poseHistory.current.push(poses[0].keypoints[KEYPOINTS.LEFT_HIP].y) >= ZSCORE_LAG + 2) {
-              console.log("y= ", poses[0].keypoints[KEYPOINTS.LEFT_HIP].y);
-              let signal = smoothed_z_score(poseHistory.current.toArray());
-              console.log("signal= ", signal[0]);
-              rep = is_rep(signal[0]);
-            }
+          } else {
+            outOfView.current = 3;
+            setIsPlaying(false);
           }
-          if (rep) {
-            repCount.current++;
-          }
-        }
+        }  
       } else {
         //console.log("No Keypoints");
       }
@@ -233,7 +292,7 @@ export function ModelView()  {
   };
 
   const renderPose = () => {
-    if (poses != null && poses.length > 0) {
+    if (poses != null && poses.length > 0 && showCountdown.current === false) {
       const keypoints = poses[0].keypoints
         .filter((k) => (k.score ?? 0) > MIN_KEYPOINT_SCORE)
         .map((k) => {
@@ -266,12 +325,64 @@ export function ModelView()  {
     }
   };
 
+ const renderVerticalProgressBar = () => {
+    
+    //console.log("hvalue1: ", this.state.hValue1);
+    console.log("toValue: ", progressBarToValue.current);
+    console.log("hvalue1: ", this.state.hValue1._value );
+    console.log("ratio: ",this.state.hValue1._value/progressBarToValue.current);
+
+    if (this.state.hValue1._value/progressBarToValue.current > 0.9) {
+      setStyleValue('#0c0');
+    } else {
+      setStyleValue('#0ac');
+    }
+    Animated.timing(this.state.hValue1, {
+      toValue: progressBarToValue.current,
+      duration: 5,
+      easing: Easing.linear,
+      useNativeDriver: false
+    }).start();
+  };
+
+
+  const dynamicStyleUpdatedFromProps = {
+    backgroundColor: styleValue,
+    height: this.state.hValue1
+  };
+
+  const renderVerticalProgress = () => {
+    //console.log(styleValue);
+    return (
+      <View style={styles.content2}>
+      <Animated.View style={{...styles.verticalProgress, ...dynamicStyleUpdatedFromProps}}>
+      </Animated.View>
+    </View>
+    );
+  };
+
   const renderFps = () => {
     return (
       <View style={styles.fpsContainer}>
         <Text>FPS: {fps}</Text>
       </View>
     );
+  };
+
+  const renderFeedback = () => {
+    if (
+      showCountdown.current === true) {
+      //console.log(outOfView.current);
+      return (
+        <View style={styles.feedbackContainer}>
+          <Text style={styles.feedback}>
+            {outOfView.current === 0 ? '' : (outOfView.current === 1 ? 'Move Forward' : (outOfView.current === 2 ? 'Lower Camera' : (outOfView.current === 3 ? 'Raise Camera' : (''))))}
+          </Text>
+        </View>
+      );
+    } else {
+      return null;
+    }
   };
 
   const renderAlgo = () => {
@@ -283,16 +394,70 @@ export function ModelView()  {
       </View>
     );
   };
+  const renderTime = ({ remainingTime }) => {
 
-  const renderReps = () => {
+    const currentTime = useRef(remainingTime);
+    const prevTime = useRef(null);
+    const isNewTimeFirstTick = useRef(false);
+  
+    if (currentTime.current !== remainingTime) {
+      isNewTimeFirstTick.current = true;
+      prevTime.current = currentTime.current;
+      currentTime.current = remainingTime;
+    } else {
+      isNewTimeFirstTick.current = false;
+    }
+
+    const isTimeUp = isNewTimeFirstTick.current;
+
+
+    if (remainingTime === 0){
+      showCountdown.current = false;
+    }
+
     return (
-      <View
-        style={styles.repsContainer}
-      >
-        <Text style={styles.reps} >
-        {repCount.current}</Text>
+      <View>
+        <Text style={[styles.countdownText, {transform: [{ scale: 1}]}]}>
+        {remainingTime}
+        </Text>
       </View>
     );
+
+  };
+
+  const renderCountdown = () => {
+    if (showCountdown.current === true) {
+      return (
+        <View style={styles.countdownContainer}>
+          <CountdownCircleTimer
+            isPlaying={isPlaying}
+            duration={5}
+            size={220}
+            strokeWidth={15}
+            strokeLinecap={'square'}
+            colors={[["#808080"]]}
+        >{renderTime}
+        </CountdownCircleTimer>
+      </View>
+      );
+    } else {
+      return null;
+    }
+  };
+
+  const renderReps = () => {
+    if (showCountdown.current === false) {
+      return (
+        <View
+          style={styles.repsContainer}
+        >
+          <Text style={styles.reps} >
+          {repCount.current}</Text>
+        </View>
+      );
+    } else {
+      return null;
+    }
   };
 
   const renderCameraTypeSwitcher = () => {
@@ -400,11 +565,14 @@ export function ModelView()  {
           rotation={getTextureRotationAngleInDegrees()}
           onReady={handleCameraStream}
         />
+        {renderCountdown()}
         {renderPose()}
         {renderFps()}
         {renderReps()}
         {renderCameraTypeSwitcher()}
         {renderAlgo()}
+        {renderFeedback()}
+        {renderVerticalProgress()}
       </View>
     );
   };
@@ -464,7 +632,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
-    width: 180,
+    width: 210,
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, .7)',
     borderRadius: 2,
@@ -478,23 +646,70 @@ const styles = StyleSheet.create({
     zIndex: 20,
   },
   reps: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 10,
-    color: "white",
+    color: 'white',
     backgroundColor: 'rgba(255, 255, 255, 0)',
-    textShadowColor: "black",
+    textShadowColor: 'black',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
     fontSize: 100,
     zIndex: 20,
   },
   algorithm: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 40,
     right: 40,
-    color: "white",
+    color: 'white',
     backgroundColor: 'rgba(255, 255, 255, .7)',
     fontSize: 100,
     zIndex: 20,
   },
+  countdownContainer: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 100,
+  },
+  countdownText: {
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0)',
+    textShadowColor: 'black',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 2,
+    color: 'violet',
+    fontSize: 150,
+    zIndex: 110,
+    opacity: 1,
+  },
+  feedbackContainer: {
+    position: 'absolute',
+    top: 100,
+    left: 10,
+    width: 400,
+    zIndex: 120,
+  },
+  feedback: {
+    color: 'white',
+    fontSize: 50,
+    zIndex: 120,
+  },
+  content2: {
+    position: 'absolute',
+    top: 200,
+    left: 10,
+    //borderBottomWidth: 1,
+    //borderBottomColor: '#dcdcdc',
+    marginTop: 50,
+    height: 300,
+    zIndex: 150,
+  },
+  verticalProgress: {
+    width: 30,
+    minHeight: 0,
+    //backgroundColor:'#0da3cd'
+  }
 });
+
