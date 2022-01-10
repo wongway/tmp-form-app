@@ -3,40 +3,41 @@
         "_id": {
             "bsonType": "objectId"
         },
+        "end_time": {
+            "bsonType": "date"
+        },
         "realm_id": {
             "bsonType": "string"
+        },
+        "start_time": {
+            "bsonType": "date"
         },
         "steps": {
             "bsonType": "array",
             "items": {
                 "bsonType": "object",
                 "properties": {
-                    "index": {
-                        "bsonType": "int"
-                    },
-                    "name": {
-                        "bsonType": "string"
-                    },
-                    "type": {
-                        "bsonType": "string"
-                    },
                     "count": {
                         "bsonType": "int"
                     },
                     "duration": {
                         "bsonType": "int"
                     },
+                    "index": {
+                        "bsonType": "int"
+                    },
+                    "name": {
+                        "bsonType": "string"
+                    },
                     "timestamp": {
                         "bsonType": "date"
+                    },
+                    "type": {
+                        "bsonType": "string"
                     }
-                }
+                },
+                "title": "WorkoutLogStep"
             }
-        },
-        "end_time": {
-            "bsonType": "date"
-        },
-        "start_time": {
-            "bsonType": "date"
         },
         "user_id": {
             "bsonType": "objectId"
@@ -48,8 +49,8 @@
     "required": [
         "_id",
         "realm_id",
-        "user_id", 
+        "user_id",
         "workout_id"
     ],
-    "title": "workoutlog"
+    "title": "WorkoutLog"
 }

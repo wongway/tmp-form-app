@@ -28,5 +28,5 @@
     "required": [
         "realm_id"
     ],
-    "title": "user"
+    "title": "User"
 }

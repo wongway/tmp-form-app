@@ -16,6 +16,8 @@
             "bsonType": "string"
         }
     },
-    "required": [ "realm_id" ],
-    "title": "channel"
+    "required": [
+        "realm_id"
+    ],
+    "title": "Channel"
 }

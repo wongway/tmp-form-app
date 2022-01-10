@@ -20,28 +20,31 @@
             "items": {
                 "bsonType": "object",
                 "properties": {
-                    "index": {
-                        "bsonType": "int"
-                    },
-                    "name": {
-                        "bsonType": "string"
-                    },
-                    "type": {
-                        "bsonType": "string"
-                    },
                     "count": {
                         "bsonType": "int"
                     },
                     "duration": {
                         "bsonType": "int"
                     },
+                    "index": {
+                        "bsonType": "int"
+                    },
+                    "name": {
+                        "bsonType": "string"
+                    },
                     "timestamp": {
                         "bsonType": "date"
+                    },
+                    "type": {
+                        "bsonType": "string"
                     }
-                }
+                },
+                "title": "WorkoutStep"
             }
         }
     },
-    "required": [ "realm_id" ],
-    "title": "workout"
+    "required": [
+        "realm_id"
+    ],
+    "title": "Workout"
 }
