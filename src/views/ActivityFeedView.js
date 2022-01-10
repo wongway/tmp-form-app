@@ -22,7 +22,7 @@ export const ActivityFeedView = () => {
 
                 const image_url = `https://i.pravatar.cc/64?u=${user._id}`;
 
-                const time_delta = timeAgoString(workoutLog.timestamp);
+                const time_delta = timeAgoString(workoutLog.end_time);
 
                 return (
                     <TouchableOpacity key={(i)}>
