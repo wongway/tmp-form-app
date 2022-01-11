@@ -1,5 +1,5 @@
-import React, { Component, useState } from "react";
-import { View, ScrollView, Text, StyleSheet, TouchableOpacity, ActivityIndicator, TouchableHighlight, TouchableWithoutFeedback } from "react-native";
+import React, { Component, useState, useRef, useEffect } from "react";
+import { View, ScrollView, Text, StyleSheet, TouchableOpacity, ActivityIndicator, TouchableHighlight, TouchableWithoutFeedback, Pressable } from "react-native";
 import { Tile, Image, Button, ButtonGroup, Rating } from "react-native-elements";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
@@ -108,13 +108,80 @@ export const WorkoutDetailScreen = ({ route, navigation }) => {
                 onPress={() => navigation.navigate('Workout', { repCounter: false })} />
             <Button
                 // style={styles.workoutDetailStartButton}
-                title="[Debug] Fake a workout"
+                title="Fake this workout"
                 // disabled
-                onPress={() => { 
-                    const workoutlog_id = createWorkoutLog(workout._id);
-                    completeWorkoutLog(workoutlog_id);
-                 }} />
+                onPress={() => navigation.navigate('Fake Workout', { workout_id: workout_id })} />
             </View>
         </View>
     );
 };
+
+export const FakeWorkoutScreen = ({ route, navigation }) => {
+    const { workout_id } = route.params;
+    const { getWorkoutById, createWorkoutLog, completeWorkoutLog, addWorkoutStepLog } = useChannels();
+    const workoutlog_id = useRef(null);
+
+    const workout = getWorkoutById(workout_id);
+
+    useEffect(() => {
+        workoutlog_id.current = createWorkoutLog(workout_id);
+
+        return () => {
+            console.log("Finishing workout log:", workoutlog_id.current);
+            completeWorkoutLog(workoutlog_id.current);
+            workoutlog_id.current = null;
+        };
+    }, []);
+
+    return (
+        <View style={{flex: 1}}>
+            <Text style={styles.titleText}>{workout.name}</Text>
+            <Text style={styles.h2Text}>Set <Entypo name="cycle" size={20} /> { workout.sets } </Text> 
+            {
+                workout.steps.map((step, i) => {
+                    return (
+                        <Pressable key={i} onPress={() => { 
+                                console.log("DING!", {...step}); 
+                                addWorkoutStepLog(workoutlog_id.current, { ...step, timestamp: new Date(Date.now())});
+                            }}
+                            style={({ pressed }) => [
+                                {
+                                  backgroundColor: pressed
+                                    ? 'rgb(210, 230, 255)'
+                                    : 'white'
+                                },
+                                my_styles.wrapperCustom
+                              ]}>
+                            <Text style={[styles.normalBlockText, { fontWeight: "bold"}]} key={i}>
+                                    <Entypo name="circle-with-plus" size={12} />
+                            {step.count}{step.type == 'RepWorkoutStep' ? 'x' : ' sec'} {step.name}
+                            </Text>
+                        </Pressable>
+                    );
+                })
+            }
+        </View>
+    );
+};
+
+const my_styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: "center",
+    },
+    text: {
+      fontSize: 16
+    },
+    wrapperCustom: {
+      borderRadius: 8,
+      padding: 6
+    },
+    logBox: {
+      padding: 20,
+      margin: 10,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: '#f0f0f0',
+      backgroundColor: '#f9f9f9'
+    }
+  });
+  

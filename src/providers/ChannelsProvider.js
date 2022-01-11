@@ -216,11 +216,11 @@ const ChannelsProvider = ({ children }) => {
       _id: ObjectID(),
       realm_id: PARTITION_VALUE,
       user_id: ObjectID(user.id),
-      workout_id: workout_id,
+      workout_id: ObjectID(workout_id),
       start_time: new Date(Date.now()),
     };
 
-    console.log(newlog);
+    console.log("WorkoutLog:", newlog);
 
     realm.write(() => {
       realm.create(
@@ -245,6 +245,29 @@ const ChannelsProvider = ({ children }) => {
 
     realm.write(() => {
       workoutLog.end_time = new Date(Date.now())
+    });
+  }
+
+  const addWorkoutStepLog = (workoutlog_id, workoutStep) => {
+    const realm = realmRef.current;
+    if (!realm) {
+      return false;
+    }
+
+    console.log("addWorkoutStepLog:", workoutStep);
+
+    const workoutLog = getWorkoutLogById(workoutlog_id);
+    if (!workoutLog) {
+      return false;
+    }
+
+    const newStep = {
+      ...workoutStep,
+      index: workoutLog.steps.length
+    };
+
+    realm.write(() => {
+      workoutLog.steps.push(newStep);
     });
   }
 
@@ -321,7 +344,9 @@ const ChannelsProvider = ({ children }) => {
         getUserByAppId,
         createWorkoutLog,
         completeWorkoutLog,
+        addWorkoutStepLog,
         createNewUser,
+        realmRef,
       }}
     >
       {children}
