@@ -10,6 +10,7 @@ import { ChannelsProvider } from "./src/providers/ChannelsProvider";
 import styles from "./src/stylesheet";
 import { FormStackNavigator } from "./src/navigation/FormStackNavigator";
 import { FormBottomTabNavigator } from "./src/navigation/FormTabNavigator";
+import { WorkoutDataProvider } from "./src/providers/WorkoutDataProvider";
 
 // const Stack = createStackNavigator();
 // const Stack = createNativeStackNavigator();
@@ -18,10 +19,12 @@ export default function App() {
   return (
     <AuthProvider>
       <ChannelsProvider>
+        <WorkoutDataProvider>
         <NavigationContainer>
           {/* <FormStackNavigator /> */}
           <FormBottomTabNavigator />
         </NavigationContainer>
+        </WorkoutDataProvider>
       </ChannelsProvider>
     </AuthProvider>  );
 };
