@@ -13,7 +13,7 @@ export function WelcomeView({ navigation }) {
     if (user != null) {
       navigation.reset({
         index: 0,
-        routes: [{ name: "Main" }]
+        routes: [{ name: "Tabs" }]
       });
     }
   }, [user]);

@@ -19,11 +19,7 @@ const Stack = createNativeStackNavigator();
 const ChannelStackNavigator = () => {
     return (
           <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="Welcome" component={WelcomeView} />
-              <Stack.Screen
-                name="Main"
-                component={MainScreen}
-              />
+            <Stack.Screen name="Main" component={MainScreen} />
             <Stack.Screen name="Workout" component={WorkoutScreen} />
             <Stack.Screen name="Workout Details" component={WorkoutDetailScreen} options={({ route }) => ({ title: route.params.name })}/>
             <Stack.Screen name="Channel" component={ChannelScreen} />

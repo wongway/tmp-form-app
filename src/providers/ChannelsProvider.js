@@ -29,6 +29,10 @@ const ChannelsProvider = ({ children }) => {
       return;
     }
 
+    const OpenRealmBehaviorConfiguration = {
+      type: "openImmediately",
+    };
+
     const config = {
       sync: {
         user: user,
@@ -39,6 +43,8 @@ const ChannelsProvider = ({ children }) => {
             console.log("Sync error:", error.name, error.message);
           };
         },
+        newRealmFileBehavior: OpenRealmBehaviorConfiguration,
+        existingRealmFileBehavior: OpenRealmBehaviorConfiguration,
       },
     };
 

@@ -8,9 +8,9 @@ import { AuthProvider, useAuth } from "./src/providers/AuthProvider";
 import { ChannelsProvider } from "./src/providers/ChannelsProvider";
 
 import styles from "./src/stylesheet";
-import { FormStackNavigator } from "./src/navigation/FormStackNavigator";
 import { FormBottomTabNavigator } from "./src/navigation/FormTabNavigator";
 import { WorkoutDataProvider } from "./src/providers/WorkoutDataProvider";
+import { LoginStackNavigator } from "./src/navigation/FormLoginNavigator";
 
 // const Stack = createStackNavigator();
 // const Stack = createNativeStackNavigator();
@@ -22,7 +22,8 @@ export default function App() {
         <WorkoutDataProvider>
         <NavigationContainer>
           {/* <FormStackNavigator /> */}
-          <FormBottomTabNavigator />
+          {/* <FormBottomTabNavigator /> */}
+          <LoginStackNavigator />
         </NavigationContainer>
         </WorkoutDataProvider>
       </ChannelsProvider>
