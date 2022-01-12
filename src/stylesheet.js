@@ -11,8 +11,9 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 2,
   },
-  manageTeamWrapper: {
-    width: 350,
+  card: {
+    padding: 0,
+    marginVertical: 0,
   },
   manageTeamTitle: {
     marginBottom: 10,
@@ -119,16 +120,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   loginButton: {
-    width:"50%",
-    borderRadius:20,
-    height:50,
+    width:"80%",
+    borderRadius:10,
+    height:40,
     alignItems:"center",
     justifyContent:"center",
     margin:10,
     backgroundColor:"#FFB54A",
   },
   loginButtonText: {
-    fontSize: 20,
+    fontSize: 18,
     // fontWeight: "bold",
     color: "#FFF",
 
