@@ -1,9 +1,7 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import Realm from "realm";
 import ObjectID from "bson-objectid";
-// import { Channel } from "../datamodel/datamodel";
-// import { ChannelSchema, WorkoutSchema } from "../datamodel/schema";
-// import { workoutlog, workoutlogSchema } from "../datamodel/WorkoutLogSchema";
+import { ChannelSchema, WorkoutSchema } from "../datamodel/schema";
 
 import { useAuth } from "./AuthProvider";
 
@@ -36,7 +34,7 @@ const ChannelsProvider = ({ children }) => {
     const config = {
       sync: {
         user: user,
-        // schema: [ChannelSchema, WorkoutSchema],
+        schema: [ChannelSchema],
         partitionValue: PARTITION_VALUE,
         error: (_session, error) => {
           (error) => {
