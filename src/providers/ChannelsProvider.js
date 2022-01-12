@@ -205,72 +205,6 @@ const ChannelsProvider = ({ children }) => {
     return null;
   }
 
-  // TODO: Split this out into a WorkoutLogProvider and(?) a class
-  const createWorkoutLog = (workout_id) => {
-    const realm = realmRef.current;
-    if (!realm) {
-      return false;
-    }
-
-    const newlog = {
-      _id: ObjectID(),
-      realm_id: PARTITION_VALUE,
-      user_id: ObjectID(user.id),
-      workout_id: ObjectID(workout_id),
-      start_time: new Date(Date.now()),
-    };
-
-    console.log("WorkoutLog:", newlog);
-
-    realm.write(() => {
-      realm.create(
-        "WorkoutLog",
-        newlog
-      )
-    });
-
-    return newlog._id;
-  };
-
-  const completeWorkoutLog = (workoutlog_id) => {
-    const realm = realmRef.current;
-    if (!realm) {
-      return false;
-    }
-
-    const workoutLog = getWorkoutLogById(workoutlog_id);
-    if (!workoutLog) {
-      return false;
-    }
-
-    realm.write(() => {
-      workoutLog.end_time = new Date(Date.now())
-    });
-  }
-
-  const addWorkoutStepLog = (workoutlog_id, workoutStep) => {
-    const realm = realmRef.current;
-    if (!realm) {
-      return false;
-    }
-
-    console.log("addWorkoutStepLog:", workoutStep);
-
-    const workoutLog = getWorkoutLogById(workoutlog_id);
-    if (!workoutLog) {
-      return false;
-    }
-
-    const newStep = {
-      ...workoutStep,
-      index: workoutLog.steps.length
-    };
-
-    realm.write(() => {
-      workoutLog.steps.push(newStep);
-    });
-  }
-
   const createNewUser = () => {
     const projectRealm = realmRef.current;
     if (!projectRealm) {
@@ -339,12 +273,10 @@ const ChannelsProvider = ({ children }) => {
         workoutLogs,
         getChannelById,
         getWorkoutById,
+        getWorkoutLogById,
         getWorkoutsByChannelId,
         getUserById,
         getUserByAppId,
-        createWorkoutLog,
-        completeWorkoutLog,
-        addWorkoutStepLog,
         createNewUser,
         realmRef,
       }}

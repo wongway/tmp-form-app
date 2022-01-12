@@ -62,8 +62,7 @@ entity "**Workout**" as Workout {
     * channel_id : ObjectId <Channels._id>
     * sets : uint8
     * steps : embedded WorkoutStep (Timed or Rep) []
-    ===
-    Not implemented yet
+    __//Not implemented yet//__
     * duration : time
     * tags : []
     * hidden_tags : []
@@ -110,22 +109,33 @@ entity "**WorkoutData**" as WorkoutData {
     embedded in WorkoutLog
     ---
     * timestamp : date
-    is_rep : bool
-    raw: PoseEstimationData []
-    zscore : double
-    avg : double
-    stddev : double
-    n_stddev : double
+    pose_data: PoseEstimationData []
+    rep_data: RepCountData
 }
 
 entity "**PoseEstimationData**" as PoseEstimationData {
     embedded in WorkoutData
     ---
+    * algorithm : string (MoveNet)
     * keypoint : string 
     * x : double
     * y : double
     * confidence : double
-    algorithm : string
+}
+
+entity "**RepCountData**" as RepCountData {
+    embedded in WorkoutData
+    ---
+    * is_rep : bool
+    * algorithm: string (keypoint, zscore)
+    __//zscore algorithm related//__
+    zscore : double
+    avg : double
+    stddev : double
+    n_stddev : double
+    __//keypoint algorithm related//__
+    height : double
+    status : int
 }
 
 AppUser ||--|| User
@@ -148,5 +158,6 @@ Channel ||--o| User
 Channel ||--o{ Workout
 WorkoutLog ||--o{ WorkoutData
 WorkoutData ||--o{ PoseEstimationData
+WorkoutData ||--o| RepCountData
 
 @enduml

@@ -80,7 +80,7 @@ const WorkoutTile = (props) => {
 
 export const WorkoutDetailScreen = ({ route, navigation }) => {
     const { workout_id } = route.params;
-    const { getWorkoutById, createWorkoutLog, completeWorkoutLog } = useChannels();
+    const { getWorkoutById } = useChannels();
 
     const workout = getWorkoutById(workout_id);
 
@@ -119,8 +119,8 @@ export const WorkoutDetailScreen = ({ route, navigation }) => {
 
 export const FakeWorkoutScreen = ({ route, navigation }) => {
     const { workout_id } = route.params;
-    const { getWorkoutById, createWorkoutLog, completeWorkoutLog, addWorkoutStepLog } = useChannels();
-    const { addWorkoutData } = useWorkoutData();
+    const { getWorkoutById } = useChannels();
+    const { createWorkoutLog, completeWorkoutLog, addWorkoutLogStep, addWorkoutData } = useWorkoutData();
 
     const workoutlog_id = useRef(null);
 
@@ -145,8 +145,25 @@ export const FakeWorkoutScreen = ({ route, navigation }) => {
                     return (
                         <Pressable key={i} onPress={() => { 
                                 console.log("DING!", {...step}); 
-                                addWorkoutStepLog(workoutlog_id.current, { ...step, timestamp: new Date(Date.now())});
-                                addWorkoutData(workoutlog_id.current);
+                                const time = new Date(Date.now());
+                                addWorkoutLogStep(
+                                    workoutlog_id.current, 
+                                    { 
+                                        type: step.type || "RepWorkoutStep",
+                                        // index: 0,
+                                        name: step.name,
+                                        count: step.count,
+                                        duration: step.duration,
+                                        timestamp: time,
+                                    }
+                                );
+                                addWorkoutData(
+                                    workoutlog_id.current,
+                                    {
+                                        timestamp: time,
+                                        pose_data: [],
+                                    }
+                                );
                             }}
                             style={({ pressed }) => [
                                 {
