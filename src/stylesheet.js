@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   titleText: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: "bold",
     marginVertical: 10,
     marginHorizontal: 20,
@@ -132,8 +132,39 @@ const styles = StyleSheet.create({
     fontSize: 18,
     // fontWeight: "bold",
     color: "#FFF",
-
   },
+
+  followBtnText: {
+    // flex: 1,
+    textAlignVertical: 'center',
+    textAlign: 'center',
+    fontSize: 14,
+    color: '#FFF',
+    marginBottom: 2,
+  },
+  followBtnView: { 
+    flex: 1,
+    flexDirection: 'row', 
+    alignItems: 'center',
+    // justifyContent: 'center',
+    // borderRadius: 1,
+  },
+  followIcon: {
+    color: "#FFF",
+    fontSize: 14,
+  },
+  followBtn: {
+    // width: '80%',
+    borderRadius: 10,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // margin: 10,
+    backgroundColor: '#F2790F',
+    padding: 5,
+    paddingHorizontal: 10,
+  },
+
 });
 
 // Colors
