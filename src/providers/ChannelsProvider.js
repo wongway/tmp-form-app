@@ -124,7 +124,7 @@ const ChannelsProvider = ({ children }) => {
       return null;
     }
 
-    const channelResults =  realm.objects("Channel").filtered('_id == $0', channel_id);
+    const channelResults = realm.objects("Channel").filtered('_id == $0', channel_id);
 
     if (channelResults.length > 1) {
       console.log("Error: more than 1 channel has channel_id of", channel_id);
@@ -147,7 +147,7 @@ const ChannelsProvider = ({ children }) => {
       console.log("Error: realm not open");
       return null;
     }
-    
+
     const filter_string = `${id_field} == $0`
     // console.log(filter_string);
 
@@ -305,6 +305,20 @@ const ChannelsProvider = ({ children }) => {
         }
       );
     });
+
+  };
+
+  const updateFullname = (firstname, lastname) => {
+    const realm = realmRef.current;
+    if (!realm) { return false; }
+    console.log("====> Update name:", firstname, lastname);
+
+    const formUser = getUserByAppId(user.id);
+    realm.write(() => {
+      formUser.name = firstname + ' ' + lastname;
+    });
+
+    return true;
   };
 
   // const setTaskStatus = (task, status) => {
@@ -356,6 +370,7 @@ const ChannelsProvider = ({ children }) => {
         getUserById,
         getUserByAppId,
         createNewUser,
+        updateFullname,
 
         favChannels,
         getFollowedChannelStatus,
