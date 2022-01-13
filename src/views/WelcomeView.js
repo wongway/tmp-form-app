@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, Button, Alert, Pressable, Image } from "react-native";
+import { View, Text, TextInput, Alert, Pressable, Image } from "react-native";
+
 import { useAuth } from "../providers/AuthProvider";
 import styles from "../stylesheet";
 
@@ -21,7 +22,6 @@ export function WelcomeView({ navigation }) {
   // The onPressSignIn method calls AuthProvider.signIn with the
   // email/password in state.
   const onPressSignIn = async () => {
-    console.log("Press sign in");
     try {
       await signIn(email, password);
     } catch (error) {
@@ -48,6 +48,7 @@ export function WelcomeView({ navigation }) {
         // source={props.image}
         source={require("../../assets/icon.png")}
       />
+
       <View style={styles.inputContainer}>
         <TextInput
           onChangeText={setEmail}
