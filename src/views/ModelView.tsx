@@ -12,11 +12,10 @@ import CBuffer from 'cbuffer';
 import smoothed_z_score from '../utils/smoothed_z_score';
 import is_rep from '../utils/rep_count';
 import { LoadingView } from './LoadingView';
-import { useLinkProps } from '@react-navigation/native';
-import Constants from 'expo-constants';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { useWorkoutData } from "../providers/WorkoutDataProvider";
 import { useChannels } from "../providers/ChannelsProvider";
+import { useNavigation } from "@react-navigation/native";
 
 const TensorCamera = cameraWithTensors(Camera);
 const IS_ANDROID = Platform.OS === 'android';
@@ -84,6 +83,7 @@ export function ModelView({ workout_id })  {
   const isCalibrating = useRef(true);
   const isResting = useRef(false);
   const isRestingDone = useRef(false);
+  const isWorkoutLogStepAdded = useRef(false);
   const [isTimerPlaying, setIsTimerPlaying] = React.useState(false);
   const [duration, setDuration] = React.useState(3);
   const [orientation, setOrientation] = 
@@ -107,7 +107,8 @@ export function ModelView({ workout_id })  {
   const workout = getWorkoutById(workout_id);
   const currentSet = useRef(1);
   const currentStep = useRef(0);
-    
+  const navigation = useNavigation();
+
   useEffect(() => {
     async function prepare() {
       rafId.current = null;
@@ -171,17 +172,16 @@ export function ModelView({ workout_id })  {
       if (currentStep.current >= workout.steps.length) {
         currentSet.current++;
         currentStep.current = 0;
-        console.log("returning");
+        const channel_id = workout.channel_id;
       }
 
       console.log("Current set: ", currentSet.current);
-      // change this later when implementing summary workout screen
+      // 
       if (currentSet.current > workout.set){
-       
+        //navigation.navigate('Fake Workout' as never,{workout_id: workout_id } as never);
+        navigation.navigate('Channel' as never,{channel_id: channel_id} as never);
         return;
       }
-
-
 
       // Get the tensor and run pose detection.
       const imageTensor = images.next().value as tf.Tensor3D;
@@ -194,11 +194,25 @@ export function ModelView({ workout_id })  {
       );
 
       if (poses.length > 0) {
-        if (isCalibrating.current === false) {
-
+        if (isCalibrating.current === false) { // if true we are in calibrating/countdown mode
 
           if (workout.steps[currentStep.current].type === "RepWorkoutStep") { // RepWorkoutStep
             //console.log(workout);
+            if (isWorkoutLogStepAdded.current === false) {
+              const time = new Date(Date.now());
+              addWorkoutLogStep(
+                  workoutlog_id.current, 
+                  { 
+                      type: "RepWorkoutStep",
+                      // index: 0,
+                      name: workout.steps[currentStep.current].name,
+                      count: workout.steps[currentStep.current].count,
+                      duration: workout.steps[currentStep.current].duration,
+                      timestamp: time,
+                  }
+              );
+              isWorkoutLogStepAdded.current = true;
+            }
             if (repCount.current === workout.steps[currentStep.current].count) {
               repCount.current = 0;
               this.state.hValue1.setValue(0);
