@@ -15,6 +15,8 @@ import { LoadingView } from './LoadingView';
 import { useLinkProps } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
+import { useWorkoutData } from "../providers/WorkoutDataProvider";
+import { useChannels } from "../providers/ChannelsProvider";
 
 const TensorCamera = cameraWithTensors(Camera);
 const IS_ANDROID = Platform.OS === 'android';
@@ -65,10 +67,9 @@ const KEYPOINTS = {
   RIGHT_ANKLE: 16
 };
 
-export function ModelView()  {
+export function ModelView({ workout_id })  {
   const cameraRef = useRef(null);
   const [tfReady, setTfReady] = useState(false);
-  const [countdownComplete, setCountdownComplete] = useState(false);
   const [model, setModel] = useState<posedetection.PoseDetector>();
   const [poses, setPoses] = useState<posedetection.Pose[]>();
   const repCount = useRef(0);
@@ -78,10 +79,13 @@ export function ModelView()  {
   const isKeypointSet = useRef(false);
   const keypointHeight = useRef(0);
   const poseScale = useRef(0);
-  const outOfView = useRef(0);
+  const showFeedback = useRef('');
   const algo = useRef(0);
-  const showCountdown = useRef(true);
-  const [isPlaying, setIsPlaying] = React.useState(false)
+  const isCalibrating = useRef(true);
+  const isResting = useRef(false);
+  const isRestingDone = useRef(false);
+  const [isTimerPlaying, setIsTimerPlaying] = React.useState(false);
+  const [duration, setDuration] = React.useState(3);
   const [orientation, setOrientation] = 
     useState<ScreenOrientation.Orientation>();
   const [cameraType, setCameraType] = useState<CameraType>(
@@ -97,7 +101,13 @@ export function ModelView()  {
   
   this.state = {hValue1: new Animated.Value(0)}
   const progressBarToValue = useRef(0);
-
+  const { createWorkoutLog, completeWorkoutLog, addWorkoutLogStep, addWorkoutData } = useWorkoutData();
+  const workoutlog_id = useRef(null);
+  const { getWorkoutById } = useChannels();
+  const workout = getWorkoutById(workout_id);
+  const currentSet = useRef(1);
+  const currentStep = useRef(0);
+    
   useEffect(() => {
     async function prepare() {
       rafId.current = null;
@@ -136,8 +146,13 @@ export function ModelView()  {
   }, []);
 
   useEffect(() => {
+    workoutlog_id.current = createWorkoutLog(workout_id);
     // Called when the app is unmounted.
     return () => {
+      console.log("Finishing workout log:", workoutlog_id.current);
+      completeWorkoutLog(workoutlog_id.current);
+      workoutlog_id.current = null;
+
       if (rafId.current != null && rafId.current !== 0) {
         cancelAnimationFrame(rafId.current);
         rafId.current = 0;
@@ -151,6 +166,23 @@ export function ModelView()  {
     gl: ExpoWebGLRenderingContext
   ) => {
     const loop = async () => {
+
+      console.log("Current step: ", currentStep.current);
+      if (currentStep.current >= workout.steps.length) {
+        currentSet.current++;
+        currentStep.current = 0;
+        console.log("returning");
+      }
+
+      console.log("Current set: ", currentSet.current);
+      // change this later when implementing summary workout screen
+      if (currentSet.current > workout.set){
+       
+        return;
+      }
+
+
+
       // Get the tensor and run pose detection.
       const imageTensor = images.next().value as tf.Tensor3D;
 
@@ -162,74 +194,101 @@ export function ModelView()  {
       );
 
       if (poses.length > 0) {
-        if (showCountdown.current === false) {
-          let rep = false;
+        if (isCalibrating.current === false) {
 
-          if (poses[0].keypoints[KEYPOINTS.LEFT_HIP].score > MIN_KEYPOINT_SCORE) {
-            if (algo.current === 0) { // keypoint algorithm 
-              const cy =
-                (poses[0].keypoints[KEYPOINTS.LEFT_HIP].y / getOutputTensorHeight()) *
-                (isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
-              
-              // in case poseScale is not set before, default to 0.7 of the screen
-              if (poseScale.current === 0){
-                poseScale.current = 0.7;
-              }
 
-              console.log("cy: ", cy);
+          if (workout.steps[currentStep.current].type === "RepWorkoutStep") { // RepWorkoutStep
+            //console.log(workout);
+            if (repCount.current === workout.steps[currentStep.current].count) {
+              repCount.current = 0;
+              this.state.hValue1.setValue(0);
+              //progressBarToValue.current = 0;
+              currentStep.current++;
+              repStatus.current = 0;
+              console.log("finishing rep workout step");
+            } else {
 
-              // set the starting keypoint for the first time
-              if (isKeypointSet.current == false) {
-                keypointHeight.current =  cy;
-                progressBarToValue.current = 3*0.16*poseScale.current*CAM_PREVIEW_HEIGHT;
-                console.log("Keypoint height set: ", keypointHeight.current);
-                isKeypointSet.current = true;
-              }
-              
-              // update the keypoint if the height is higher and within 2/3 of the screen height and we are still before the first squat
-              if (repCount.current == 0) {
-                if (cy < keypointHeight.current){
+              let isRep = false;
+
+              if (poses[0].keypoints[KEYPOINTS.LEFT_HIP].score > MIN_KEYPOINT_SCORE) {
+                if (algo.current === 0) { // keypoint algorithm 
+                  const cy =
+                    (poses[0].keypoints[KEYPOINTS.LEFT_HIP].y / getOutputTensorHeight()) *
+                    (isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
+                  
+                  // in case poseScale is not set before, default to 0.7 of the screen
+                  if (poseScale.current === 0){
+                    poseScale.current = 0.7;
+                  }
+
+                  //console.log("cy: ", cy);
+
+                  // set the starting keypoint for the first time
+                  if (isKeypointSet.current == false) {
                     keypointHeight.current =  cy;
                     progressBarToValue.current = 3*0.16*poseScale.current*CAM_PREVIEW_HEIGHT;
-                    console.log("Keypoint height changed: ", keypointHeight.current);
+                    console.log("Keypoint height set: ", keypointHeight.current);
+                    isKeypointSet.current = true;
+                  }
+                  
+                  // update the keypoint if the height is higher and within 2/3 of the screen height and we are still before the first squat
+                  if (repCount.current == 0) {
+                    if (cy < keypointHeight.current){
+                        keypointHeight.current =  cy;
+                        progressBarToValue.current = 3*0.16*poseScale.current*CAM_PREVIEW_HEIGHT;
+                        console.log("Keypoint height changed: ", keypointHeight.current);
+                    }
+                  }
+
+                  this.state.hValue1.setValue(Math.min(3*(cy-keypointHeight.current), progressBarToValue.current));
+                  //console.log("hvalue new:", Math.min(3*(cy-keypointHeight.current), progressBarToValue.current));
+                  renderVerticalProgressBar();
+
+                  // downward motion
+                  if (repStatus.current == 0 && cy > keypointHeight.current + 0.16*poseScale.current*CAM_PREVIEW_HEIGHT ){
+                    repStatus.current = 1;
+                    console.log("Down");
+                  }
+
+                  //upward motion
+                  if (repStatus.current == 1 && cy < keypointHeight.current + 0.15*poseScale.current*CAM_PREVIEW_HEIGHT){
+                    repStatus.current = 2;
+                    console.log("Up");
+                  }
+
+                  // count the rep
+                  if (repStatus.current == 2 && cy < keypointHeight.current + 0.1*poseScale.current*CAM_PREVIEW_HEIGHT){
+                    repStatus.current = 0;
+                    console.log("Count: ", repCount.current + 1);
+                    isRep = true;
+                  }
+                }
+              } else { // zscore algorithm
+                if (poseHistory.current.push(poses[0].keypoints[KEYPOINTS.LEFT_HIP].y) >= ZSCORE_LAG + 2) {
+                  console.log("y= ", poses[0].keypoints[KEYPOINTS.LEFT_HIP].y);
+                  let signal = smoothed_z_score(poseHistory.current.toArray());
+                  console.log("signal= ", signal[0]);
+                  isRep = is_rep(signal[0]);
                 }
               }
-
-              this.state.hValue1.setValue(Math.min(3*(cy-keypointHeight.current), progressBarToValue.current));
-              console.log("hvalue new:", Math.min(3*(cy-keypointHeight.current), progressBarToValue.current));
-              renderVerticalProgressBar();
-
-              // downward motion
-              if (repStatus.current == 0 && cy > keypointHeight.current + 0.16*poseScale.current*CAM_PREVIEW_HEIGHT ){
-                repStatus.current = 1;
-                console.log("Down");
-              }
-
-              //upward motion
-              if (repStatus.current == 1 && cy < keypointHeight.current + 0.15*poseScale.current*CAM_PREVIEW_HEIGHT){
-                repStatus.current = 2;
-                console.log("Up");
-              }
-
-              // count the rep
-              if (repStatus.current == 2 && cy < keypointHeight.current + 0.1*poseScale.current*CAM_PREVIEW_HEIGHT){
-                repStatus.current = 0;
-                console.log("Count");
-                rep = true;
-              }
-            } else { // zscore algorithm
-              if (poseHistory.current.push(poses[0].keypoints[KEYPOINTS.LEFT_HIP].y) >= ZSCORE_LAG + 2) {
-                console.log("y= ", poses[0].keypoints[KEYPOINTS.LEFT_HIP].y);
-                let signal = smoothed_z_score(poseHistory.current.toArray());
-                console.log("signal= ", signal[0]);
-                rep = is_rep(signal[0]);
+              if (isRep) {
+                repCount.current++;
               }
             }
-            if (rep) {
-              repCount.current++;
+          } else { // TimedWorkoutStep
+            if (isRestingDone.current === true){
+              currentStep.current++;
+              isResting.current = false;
+              console.log("finishing timed workout step");
+            } else if (isResting.current === false){
+              console.log("setting timed duration to ", workout.steps[currentStep.current].duration);
+              setDuration(workout.steps[currentStep.current].duration);
+              isResting.current = true;
+              //setIsTimerPlaying(true);
             }
+
           }
-        } else {
+        } else { //timer is showing
           if (poses[0].keypoints[KEYPOINTS.NOSE].score > MIN_KEYPOINT_SCORE) {
 
             const nose_y = (poses[0].keypoints[KEYPOINTS.NOSE].y / getOutputTensorHeight()) *
@@ -252,19 +311,19 @@ export function ModelView()  {
               poseScale.current = (ankle_y - nose_y)/(isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
               
               if (poseScale.current > 0.5) {
-                outOfView.current = 0;
-                setIsPlaying(true);
+                showFeedback.current = '';
+                setIsTimerPlaying(true);
               } else {
-                outOfView.current = 1;
-                setIsPlaying(false);
+                showFeedback.current = 'Move Forward';
+                setIsTimerPlaying(false);
               }
             } else {
-              outOfView.current = 2;
-              setIsPlaying(false);
+              showFeedback.current = 'Lower Camera';
+              setIsTimerPlaying(false);
             }
           } else {
-            outOfView.current = 3;
-            setIsPlaying(false);
+            showFeedback.current = 'Raise Camera';
+            setIsTimerPlaying(false);
           }
         }  
       } else {
@@ -292,7 +351,7 @@ export function ModelView()  {
   };
 
   const renderPose = () => {
-    if (poses != null && poses.length > 0 && showCountdown.current === false) {
+    if (poses != null && poses.length > 0) {
       const keypoints = poses[0].keypoints
         .filter((k) => (k.score ?? 0) > MIN_KEYPOINT_SCORE)
         .map((k) => {
@@ -328,9 +387,9 @@ export function ModelView()  {
  const renderVerticalProgressBar = () => {
     
     //console.log("hvalue1: ", this.state.hValue1);
-    console.log("toValue: ", progressBarToValue.current);
+    //console.log("toValue: ", progressBarToValue.current);
     console.log("hvalue1: ", this.state.hValue1._value );
-    console.log("ratio: ",this.state.hValue1._value/progressBarToValue.current);
+    //console.log("ratio: ",this.state.hValue1._value/progressBarToValue.current);
 
     if (this.state.hValue1._value/progressBarToValue.current > 0.9) {
       setStyleValue('#0c0');
@@ -370,13 +429,12 @@ export function ModelView()  {
   };
 
   const renderFeedback = () => {
-    if (
-      showCountdown.current === true) {
-      //console.log(outOfView.current);
+    if (isCalibrating.current === true) {
+
       return (
         <View style={styles.feedbackContainer}>
           <Text style={styles.feedback}>
-            {outOfView.current === 0 ? '' : (outOfView.current === 1 ? 'Move Forward' : (outOfView.current === 2 ? 'Lower Camera' : (outOfView.current === 3 ? 'Raise Camera' : (''))))}
+            {showFeedback.current}
           </Text>
         </View>
       );
@@ -410,9 +468,18 @@ export function ModelView()  {
 
     const isTimeUp = isNewTimeFirstTick.current;
 
+    
 
     if (remainingTime === 0){
-      showCountdown.current = false;
+      console.log("remaining 0");
+      if (isCalibrating.current === true){
+        isCalibrating.current = false;
+      }
+
+      if (isResting.current === true) {
+        isResting.current = false;
+        isRestingDone.current = true;
+      }
     }
 
     return (
@@ -426,12 +493,12 @@ export function ModelView()  {
   };
 
   const renderCountdown = () => {
-    if (showCountdown.current === true) {
+    if (isCalibrating.current === true || isResting.current === true) {
       return (
         <View style={styles.countdownContainer}>
           <CountdownCircleTimer
-            isPlaying={isPlaying}
-            duration={5}
+            isPlaying={isTimerPlaying}
+            duration={duration}
             size={220}
             strokeWidth={15}
             strokeLinecap={'square'}
@@ -446,7 +513,7 @@ export function ModelView()  {
   };
 
   const renderReps = () => {
-    if (showCountdown.current === false) {
+    if (isCalibrating.current === false && isResting.current === false) {
       return (
         <View
           style={styles.repsContainer}

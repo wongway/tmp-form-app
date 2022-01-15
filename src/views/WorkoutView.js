@@ -101,7 +101,7 @@ export const WorkoutDetailScreen = ({ route, navigation }) => {
                 // style={styles.workoutDetailStartButton}
                 title="Start Workout with Rep Counter"
                 // disabled
-                onPress={() => navigation.navigate('Workout', { repCounter: true })} />
+                onPress={() => navigation.navigate('Workout', { repCounter: true, workout_id: workout_id  })} />
             <Button
                 // style={styles.workoutDetailStartButton}
                 title="Start Workout without Rep Counter"
