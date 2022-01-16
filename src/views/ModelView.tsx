@@ -168,17 +168,19 @@ export function ModelView({ workout_id })  {
   ) => {
     const loop = async () => {
 
-      console.log("Current step: ", currentStep.current);
+     
       if (currentStep.current >= workout.steps.length) {
         currentSet.current++;
         currentStep.current = 0;
-        const channel_id = workout.channel_id;
+        
       }
 
-      console.log("Current set: ", currentSet.current);
+      //console.log("Current set: ", currentSet.current);
+      //console.log("workout set: ", workout.sets);
       // 
-      if (currentSet.current > workout.set){
+      if (currentSet.current > workout.sets){
         //navigation.navigate('Fake Workout' as never,{workout_id: workout_id } as never);
+        const channel_id = workout.channel_id;
         navigation.navigate('Channel' as never,{channel_id: channel_id} as never);
         return;
       }
@@ -195,7 +197,6 @@ export function ModelView({ workout_id })  {
 
       if (poses.length > 0) {
         if (isCalibrating.current === false) { // if true we are in calibrating/countdown mode
-
           if (workout.steps[currentStep.current].type === "RepWorkoutStep") { // RepWorkoutStep
             //console.log(workout);
             if (isWorkoutLogStepAdded.current === false) {
@@ -219,7 +220,7 @@ export function ModelView({ workout_id })  {
               //progressBarToValue.current = 0;
               currentStep.current++;
               repStatus.current = 0;
-              console.log("finishing rep workout step");
+              //console.log("finishing rep workout step");
             } else {
 
               let isRep = false;
@@ -241,7 +242,7 @@ export function ModelView({ workout_id })  {
                   if (isKeypointSet.current == false) {
                     keypointHeight.current =  cy;
                     progressBarToValue.current = 3*0.16*poseScale.current*CAM_PREVIEW_HEIGHT;
-                    console.log("Keypoint height set: ", keypointHeight.current);
+                    //console.log("Keypoint height set: ", keypointHeight.current);
                     isKeypointSet.current = true;
                   }
                   
@@ -250,7 +251,7 @@ export function ModelView({ workout_id })  {
                     if (cy < keypointHeight.current){
                         keypointHeight.current =  cy;
                         progressBarToValue.current = 3*0.16*poseScale.current*CAM_PREVIEW_HEIGHT;
-                        console.log("Keypoint height changed: ", keypointHeight.current);
+                        //console.log("Keypoint height changed: ", keypointHeight.current);
                     }
                   }
 
@@ -261,13 +262,13 @@ export function ModelView({ workout_id })  {
                   // downward motion
                   if (repStatus.current == 0 && cy > keypointHeight.current + 0.16*poseScale.current*CAM_PREVIEW_HEIGHT ){
                     repStatus.current = 1;
-                    console.log("Down");
+                    //console.log("Down");
                   }
 
                   //upward motion
                   if (repStatus.current == 1 && cy < keypointHeight.current + 0.15*poseScale.current*CAM_PREVIEW_HEIGHT){
                     repStatus.current = 2;
-                    console.log("Up");
+                    //console.log("Up");
                   }
 
                   // count the rep
@@ -276,23 +277,34 @@ export function ModelView({ workout_id })  {
                     console.log("Count: ", repCount.current + 1);
                     isRep = true;
                   }
+                } else { // zscore algorithm
+                  if (poseHistory.current.push(poses[0].keypoints[KEYPOINTS.LEFT_HIP].y) >= ZSCORE_LAG + 2) {
+                    //console.log("y= ", poses[0].keypoints[KEYPOINTS.LEFT_HIP].y);
+                    let signal = smoothed_z_score(poseHistory.current.toArray());
+                    //console.log("signal= ", signal[0]);
+                    isRep = is_rep(signal[0]);
+                  }
                 }
-              } else { // zscore algorithm
-                if (poseHistory.current.push(poses[0].keypoints[KEYPOINTS.LEFT_HIP].y) >= ZSCORE_LAG + 2) {
-                  console.log("y= ", poses[0].keypoints[KEYPOINTS.LEFT_HIP].y);
-                  let signal = smoothed_z_score(poseHistory.current.toArray());
-                  console.log("signal= ", signal[0]);
-                  isRep = is_rep(signal[0]);
+                if (isRep) {
+                  repCount.current++;
                 }
-              }
-              if (isRep) {
-                repCount.current++;
+                const time = new Date(Date.now());
+
+                addWorkoutData(
+                  workoutlog_id.current,
+                  {
+                      timestamp: time,
+                      poses_data: poses[0],
+                  }
+                );
               }
             }
           } else { // TimedWorkoutStep
+            console.log("timed workout step");
             if (isRestingDone.current === true){
               currentStep.current++;
               isResting.current = false;
+              isRestingDone.current = false;
               console.log("finishing timed workout step");
             } else if (isResting.current === false){
               console.log("setting timed duration to ", workout.steps[currentStep.current].duration);
@@ -402,7 +414,7 @@ export function ModelView({ workout_id })  {
     
     //console.log("hvalue1: ", this.state.hValue1);
     //console.log("toValue: ", progressBarToValue.current);
-    console.log("hvalue1: ", this.state.hValue1._value );
+    //console.log("hvalue1: ", this.state.hValue1._value );
     //console.log("ratio: ",this.state.hValue1._value/progressBarToValue.current);
 
     if (this.state.hValue1._value/progressBarToValue.current > 0.9) {
