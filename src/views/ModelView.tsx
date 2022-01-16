@@ -220,6 +220,7 @@ export function ModelView({ workout_id })  {
               //progressBarToValue.current = 0;
               currentStep.current++;
               repStatus.current = 0;
+              isWorkoutLogStepAdded.current = false;
               //console.log("finishing rep workout step");
             } else {
 
@@ -293,8 +294,26 @@ export function ModelView({ workout_id })  {
                 addWorkoutData(
                   workoutlog_id.current,
                   {
-                      timestamp: time,
-                      poses_data: poses[0],
+                    timestamp: time,
+                    pose_data: [{
+                      algorithm : "MoveNet",
+                      keypoint : "Left Hip", 
+                      x : poses[0].keypoints[KEYPOINTS.LEFT_HIP].x,
+                      y : poses[0].keypoints[KEYPOINTS.LEFT_HIP].y,
+                      confidence : poses[0].keypoints[KEYPOINTS.LEFT_HIP].score},
+                      {
+                        algorithm : "MoveNet",
+                        keypoint : "Right Hip", 
+                        x : poses[0].keypoints[KEYPOINTS.RIGHT_HIP].x,
+                        y : poses[0].keypoints[KEYPOINTS.RIGHT_HIP].y,
+                        confidence : poses[0].keypoints[KEYPOINTS.RIGHT_HIP].score},
+                    ],
+                    rep_data: {
+                      is_rep : isRep,
+                      algorithm: (algo.current === 0 ? "keypoint": "zscore"),
+                      height : keypointHeight.current,
+                      status : repStatus.current,
+                    },
                   }
                 );
               }
@@ -312,7 +331,6 @@ export function ModelView({ workout_id })  {
               isResting.current = true;
               //setIsTimerPlaying(true);
             }
-
           }
         } else { //timer is showing
           if (poses[0].keypoints[KEYPOINTS.NOSE].score > MIN_KEYPOINT_SCORE) {
