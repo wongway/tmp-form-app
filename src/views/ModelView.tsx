@@ -548,7 +548,7 @@ export function ModelView({ workout_id })  {
             isPlaying={isTimerPlaying}
             duration={duration}
             size={220}
-            strokeWidth={15}
+            strokeWidth={7}
             strokeLinecap={'square'}
             colors={[["#808080"]]}
         >{renderTime}
