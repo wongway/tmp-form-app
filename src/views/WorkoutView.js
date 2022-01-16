@@ -185,6 +185,28 @@ export const FakeWorkoutScreen = ({ route, navigation }) => {
     );
 };
 
+export const WorkoutSummaryScreen = ({ route, navigation }) => {
+    const { workout_id } = route.params;
+    const { getWorkoutById } = useChannels();
+
+    const workout = getWorkoutById(workout_id);
+
+    return (
+        <View style={{flex: 1}}>
+            <Text style={styles.titleText}>You have just completed { workout.sets } sets of {workout.name}</Text>
+            {
+                workout.steps.map((step, i) => {
+                    return(<Text style={[styles.normalBlockText, { fontWeight: "bold"}]} key={i}>
+                        <Entypo name="chevron-right" size={12} />
+                        {step.count}{step.type == 'RepWorkoutStep' ? 'x' : ' sec'} {step.name}
+                        </Text>)
+                })
+            }
+        </View>
+    );
+};
+
+
 const my_styles = StyleSheet.create({
     container: {
       flex: 1,

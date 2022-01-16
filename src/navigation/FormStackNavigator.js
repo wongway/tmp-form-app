@@ -5,7 +5,7 @@ import { Button, View, Text } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { MainScreen } from "../screens/MainScreen";
-import { FakeWorkoutScreen, WorkoutDetailScreen } from "../views/WorkoutView";
+import { FakeWorkoutScreen, WorkoutDetailScreen, WorkoutSummaryScreen } from "../views/WorkoutView";
 import { WelcomeView } from "../views/WelcomeView";
 import { ChannelScreen } from "../screens/ChannelScreen";
 import { WorkoutScreen } from "../screens/WorkoutScreen";
@@ -26,6 +26,7 @@ const ChannelStackNavigator = () => {
               />
             <Stack.Screen name="Workout" component={WorkoutScreen} />
             <Stack.Screen name="Workout Details" component={WorkoutDetailScreen} options={({ route }) => ({ title: route.params.name })}/>
+            <Stack.Screen name="Workout Summary" component={WorkoutSummaryScreen} options={({ route }) => ({ title: route.params.name })}/>
             <Stack.Screen name="Channel" component={ChannelScreen} />
             <Stack.Screen name="Fake Workout" component={FakeWorkoutScreen} />
           </Stack.Navigator>

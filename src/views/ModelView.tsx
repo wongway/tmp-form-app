@@ -180,8 +180,7 @@ export function ModelView({ workout_id })  {
       // 
       if (currentSet.current > workout.sets){
         //navigation.navigate('Fake Workout' as never,{workout_id: workout_id } as never);
-        const channel_id = workout.channel_id;
-        navigation.navigate('Channel' as never,{channel_id: channel_id} as never);
+        navigation.navigate('Workout Summary' as never,{workout_id: workout_id }as never);
         return;
       }
 
@@ -319,8 +318,13 @@ export function ModelView({ workout_id })  {
               }
             }
           } else { // TimedWorkoutStep
-            console.log("timed workout step");
-            if (isRestingDone.current === true){
+            //console.log("timed workout step");
+            // if last timed step of the last set -> skip it
+            if (currentSet.current === workout.sets && currentStep.current === workout.steps.length - 1) {
+              currentStep.current++;
+              isResting.current = false;
+              isRestingDone.current = false;
+            } else if (isRestingDone.current === true) {
               currentStep.current++;
               isResting.current = false;
               isRestingDone.current = false;
