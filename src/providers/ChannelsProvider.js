@@ -42,8 +42,8 @@ const ChannelsProvider = ({ children }) => {
             console.log("Sync error:", error.name, error.message);
           };
         },
-        newRealmFileBehavior: OpenRealmBehaviorConfiguration,
-        existingRealmFileBehavior: OpenRealmBehaviorConfiguration,
+        // newRealmFileBehavior: OpenRealmBehaviorConfiguration,
+        // existingRealmFileBehavior: OpenRealmBehaviorConfiguration,
       },
     };
 
@@ -309,9 +309,10 @@ const ChannelsProvider = ({ children }) => {
   };
 
   const updateFullname = (firstname, lastname) => {
+    console.log("====> Update name:", firstname, lastname);
     const realm = realmRef.current;
     if (!realm) { return false; }
-    console.log("====> Update name:", firstname, lastname);
+    console.log("====> For real name:", firstname, lastname);
 
     const formUser = getUserByAppId(user.id);
     realm.write(() => {

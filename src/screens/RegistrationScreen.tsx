@@ -18,7 +18,6 @@ export const RegistrationScreen = ({ navigation }) => {
     useEffect(() => {
         if (user != null) {
             console.log("Tabbing in after registration");
-            updateFullname(firstname, lastname);
             navigation.reset({
                 index: 0,
                 routes: [{ name: "Tabs" }]
@@ -34,7 +33,8 @@ export const RegistrationScreen = ({ navigation }) => {
         } else {
             try {
                 await signUp(email, password);
-                signIn(email, password);
+                signIn(email, password).then((result) => {
+                updateFullname(firstname, lastname)});
             } catch (error) {
                 Alert.alert(`Failed to sign up: ${error.message}`);
             }
