@@ -117,7 +117,17 @@ const styles = StyleSheet.create({
   bottom: {
     flex: 1,
     justifyContent: "flex-end",
-    marginBottom: 20,
+    marginBottom: 10,
+    alignItems: "center",
+  },
+  loginButtonDark: {
+    width:"80%",
+    borderRadius:10,
+    height:40,
+    alignItems:"center",
+    justifyContent:"center",
+    margin:10,
+    backgroundColor:"#F2790F",
   },
   loginButton: {
     width:"80%",

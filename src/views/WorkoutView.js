@@ -72,45 +72,6 @@ const WorkoutCard = (props) => {
     );
 };
 
-export const WorkoutDetailScreen = ({ route, navigation }) => {
-    const { workout_id } = route.params;
-    const { getWorkoutById } = useChannels();
-
-    const workout = getWorkoutById(workout_id);
-
-    return (
-        <View style={{ flex: 1 }}>
-            <Text style={styles.titleText}>{workout.name}</Text>
-            <Text style={styles.h2Text}>Set <Entypo name="cycle" size={20} /> {workout.sets} </Text>
-            {
-                workout.steps.map((step, i) => {
-                    return (<Text style={[styles.normalBlockText, { fontWeight: "bold" }]} key={i}>
-                        <Entypo name="chevron-right" size={12} />
-                        {step.count}{step.type == 'RepWorkoutStep' ? 'x' : ' sec'} {step.name}
-                    </Text>)
-                })
-            }
-            <View style={styles.bottom}>
-                <Button
-                    // style={styles.workoutDetailStartButton}
-                    title="Start Workout with Rep Counter"
-                    // disabled
-                    onPress={() => navigation.navigate('Workout', { repCounter: true })} />
-                <Button
-                    // style={styles.workoutDetailStartButton}
-                    title="Start Workout without Rep Counter"
-                    // disabled
-                    onPress={() => navigation.navigate('Workout', { repCounter: false })} />
-                <Button
-                    // style={styles.workoutDetailStartButton}
-                    title="Fake this workout"
-                    // disabled
-                    onPress={() => navigation.navigate('Fake Workout', { workout_id: workout_id })} />
-            </View>
-        </View>
-    );
-};
-
 export const FakeWorkoutScreen = ({ route, navigation }) => {
     const { workout_id } = route.params;
     const { getWorkoutById } = useChannels();

@@ -44,7 +44,7 @@ export const UserProfileScreen = ({route, navigation}) => {
                 Logged in as: { user.id } ({ user.profile.email })
             </Text>
             <View style={{ justifyContent: "center", alignItems: "center", marginTop: 20 }}>
-            <Pressable style={styles.loginButton} onPress={onSignOut}>
+            <Pressable style={styles.loginButtonDark} onPress={onSignOut}>
                 <Text style={styles.loginButtonText}>LOGOUT</Text>
             </Pressable>
             </View>
