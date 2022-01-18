@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   h2Text: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "bold",
     marginVertical: 10,
     marginHorizontal: 20,
