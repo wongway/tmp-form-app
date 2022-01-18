@@ -61,9 +61,9 @@ const WorkoutTile = (props) => {
                     source={image_url ? { uri: image_url } : {}}
                     PlaceholderContent={<ActivityIndicator />}
                 >
-                    <TouchableWithoutFeedback onPress={() => { console.log("*boop*"); fav ? setFav(false) : setFav(true) }}>
+                    {/* <TouchableWithoutFeedback onPress={() => { console.log("*boop*"); fav ? setFav(false) : setFav(true) }}>
                         <FontAwesome name={fav ? "heart" : "heart-o"} style={styles.workoutFav} />
-                    </TouchableWithoutFeedback>
+                    </TouchableWithoutFeedback> */}
                 </Image>
 
             </TouchableOpacity>

@@ -1,9 +1,7 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import Realm from "realm";
 import ObjectID from "bson-objectid";
-// import { Channel } from "../datamodel/datamodel";
-// import { ChannelSchema, WorkoutSchema } from "../datamodel/schema";
-// import { workoutlog, workoutlogSchema } from "../datamodel/WorkoutLogSchema";
+import { ChannelSchema, WorkoutSchema } from "../datamodel/schema";
 
 import { useAuth } from "./AuthProvider";
 
@@ -14,6 +12,7 @@ const ChannelsContext = React.createContext(null);
 const ChannelsProvider = ({ children }) => {
   const [channels, setChannels] = useState([]);
   const [currentChannelId, setCurrentChannelId] = useState(null);
+  const [favChannels, setFavChannels] = useState([]);
   const [workouts, setWorkouts] = useState([]);
   const [workoutLogs, setWorkoutLogs] = useState([]);
   const { user } = useAuth();
@@ -29,16 +28,22 @@ const ChannelsProvider = ({ children }) => {
       return;
     }
 
+    const OpenRealmBehaviorConfiguration = {
+      type: "openImmediately",
+    };
+
     const config = {
       sync: {
         user: user,
-        // schema: [ChannelSchema, WorkoutSchema],
+        schema: [ChannelSchema],
         partitionValue: PARTITION_VALUE,
         error: (_session, error) => {
           (error) => {
             console.log("Sync error:", error.name, error.message);
           };
         },
+        // newRealmFileBehavior: OpenRealmBehaviorConfiguration,
+        // existingRealmFileBehavior: OpenRealmBehaviorConfiguration,
       },
     };
 
@@ -53,7 +58,7 @@ const ChannelsProvider = ({ children }) => {
       const syncChannels = projectRealm.objects("Channel");
       let sortedChannels = syncChannels.sorted("name");
       setChannels([...sortedChannels]);
-      console.log("Channels:", sortedChannels.length);
+      // console.log("Channels:", sortedChannels.length);
       console.log(sortedChannels);
       sortedChannels.addListener(() => {
         setChannels([...sortedChannels]);
@@ -64,10 +69,17 @@ const ChannelsProvider = ({ children }) => {
       const syncWorkoutLogs = projectRealm.objects("WorkoutLog");//.filtered('user_id == $0', Realm.BSON.ObjectId(user.id));
       let sortedWorkoutLogs = syncWorkoutLogs.sorted("end_time", true);
       setWorkoutLogs([...sortedWorkoutLogs]);
-      console.log("Workout Logs:", sortedWorkoutLogs.length, sortedWorkoutLogs);
+      // console.log("Workout Logs:", sortedWorkoutLogs.length, sortedWorkoutLogs);
       sortedWorkoutLogs.addListener(() => {
         setWorkoutLogs([...sortedWorkoutLogs]);
       });
+
+      const formUser = projectRealm.objects("User").filtered('user_id == $0', user.id)[0];
+      setFavChannels([...formUser.followed_channels]);
+      formUser.addListener(() => {
+        setFavChannels([...formUser.followed_channels]);
+        // console.log("Fav Channels:", favChannels);
+      })
     });
 
     return () => {
@@ -78,6 +90,7 @@ const ChannelsProvider = ({ children }) => {
         projectRealm.close();
         realmRef.current = null;
         setChannels([]);
+        setFavChannels([]);
       }
     };
   }, [user]);
@@ -92,7 +105,7 @@ const ChannelsProvider = ({ children }) => {
     const syncWorkouts = realm.objects("Workout");
     let sortedWorkouts = syncWorkouts.sorted("name");
     setWorkouts(sortedWorkouts);
-    console.log("Workouts:", sortedWorkouts.length, sortedWorkouts);
+    // console.log("Workouts:", sortedWorkouts.length, sortedWorkouts);
     sortedWorkouts.addListener(() => {
       setWorkouts(sortedWorkouts);
     });
@@ -111,7 +124,7 @@ const ChannelsProvider = ({ children }) => {
       return null;
     }
 
-    const channelResults =  realm.objects("Channel").filtered('_id == $0', channel_id);
+    const channelResults = realm.objects("Channel").filtered('_id == $0', channel_id);
 
     if (channelResults.length > 1) {
       console.log("Error: more than 1 channel has channel_id of", channel_id);
@@ -134,7 +147,7 @@ const ChannelsProvider = ({ children }) => {
       console.log("Error: realm not open");
       return null;
     }
-    
+
     const filter_string = `${id_field} == $0`
     // console.log(filter_string);
 
@@ -205,6 +218,71 @@ const ChannelsProvider = ({ children }) => {
     return null;
   }
 
+  const getFollowedChannelStatus = (channel_id) => {
+    const realm = realmRef.current;
+    if (!realm) { return null; }
+
+    const formUser = getUserByAppId(user.id);
+
+    if (formUser && formUser.followed_channels) {
+      for (const followed_channel of formUser.followed_channels) {
+        console.log("Followed Channel:", followed_channel);
+
+        if (followed_channel == channel_id) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  const addFollowedChannel = (channel_id) => {
+    const realm = realmRef.current;
+    if (!realm) { return false; }
+
+    const formUser = getUserByAppId(user.id);
+    if (formUser) {
+      if (formUser.followed_channels) {
+        // Search for existing follow
+        // for (const channel of formUser.followed_channels) {
+        //   if (channel)
+        // }
+        console.log("====> Adding fav channel");
+        realm.write(() => {
+          formUser.followed_channels.push(Realm.BSON.ObjectId(channel_id));
+        });
+
+      } else {
+        realm.write(() => {
+          formUser.followed_channels = [Realm.BSON.ObjectId(channel_id)]
+        });
+      }
+    }
+
+    return true;
+  }
+
+  const removeFollowedChannel = (channel_id) => {
+    const realm = realmRef.current;
+    if (!realm) { return null; }
+
+    const formUser = getUserByAppId(user.id);
+    if (formUser) {
+      if (formUser.followed_channels) {
+        const index = formUser.followed_channels.indexOf(Realm.BSON.ObjectId(channel_id));
+        if (index > -1) {
+          console.log("====> Removing fav channel");
+          realm.write(() => {
+            formUser.followed_channels.splice(index, 1);
+          });
+        }
+
+      }
+    }
+
+  }
+
   const createNewUser = () => {
     const projectRealm = realmRef.current;
     if (!projectRealm) {
@@ -227,6 +305,21 @@ const ChannelsProvider = ({ children }) => {
         }
       );
     });
+
+  };
+
+  const updateFullname = (firstname, lastname) => {
+    console.log("====> Update name:", firstname, lastname);
+    const realm = realmRef.current;
+    if (!realm) { return false; }
+    console.log("====> For real name:", firstname, lastname);
+
+    const formUser = getUserByAppId(user.id);
+    realm.write(() => {
+      formUser.name = firstname + ' ' + lastname;
+    });
+
+    return true;
   };
 
   // const setTaskStatus = (task, status) => {
@@ -278,6 +371,13 @@ const ChannelsProvider = ({ children }) => {
         getUserById,
         getUserByAppId,
         createNewUser,
+        updateFullname,
+
+        favChannels,
+        getFollowedChannelStatus,
+        addFollowedChannel,
+        removeFollowedChannel,
+
         realmRef,
       }}
     >
