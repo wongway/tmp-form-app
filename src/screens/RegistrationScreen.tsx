@@ -12,21 +12,19 @@ export const RegistrationScreen = ({ navigation }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [passwordConfirm, setPasswordConfirm] = useState("");
-    const [firstname, setFirstname] = useState("");
-    const [lastname, setLastname] = useState("");
 
-    useEffect(() => {
-        if (user != null) {
-            console.log("Tabbing in after registration");
-            navigation.reset({
-                index: 0,
-                routes: [{ name: "Tabs" }]
-            });
-        }
-    }, [user]);
+    // useEffect(() => {
+    //     if (user != null) {
+    //         console.log("Tabbing in after registration");
+    //         navigation.reset({
+    //             index: 0,
+    //             routes: [{ name: "Tabs" }]
+    //         });
+    //     }
+    // }, [user]);
 
     const onPressSignUp = async () => {
-        if (!email || !firstname || !lastname) {
+        if (!email || !password ) {
             Alert.alert("All fields are required");
         } else if (password != passwordConfirm) {
             Alert.alert("Passwords do not match");
@@ -34,7 +32,9 @@ export const RegistrationScreen = ({ navigation }) => {
             try {
                 await signUp(email, password);
                 signIn(email, password).then((result) => {
-                updateFullname(firstname, lastname)});
+                    console.log("Trying to complete registration")
+                    navigation.navigate("Complete Registration");
+                });
             } catch (error) {
                 Alert.alert(`Failed to sign up: ${error.message}`);
             }
@@ -42,27 +42,9 @@ export const RegistrationScreen = ({ navigation }) => {
     };
 
     return (
-        <View style={{ flex: 1, backgroundColor: '#FFF', alignItems: 'center', justifyContent: 'center' }}>
+        <View style={styles.loginContainer}>
             <View style={{ justifyContent: 'flex-start', alignItems: 'flex-start' }}>
                 <Text style={styles.titleText}>Register</Text>
-            </View>
-            <View style={styles.inputContainer}>
-                <TextInput
-                    onChangeText={setFirstname}
-                    value={firstname}
-                    placeholder="First Name"
-                    style={styles.inputStyle}
-                    autoCapitalize="words"
-                />
-            </View>
-            <View style={styles.inputContainer}>
-                <TextInput
-                    onChangeText={setLastname}
-                    value={lastname}
-                    placeholder="Last Name"
-                    style={styles.inputStyle}
-                    autoCapitalize="words"
-                />
             </View>
             <View style={styles.inputContainer}>
                 <TextInput
@@ -97,4 +79,53 @@ export const RegistrationScreen = ({ navigation }) => {
 
         </View>
     );
+};
+
+export const EditProfileScreen = ({ navigation, route }) => {
+    const { user, signUp, signIn } = useAuth();
+    const { updateFullname } = useChannels();
+    const [firstname, setFirstname] = useState("");
+    const [lastname, setLastname] = useState("");
+
+    const onSubmit = () => {
+        if (!firstname || !lastname) {
+            Alert.alert("All fields are required");
+        } else {
+            updateFullname(firstname, lastname);
+            navigation.reset({
+                index: 0,
+                routes: [{ name: "Tabs" }]
+            });
+        }
+    }
+
+    return (
+        <View style={styles.loginContainer}>
+            <View style={{ justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+                <Text style={styles.titleText}>Edit Profile</Text>
+            </View>
+            <View style={styles.inputContainer}>
+                <TextInput
+                    onChangeText={setFirstname}
+                    value={firstname}
+                    placeholder="First Name"
+                    style={styles.inputStyle}
+                    autoCapitalize="words"
+                />
+            </View>
+            <View style={styles.inputContainer}>
+                <TextInput
+                    onChangeText={setLastname}
+                    value={lastname}
+                    placeholder="Last Name"
+                    style={styles.inputStyle}
+                    autoCapitalize="words"
+                />
+            </View>
+            <Pressable style={styles.loginButton} onPress={onSubmit}>
+                <Text style={styles.loginButtonText}>Update Profile</Text>
+            </Pressable>
+        </View>
+    );
+
 };
