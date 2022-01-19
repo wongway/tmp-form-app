@@ -68,11 +68,11 @@ const ChannelsProvider = ({ children }) => {
 
       const syncWorkoutLogs = projectRealm.objects("WorkoutLog");//.filtered('user_id == $0', Realm.BSON.ObjectId(user.id));
       let sortedWorkoutLogs = syncWorkoutLogs.sorted("end_time", true);
-      setWorkoutLogs([...sortedWorkoutLogs]);
+      setWorkoutLogs([...sortedWorkoutLogs].slice(0,10));
       // console.log("Workout Logs:", sortedWorkoutLogs.length, sortedWorkoutLogs);
-      sortedWorkoutLogs.addListener(() => {
-        setWorkoutLogs([...sortedWorkoutLogs]);
-      });
+      // sortedWorkoutLogs.addListener(() => {
+      //   setWorkoutLogs([...sortedWorkoutLogs]);
+      // });
 
       const formUser = projectRealm.objects("User").filtered('user_id == $0', user.id)[0];
       setFavChannels([...formUser.followed_channels]);
