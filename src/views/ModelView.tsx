@@ -16,6 +16,7 @@ import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { useWorkoutData } from "../providers/WorkoutDataProvider";
 import { useChannels } from "../providers/ChannelsProvider";
 import { useNavigation } from "@react-navigation/native";
+import { StackActions } from '@react-navigation/native';
 
 const TensorCamera = cameraWithTensors(Camera);
 const IS_ANDROID = Platform.OS === 'android';
@@ -180,7 +181,11 @@ export function ModelView({ workout_id })  {
       // 
       if (currentSet.current > workout.sets){
         //navigation.navigate('Fake Workout' as never,{workout_id: workout_id } as never);
-        navigation.navigate('Workout Summary' as never,{workout_id: workout_id }as never);
+        //navigation.navigate('Workout Summary' as never,{workout_id: workout_id }as never);
+        const popAction = StackActions.pop(1);
+
+        navigation.dispatch(popAction);
+
         return;
       }
 
@@ -328,9 +333,9 @@ export function ModelView({ workout_id })  {
               currentStep.current++;
               isResting.current = false;
               isRestingDone.current = false;
-              console.log("finishing timed workout step");
+              //console.log("finishing timed workout step");
             } else if (isResting.current === false){
-              console.log("setting timed duration to ", workout.steps[currentStep.current].duration);
+              //console.log("setting timed duration to ", workout.steps[currentStep.current].duration);
               setDuration(workout.steps[currentStep.current].duration);
               isResting.current = true;
               //setIsTimerPlaying(true);
@@ -444,9 +449,10 @@ export function ModelView({ workout_id })  {
     } else {
       setStyleValue('#0ac');
     }
+
     Animated.timing(this.state.hValue1, {
       toValue: progressBarToValue.current,
-      duration: 5,
+      duration: 1000,
       easing: Easing.linear,
       useNativeDriver: false
     }).start();
@@ -514,12 +520,8 @@ export function ModelView({ workout_id })  {
       isNewTimeFirstTick.current = false;
     }
 
-    const isTimeUp = isNewTimeFirstTick.current;
-
-    
-
     if (remainingTime === 0){
-      console.log("remaining 0");
+      //console.log("remaining 0");
       if (isCalibrating.current === true){
         isCalibrating.current = false;
       }
