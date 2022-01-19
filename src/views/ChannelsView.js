@@ -6,6 +6,8 @@ import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../providers/AuthProvider";
 import { useChannels } from "../providers/ChannelsProvider";
 
+import { ChannelItem } from "../components/ChannelItem";
+
 import styles from "../stylesheet";
 
 export const ChannelsView = (props) => {
@@ -27,26 +29,9 @@ export const ChannelsView = (props) => {
             <Card containerStyle={styles.card}>
                 {
                     favChannels.map((channel_id, i) => {
-
-                        const channel = getChannel(channel_id);
-
-                        const image_url = `https://i.pravatar.cc/64?u=${channel._id}`;
                         return (
-                            <TouchableOpacity key={i}>
-                                <ListItem key={i} bottomDivider onPress={() => navigation.navigate("Channel", { name: channel.name, channel_id: channel._id.toHexString() })}>
-                                    <Avatar
-                                        size="small"
-                                        rounded
-                                        source={image_url ? { uri: image_url } : {}}
-                                        activeOpacity={0.7}
-                                    />
-                                    <ListItem.Content>
-                                        <ListItem.Title>{channel.name}</ListItem.Title>
-                                        <ListItem.Subtitle>{channel.description}</ListItem.Subtitle>
-                                    </ListItem.Content>
-                                    {/* <Badge value="PR" status="primary" /> */}
-                                    {/* <Badge value="OR" status="error" /> */}
-                                </ListItem></TouchableOpacity>)
+                            <ChannelItem channel_id={channel_id} />
+                        );
                     })
                 }
             </Card>
@@ -57,24 +42,17 @@ export const ChannelsView = (props) => {
         <Card containerStyle={styles.card} >
             {
                 channels.map((channel, i) => {
+                    // console.log(favChannels[0], typeof(favChannels[0]), channel._id, typeof(channel._id), favChannels[0] === channel._id);
 
-                    const image_url = `https://i.pravatar.cc/64?u=${channel._id}`;
+                    // TODO: Fix this so that favorite channels aren't in the suggested channels
+                    if (favChannels.indexOf(channel._id.toHexString()) >= 0) { 
+                        return (<></>);
+                    } else {
+
                     return (
-                        <TouchableOpacity key={i}>
-                            <ListItem key={i} bottomDivider onPress={() => navigation.navigate("Channel", { name: channel.name, channel_id: channel._id.toHexString() })}>
-                                <Avatar
-                                    size="small"
-                                    rounded
-                                    source={image_url ? { uri: image_url } : {}}
-                                    activeOpacity={0.7}
-                                />
-                                <ListItem.Content>
-                                    <ListItem.Title>{channel.name}</ListItem.Title>
-                                    <ListItem.Subtitle>{channel.description}</ListItem.Subtitle>
-                                </ListItem.Content>
-                                {/* <Badge value="PR" status="primary" /> */}
-                                {/* <Badge value="OR" status="error" /> */}
-                            </ListItem></TouchableOpacity>)
+                            <ChannelItem channel_id={channel._id} />
+                    );
+                    }
                 })
             }
         </Card>
