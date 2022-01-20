@@ -47,6 +47,15 @@
                 },
                 "title": "WorkoutStep"
             }
+        },
+        "tags": {
+            "bsonType": "array",
+            "items": {
+                "bsonType": "string"
+            }
+        },
+        "duration": {
+            "bsonType": "int"
         }
     },
     "required": [

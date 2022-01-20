@@ -62,9 +62,9 @@ entity "**Workout**" as Workout {
     * steps : embedded WorkoutStep (Timed or Rep) []
     ---
     image_url : string
+    duration : int (time in minutes)
+    tags : string []
     __//Not implemented yet//__
-    * duration : time
-    * tags : []
     * hidden_tags : []
     reviews : embedded Review []
     rating : aggregation uint8 (0-5)
