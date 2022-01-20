@@ -30,7 +30,7 @@ export const ChannelsView = (props) => {
                 {
                     favChannels.map((channel_id, i) => {
                         return (
-                            <ChannelItem channel_id={channel_id} />
+                            <ChannelItem key={i} channel_id={channel_id} />
                         );
                     })
                 }
@@ -50,7 +50,7 @@ export const ChannelsView = (props) => {
                     } else {
 
                     return (
-                            <ChannelItem channel_id={channel._id} />
+                            <ChannelItem key={i} channel_id={channel._id} />
                     );
                     }
                 })
