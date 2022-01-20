@@ -2,6 +2,7 @@ import React from "react";
 import { Text, TouchableOpacity } from "react-native";
 import { Badge, Card, ListItem, Avatar } from "react-native-elements";
 import { useNavigation } from "@react-navigation/native";
+import Realm from "realm";
 
 import { useAuth } from "../providers/AuthProvider";
 import { useChannels } from "../providers/ChannelsProvider";
@@ -42,11 +43,11 @@ export const ChannelsView = (props) => {
         <Card containerStyle={styles.card} >
             {
                 channels.map((channel, i) => {
-                    // console.log(favChannels[0], typeof(favChannels[0]), channel._id, typeof(channel._id), favChannels[0] === channel._id);
+                    // console.log(favChannels[0], typeof(favChannels[0]), channel._id, typeof(channel._id.toHexString()), favChannels[0] == channel._id.toHexString());
+                    // console.log(favChannels.findIndex(i => i == channel._id.toHexString()));
 
-                    // TODO: Fix this so that favorite channels aren't in the suggested channels
-                    if (favChannels.indexOf(channel._id.toHexString()) >= 0) { 
-                        return (<></>);
+                    if (favChannels.findIndex(i => i == channel._id.toHexString()) != -1) {
+                        return;
                     } else {
 
                     return (
