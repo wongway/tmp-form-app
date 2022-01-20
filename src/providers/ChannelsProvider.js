@@ -173,7 +173,7 @@ const ChannelsProvider = ({ children }) => {
       return results[0];
     }
 
-    console.log("Error: NO documents with id", id);
+    console.log("Error: No", documentType, "documents with id", id);
     return null;
   }
 

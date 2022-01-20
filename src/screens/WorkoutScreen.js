@@ -10,6 +10,7 @@ import styles from "../stylesheet";
 
 export const WorkoutScreen = ({ navigation, route }) => {
   const { repCounter } = route.params;
+  const { workout_id } = route.params;
   const isLoaded = useTensorFlowLoaded();
 
   const [hasPermission, setHasPermission] = React.useState(null);
@@ -31,7 +32,7 @@ export const WorkoutScreen = ({ navigation, route }) => {
   }
 
   if (repCounter) {
-    return <ModelView />;
+    return <ModelView workout_id={workout_id} />;
   } else {
     return <ModelViewNoPrediction />;
   }

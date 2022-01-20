@@ -52,14 +52,14 @@ export const WorkoutInfoScreen = ({ route, navigation }) => {
             <View style={styles.bottom}>
                 <Pressable
                     style={styles.loginButtonDark}
-                    onPress={() => navigation.navigate('Workout', { repCounter: true })} >
+                    onPress={() => navigation.navigate('Workout', { workout_id: workout_id, repCounter: true })} >
                     <Text style={styles.loginButtonText}>
                         Start Workout with Rep Counter
                     </Text>
                 </Pressable>
                 <Pressable
                     style={styles.loginButtonDark}
-                    onPress={() => navigation.navigate('Workout', { repCounter: false })} >
+                    onPress={() => navigation.navigate('Workout', { workout_id: workout_id, repCounter: false })} >
                     <Text style={styles.loginButtonText}>
                         Start Workout without Rep Counter
                     </Text>
