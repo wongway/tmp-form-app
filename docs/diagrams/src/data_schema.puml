@@ -56,6 +56,7 @@ entity "**Workout**" as Workout {
     * realm_id : string
     ---
     * name : string
+    * description : string
     * channel_id : ObjectId <Channels._id>
     * sets : uint8
     * steps : embedded WorkoutStep (Timed or Rep) []

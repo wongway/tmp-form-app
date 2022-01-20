@@ -9,6 +9,9 @@
         "name": {
             "bsonType": "string"
         },
+        "description": {
+            "bsonType": "string"
+        },
         "realm_id": {
             "bsonType": "string"
         },
