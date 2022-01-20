@@ -9,10 +9,11 @@ export type ChannelItemProps = {
 }
 
 export const ChannelItem: React.FC<ChannelItemProps> = ({ channel_id }) => {
-  const { getChannel } = useChannels();
+  const { getChannel, getUserById } = useChannels();
   const navigation = useNavigation();
 
   const channel = getChannel(channel_id);
+  const creator = getUserById(channel.creator_id);
 
   const image_url = `https://i.pravatar.cc/64?u=${channel._id}`;
 
@@ -28,7 +29,7 @@ export const ChannelItem: React.FC<ChannelItemProps> = ({ channel_id }) => {
         />
         <ListItem.Content>
           <ListItem.Title>{channel.name}</ListItem.Title>
-          <ListItem.Subtitle>{channel.description}</ListItem.Subtitle>
+          <ListItem.Subtitle>{creator.name}</ListItem.Subtitle>
         </ListItem.Content>
       </ListItem></TouchableOpacity>
   );
