@@ -1,0 +1,261 @@
+[
+    {
+        "_id": {
+            "$oid": "61d7b56e1388397512995d25"
+        },
+        "realm_id": "form_demo",
+        "steps": [
+            {
+                "index": {
+                    "$numberInt": "15"
+                },
+                "type": "RepWorkoutStep",
+                "name": "Squats",
+                "duration": {
+                    "$numberInt": "20"
+                },
+                "count": {
+                    "$numberInt": "3"
+                }
+            },
+            {
+                "index": {
+                    "$numberInt": "16"
+                },
+                "type": "TimedWorkoutStep",
+                "name": "Rest",
+                "duration": {
+                    "$numberInt": "10"
+                },
+                "count": {
+                    "$numberInt": "15"
+                }
+            }
+        ],
+        "sets": {
+            "$numberInt": "2"
+        },
+        "name": "Squatamania",
+        "channel_id": {
+            "$oid": "61d7b56e1388397512995d1b"
+        },
+        "image_url": "https://images.unsplash.com/photo-1536922246289-88c42f957773?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8"
+    },
+    {
+        "_id": {
+            "$oid": "61d7b56e1388397512995d32"
+        },
+        "realm_id": "form_demo",
+        "steps": [
+            {
+                "index": {
+                    "$numberInt": "0"
+                },
+                "name": "Pistol Squat",
+                "count": {
+                    "$numberInt": "14"
+                },
+                "type": "RepWorkoutStep"
+            },
+            {
+                "index": {
+                    "$numberInt": "1"
+                },
+                "name": "Rest",
+                "duration": {
+                    "$numberInt": "30"
+                },
+                "type": "TimedWorkoutStep"
+            },
+            {
+                "index": {
+                    "$numberInt": "2"
+                },
+                "type": "RepWorkoutStep",
+                "name": "Burpee",
+                "count": {
+                    "$numberInt": "20"
+                }
+            },
+            {
+                "type": "TimedWorkoutStep",
+                "name": "Rest",
+                "duration": {
+                    "$numberInt": "30"
+                },
+                "index": {
+                    "$numberInt": "3"
+                }
+            },
+            {
+                "index": {
+                    "$numberInt": "4"
+                },
+                "type": "RepWorkoutStep",
+                "name": "Handstand Wall Walk",
+                "count": {
+                    "$numberInt": "1"
+                }
+            },
+            {
+                "type": "TimedWorkoutStep",
+                "name": "Rest",
+                "duration": {
+                    "$numberInt": "30"
+                },
+                "index": {
+                    "$numberInt": "5"
+                }
+            },
+            {
+                "index": {
+                    "$numberInt": "6"
+                },
+                "type": "RepWorkoutStep",
+                "name": "Standing Long Jump",
+                "count": {
+                    "$numberInt": "8"
+                }
+            },
+            {
+                "type": "TimedWorkoutStep",
+                "name": "Rest",
+                "duration": {
+                    "$numberInt": "30"
+                },
+                "index": {
+                    "$numberInt": "7"
+                }
+            },
+            {
+                "index": {
+                    "$numberInt": "8"
+                },
+                "type": "RepWorkoutStep",
+                "name": "Side Planks",
+                "count": {
+                    "$numberInt": "4"
+                },
+                "duration": {
+                    "$numberInt": "3"
+                }
+            },
+            {
+                "type": "TimedWorkoutStep",
+                "name": "Rest",
+                "duration": {
+                    "$numberInt": "30"
+                },
+                "index": {
+                    "$numberInt": "9"
+                }
+            },
+            {
+                "index": {
+                    "$numberInt": "10"
+                },
+                "type": "RepWorkoutStep",
+                "name": "Tricep Dips",
+                "count": {
+                    "$numberInt": "12"
+                }
+            },
+            {
+                "type": "TimedWorkoutStep",
+                "name": "Rest",
+                "duration": {
+                    "$numberInt": "30"
+                },
+                "index": {
+                    "$numberInt": "11"
+                }
+            },
+            {
+                "index": {
+                    "$numberInt": "12"
+                },
+                "type": "RepWorkoutStep",
+                "name": "Spider Crawl",
+                "count": {
+                    "$numberInt": "10"
+                }
+            },
+            {
+                "type": "TimedWorkoutStep",
+                "name": "Rest",
+                "duration": {
+                    "$numberInt": "60"
+                },
+                "index": {
+                    "$numberInt": "13"
+                }
+            }
+        ],
+        "sets": {
+            "$numberInt": "3"
+        },
+        "name": "The Bodyweight Strength Builder",
+        "channel_id": {
+            "$oid": "61d7b56e1388397512995d14"
+        },
+        "description": "Our full-body circuit has been formulated to build strength, while the short rest times mean you're also burning extra calories. Do all the moves in order, three times a week, with a day off between each go. You'll be a leaner, stronger man for it.",
+        "image_url": "https://images.unsplash.com/photo-1589955791915-526198ae4ee9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8"
+    },
+    {
+        "_id": {
+            "$oid": "61d7b56e1388397512995d46"
+        },
+        "realm_id": "form_demo",
+        "steps": [
+            {
+                "index": {
+                    "$numberInt": "0"
+                },
+                "name": "Reverse Crunches",
+                "count": {
+                    "$numberInt": "60"
+                },
+                "type": "RepWorkoutStep"
+            },
+            {
+                "index": {
+                    "$numberInt": "1"
+                },
+                "name": "Sit-ups",
+                "count": {
+                    "$numberInt": "60"
+                },
+                "type": "RepWorkoutStep"
+            },
+            {
+                "index": {
+                    "$numberInt": "2"
+                },
+                "name": "Mountain Climber",
+                "count": {
+                    "$numberInt": "60"
+                },
+                "type": "RepWorkoutStep"
+            },
+            {
+                "index": {
+                    "$numberInt": "3"
+                },
+                "name": "Rest",
+                "duration": {
+                    "$numberInt": "120"
+                },
+                "type": "TimedWorkoutStep"
+            }
+        ],
+        "sets": {
+            "$numberInt": "5"
+        },
+        "name": "The Bodyweight Six-pack Builder",
+        "channel_id": {
+            "$oid": "61d7b56e1388397512995d14"
+        },
+        "description": "This workout targets your abs. It's made up of just three bodyweight exercises – but what it lacks in length, it more than makes up for in effectiveness. Consider this your ultimate abs finisher. Complete all three exercises and then take 2 mins rest. Repeat the circuit five times.",
+        "image_url": "https://images.unsplash.com/photo-1594381898411-846e7d193883?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8"
+    }
+]
