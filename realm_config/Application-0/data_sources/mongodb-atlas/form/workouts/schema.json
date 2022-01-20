@@ -15,6 +15,9 @@
         "sets": {
             "bsonType": "int"
         },
+        "image_url": {
+            "bsonType": "string"
+        },
         "steps": {
             "bsonType": "array",
             "items": {
