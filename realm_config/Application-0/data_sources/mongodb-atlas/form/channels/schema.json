@@ -1,0 +1,23 @@
+{
+    "properties": {
+        "_id": {
+            "bsonType": "objectId"
+        },
+        "creator_id": {
+            "bsonType": "objectId"
+        },
+        "description": {
+            "bsonType": "string"
+        },
+        "name": {
+            "bsonType": "string"
+        },
+        "realm_id": {
+            "bsonType": "string"
+        }
+    },
+    "required": [
+        "realm_id"
+    ],
+    "title": "Channel"
+}

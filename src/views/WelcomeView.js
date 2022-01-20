@@ -1,19 +1,36 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, Button, Alert } from "react-native";
+import { View, Text, TextInput, Alert, Pressable, Image } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+
 import { useAuth } from "../providers/AuthProvider";
 import styles from "../stylesheet";
 
 export function WelcomeView({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { user, signUp, signIn, signInAnonymous } = useAuth();
+  const [screenInFocus, setScreenInFocus] = useState(false);
+  const { user, signUp, signIn } = useAuth();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // console.log("Login screen in focus");
+      setScreenInFocus(true);
+
+      return () => {
+        // console.log("Login screen not in focus");
+        setScreenInFocus(false);
+      };
+
+    }, [])
+  );
 
   useEffect(() => {
-    // If there is a user logged in, go to the Projects page.
-    if (user != null) {
+    // If there is a user logged in, go to the full tab view.
+    if (user != null && screenInFocus) {
+      // console.log("Tabbing in after login");
       navigation.reset({
         index: 0,
-        routes: [{ name: "Main" }]
+        routes: [{ name: "Tabs" }]
       });
     }
   }, [user]);
@@ -21,7 +38,6 @@ export function WelcomeView({ navigation }) {
   // The onPressSignIn method calls AuthProvider.signIn with the
   // email/password in state.
   const onPressSignIn = async () => {
-    console.log("Press sign in");
     try {
       await signIn(email, password);
     } catch (error) {
@@ -32,26 +48,18 @@ export function WelcomeView({ navigation }) {
   // The onPressSignUp method calls AuthProvider.signUp with the
   // email/password in state and then signs in.
   const onPressSignUp = async () => {
-    try {
-      await signUp(email, password);
-      signIn(email, password);
-    } catch (error) {
-      Alert.alert(`Failed to sign up: ${error.message}`);
-    }
+    navigation.navigate("Registration", {})
   };
 
-  const onPressSignInAnonymous = async () => {
-    try {
-      await signInAnonymous();
-    } catch (error) {
-      Alert.alert(`Failed to sign in: ${error.message}`);
-    }
-
-  }
-
   return (
-    <View>
-      <Text>Signup or Signin:</Text>
+    <View style={{ flex: 1, backgroundColor: '#FFF', alignItems: 'center', justifyContent: 'center' }}>
+      <Image
+        style={{ height: 150, width: 150, marginBottom: 30 }}
+        // style={styles.button}
+        // source={props.image}
+        source={require("../../assets/icon.png")}
+      />
+
       <View style={styles.inputContainer}>
         <TextInput
           onChangeText={setEmail}
@@ -61,7 +69,7 @@ export function WelcomeView({ navigation }) {
           autoCapitalize="none"
         />
       </View>
-      <View style={styles.inputContainer}>
+      <View style={{ ...styles.inputContainer, marginBottom: 30 }}>
         <TextInput
           onChangeText={(text) => setPassword(text)}
           value={password}
@@ -70,11 +78,13 @@ export function WelcomeView({ navigation }) {
           secureTextEntry
         />
       </View>
-      <View style={styles.fixToText}>
-        <Button onPress={onPressSignIn} title="Sign In" />
-        <Button onPress={onPressSignUp} title="Sign Up" />
-        <Button onPress={onPressSignInAnonymous} title="Sign In as Guest" />
-      </View>
+      <Pressable style={styles.loginButton} onPress={onPressSignIn}>
+        <Text style={styles.loginButtonText}>Login </Text>
+      </Pressable>
+      <Text>-or-</Text>
+      <Pressable style={styles.loginButton} onPress={onPressSignUp}>
+        <Text style={styles.loginButtonText}>Sign Up</Text>
+      </Pressable>
     </View>
   );
 }

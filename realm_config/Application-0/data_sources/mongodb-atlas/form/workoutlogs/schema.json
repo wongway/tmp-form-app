@@ -1,0 +1,96 @@
+{
+    "properties": {
+        "_id": {
+            "bsonType": "objectId"
+        },
+        "end_time": {
+            "bsonType": "date"
+        },
+        "realm_id": {
+            "bsonType": "string"
+        },
+        "start_time": {
+            "bsonType": "date"
+        },
+        "steps": {
+            "bsonType": "array",
+            "items": {
+                "bsonType": "object",
+                "properties": {
+                    "count": {
+                        "bsonType": "int"
+                    },
+                    "duration": {
+                        "bsonType": "int"
+                    },
+                    "index": {
+                        "bsonType": "int"
+                    },
+                    "name": {
+                        "bsonType": "string"
+                    },
+                    "timestamp": {
+                        "bsonType": "date"
+                    },
+                    "type": {
+                        "bsonType": "string"
+                    }
+                },
+                "title": "WorkoutLogStep"
+            }
+        },
+        "user_id": {
+            "bsonType": "objectId"
+        },
+        "workout_id": {
+            "bsonType": "objectId"
+        },
+        "data": {
+            "bsonType": "array",
+            "items": {
+                "bsonType": "object",
+                "title": "WorkoutData",
+                "properties": {
+                    "timestamp": { "bsonType": "date" },
+                    "pose_data": { 
+                        "bsonType": "array",
+                        "items": {
+                            "bsonType": "object",
+                            "title": "PoseEstimationData",
+                            "properties": {
+                                "algorithm": { "bsonType": "string" },
+                                "keypoint": { "bsonType": "string" },
+                                "x": { "bsonType": "double" },
+                                "y": { "bsonType": "double" },
+                                "confidence": { "bsonType": "double" }
+                            },
+                            "required": ["algorithm", "keypoint", "x", "y", "confidence"]
+                        }
+                    },
+                    "rep_data": {
+                        "bsonType": "object",
+                        "properties": {
+                            "is_rep": {"bsonType": "boolean"},
+                            "algorithm": { "bsonType": "string" },
+                            "zscore": { "bsonType": "double" },
+                            "avg": { "bsonType": "double" },
+                            "stddev": { "bsonType": "double" },
+                            "n_stddev": { "bsonType": "double" },
+                            "height": { "bsonType": "double" },
+                            "status": { "bsonType": "int" }
+                        },
+                        "required": ["is_rep", "algorithm"],
+                        "title": "RepCountData"
+                    }
+                }
+            }
+        }
+    },
+    "required": [
+        "_id",
+        "realm_id",
+        "user_id",
+        "workout_id"
+    ],
+    "title": "WorkoutLog"
+}

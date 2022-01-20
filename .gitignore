@@ -121,3 +121,7 @@ web-build/
 dist/
 
 # @end expo-cli
+
+# EAS build configure artifacts - not sure if these should be checked-in or not.
+android/*
+ios/*

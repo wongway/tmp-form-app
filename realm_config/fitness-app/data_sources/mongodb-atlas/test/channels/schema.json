@@ -4,9 +4,6 @@
         "_id": {
             "bsonType": "objectId"
         },
-        "channel_id": {
-            "bsonType": "string"
-        },
         "creator_id": {
             "bsonType": "objectId"
         },
@@ -23,7 +20,6 @@
     "required": [
         "_id",
         "realm_id",
-        "channel_id",
         "name",
         "description"
     ],

@@ -6,11 +6,13 @@ import { useChannels } from "../providers/ChannelsProvider";
 
 import { timeAgoString } from "../utils/TimeElapsed";
 
+import styles from "../stylesheet";
+
 export const ActivityFeedView = () => {
     const { workoutLogs, getUserById, getWorkoutById } = useChannels();
 
     return (
-        <Card containerStyle={{padding: 0}} >
+        <Card containerStyle={styles.card} >
         {
             workoutLogs.map((workoutLog, i) => {
                 if (!workoutLog){
@@ -20,9 +22,14 @@ export const ActivityFeedView = () => {
                 const user = getUserById(workoutLog.user_id);
                 const workout = getWorkoutById(workoutLog.workout_id);
 
+                if (!workout) { 
+                    console.log("No bad workout_id for workoutlog:", workoutLog._id);
+                    return;
+                }
+
                 const image_url = `https://i.pravatar.cc/64?u=${user._id}`;
 
-                const time_delta = timeAgoString(workoutLog.timestamp);
+                const time_delta = timeAgoString(workoutLog.end_time);
 
                 return (
                     <TouchableOpacity key={(i)}>

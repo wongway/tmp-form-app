@@ -1,5 +1,4 @@
 {
-    "bsonType": "object",
     "properties": {
         "_id": {
             "bsonType": "objectId"
@@ -24,31 +23,28 @@
                     "count": {
                         "bsonType": "int"
                     },
+                    "duration": {
+                        "bsonType": "int"
+                    },
+                    "index": {
+                        "bsonType": "int"
+                    },
                     "name": {
                         "bsonType": "string"
+                    },
+                    "timestamp": {
+                        "bsonType": "date"
                     },
                     "type": {
                         "bsonType": "string"
                     }
                 },
-                "required": [
-                    "count",
-                    "name",
-                    "type"
-                ],
                 "title": "WorkoutStep"
             }
-        },
-        "workout_id": {
-            "bsonType": "string"
         }
     },
     "required": [
-        "_id",
-        "workout_id",
-        "realm_id",
-        "name",
-        "sets"
+        "realm_id"
     ],
     "title": "Workout"
 }

@@ -21,15 +21,8 @@ entity "**Users**" as User {
     * name : string
     * email : string
     * is_creator : boolean
-    followed_channels : embedded FollowedChannel []
+    followed_channels : ObjectId <Channels._id> []
     payments : embedded Payment []
-}
-
-entity "**FollowedChannel**" as FollowedChannel {
-    embedded in User
-    ---
-    channel : ObjectId <Channels._id>
-
 }
 
 entity "**Payment**" as Payment {
@@ -46,7 +39,7 @@ entity "**Channels**" as Channel {
     ' * channel_id : string
     * realm_id : string
     ---
-    * creator : ObjectId <Users.user_id>
+    * creator_id : ObjectId <Users.user_id>
     * name : string
     * description : string
     ---
@@ -56,14 +49,13 @@ entity "**Channels**" as Channel {
 
 entity "**Workout**" as Workout {
     * _id : ObjectId
-    * workout_id : string
     * realm_id : string
     ---
     * name : string
-    * channel : ObjectId <Channels._id>
+    * channel_id : ObjectId <Channels._id>
     * sets : uint8
-    * steps : embedded Step []
-    ---
+    * steps : embedded WorkoutStep (Timed or Rep) []
+    __//Not implemented yet//__
     * duration : time
     * tags : []
     * hidden_tags : []
@@ -74,13 +66,24 @@ entity "**Workout**" as Workout {
 }
 
 ' TODO: Probably want some sort of enum for type
-entity "**WorkoutStep**" as Step {
-    embedded in Workout
+entity "**RepWorkoutStep**" as RepWorkoutStep {
+    embedded in Workout or WorkoutLog
     ---
+    * type: static string "RepWorkoutStep"
     * index : int
-    * name : e.g. squats
-    * type : duration or reps
-    * count : int or time
+    * name : string (e.g. squats)
+    * count : int
+    timestamp : date
+}
+
+entity "**TimedWorkoutStep**" as TimedWorkoutStep {
+    embedded in Workout or WorkoutLog
+    ---
+    * type: static string "TimedWorkoutStep"
+    * index : int
+    * name : string (e.g. squats)
+    * duration : int (time in seconds)
+    timestamp : date
 }
 
 entity "**WorkoutLog**" as WorkoutLog {
@@ -89,46 +92,65 @@ entity "**WorkoutLog**" as WorkoutLog {
     ---
     * user_id : ObjectId <Users._id>
     * workout_id : ObjectId <Workouts._id>
-    * timestamp : date
-    * steps : embedded WorkoutStepLog []
-    * data : embedded WorkoutData []
-}
-
-entity "**WorkoutStepLog**" as WorkoutLogStep {
-    embedded in WorkoutLog
-    ---
-    * index : int
-    * count : int
+    * start_time : date
+    end_time : date
+    steps : embedded WorkoutStepLog []
+    data : embedded WorkoutData []
 }
 
 entity "**WorkoutData**" as WorkoutData {
     embedded in WorkoutLog
     ---
-    * time : date
-    * is_rep : bool
+    * timestamp : date
+    pose_data: PoseEstimationData []
+    rep_data: RepCountData
+}
+
+entity "**PoseEstimationData**" as PoseEstimationData {
+    embedded in WorkoutData
+    ---
+    * algorithm : string (MoveNet)
+    * keypoint : string 
     * x : double
     * y : double
     * confidence : double
-    * zscore : double
-    * avg : double
-    * stddev : double
-    * n_stddev : double
 }
 
-Workout ||--|{ Step
+entity "**RepCountData**" as RepCountData {
+    embedded in WorkoutData
+    ---
+    * is_rep : bool
+    * algorithm: string (keypoint, zscore)
+    __//zscore algorithm related//__
+    zscore : double
+    avg : double
+    stddev : double
+    n_stddev : double
+    __//keypoint algorithm related//__
+    height : double
+    status : int
+}
+
+AppUser ||--|| User
+
+Workout ||--|{ TimedWorkoutStep
+Workout ||--|{ RepWorkoutStep
 Workout ||--o{ WorkoutLog
 
-WorkoutLog ||--o{ WorkoutLogStep
+WorkoutLog ||--|{ TimedWorkoutStep
+WorkoutLog ||--|{ RepWorkoutStep
 
 User ||--o{ WorkoutLog
-User --o{ FollowedChannel
 User --o{ Payment
 
-FollowedChannel ||--|| Channel
 Payment ||--|| Channel
 
+' Channel has one creator
+' Users have zero or more followed channels
 Channel ||--o| User
 Channel ||--o{ Workout
 WorkoutLog ||--o{ WorkoutData
+WorkoutData ||--o{ PoseEstimationData
+WorkoutData ||--o| RepCountData
 
 @enduml
