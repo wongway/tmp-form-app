@@ -22,6 +22,11 @@ export const ActivityFeedView = () => {
                 const user = getUserById(workoutLog.user_id);
                 const workout = getWorkoutById(workoutLog.workout_id);
 
+                if (!workout) { 
+                    console.log("No bad workout_id for workoutlog:", workoutLog._id);
+                    return;
+                }
+
                 const image_url = `https://i.pravatar.cc/64?u=${user._id}`;
 
                 const time_delta = timeAgoString(workoutLog.end_time);
