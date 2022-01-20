@@ -1,38 +1,60 @@
 import React from "react";
-import { TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity } from "react-native";
 import { Badge, Card, ListItem, Avatar } from "react-native-elements";
-
-import { useChannels } from "../providers/ChannelsProvider";
 import { useNavigation } from "@react-navigation/native";
 
-export const ChannelsView = () => {
-    const { channels } = useChannels();
+import { useAuth } from "../providers/AuthProvider";
+import { useChannels } from "../providers/ChannelsProvider";
+
+import { ChannelItem } from "../components/ChannelItem";
+
+import styles from "../stylesheet";
+
+export const ChannelsView = (props) => {
     const navigation = useNavigation();
+    const { user } = useAuth();
+    const { channels, getUserByAppId, getChannel, favChannels } = useChannels();
+    const followed = props.followed;
+
+    if (followed) {
+        if (!favChannels || favChannels.length == 0) {
+            return (
+                <Card containerStyle={styles.card}>
+                    <Text> No followed channels</Text>
+                </Card>
+            );
+        }
+
+        return (
+            <Card containerStyle={styles.card}>
+                {
+                    favChannels.map((channel_id, i) => {
+                        return (
+                            <ChannelItem channel_id={channel_id} />
+                        );
+                    })
+                }
+            </Card>
+        );
+    }
 
     return (
-        <Card containerStyle={{padding: 0}} >
-        {
-            channels.map((channel, i) => {
+        <Card containerStyle={styles.card} >
+            {
+                channels.map((channel, i) => {
+                    // console.log(favChannels[0], typeof(favChannels[0]), channel._id, typeof(channel._id), favChannels[0] === channel._id);
 
-                const image_url = `https://i.pravatar.cc/64?u=${channel._id}`;
-                return (
-                    <TouchableOpacity key={i}>
-                    <ListItem key={i} bottomDivider onPress={() => navigation.navigate("Channel", { name: channel.name, channel_id: channel._id.toHexString() })}>
-                        <Avatar
-                            size="small"
-                            rounded
-                            source={image_url ? { uri: image_url } : {}}
-                            activeOpacity={0.7}
-                        />
-                        <ListItem.Content>
-                            <ListItem.Title>{channel.name}</ListItem.Title>
-                            <ListItem.Subtitle>{channel.description}</ListItem.Subtitle>
-                        </ListItem.Content>
-                        {/* <Badge value="PR" status="primary" /> */}
-                        {/* <Badge value="OR" status="error" /> */}
-                    </ListItem></TouchableOpacity>)
-            })
-        }
+                    // TODO: Fix this so that favorite channels aren't in the suggested channels
+                    if (favChannels.indexOf(channel._id.toHexString()) >= 0) { 
+                        return (<></>);
+                    } else {
+
+                    return (
+                            <ChannelItem channel_id={channel._id} />
+                    );
+                    }
+                })
+            }
         </Card>
     );
 };

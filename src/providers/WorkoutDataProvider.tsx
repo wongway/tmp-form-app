@@ -67,7 +67,7 @@ const WorkoutDataProvider: React.FC = ({
         });
     }
 
-    const addWorkoutLogStep = (workoutlog_id, workoutStep) => {
+    const addWorkoutLogStep = async (workoutlog_id, workoutStep) => {
         const realm = realmRef.current;
         if (!realm) {
         return false;
@@ -90,7 +90,7 @@ const WorkoutDataProvider: React.FC = ({
         });
     }    
 
-    const addWorkoutData = (workoutlog_id: string, data: WorkoutData) => {
+    const addWorkoutData = async (workoutlog_id: string, data: WorkoutData) => {
         const realm = realmRef.current;
         if (!realm) {
             return false;

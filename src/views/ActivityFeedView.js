@@ -6,11 +6,13 @@ import { useChannels } from "../providers/ChannelsProvider";
 
 import { timeAgoString } from "../utils/TimeElapsed";
 
+import styles from "../stylesheet";
+
 export const ActivityFeedView = () => {
     const { workoutLogs, getUserById, getWorkoutById } = useChannels();
 
     return (
-        <Card containerStyle={{padding: 0}} >
+        <Card containerStyle={styles.card} >
         {
             workoutLogs.map((workoutLog, i) => {
                 if (!workoutLog){

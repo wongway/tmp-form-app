@@ -1,4 +1,4 @@
-import { Button, View, Text, ScrollView } from "react-native";
+import { Pressable, View, Text, ScrollView } from "react-native";
 import styles from "../stylesheet";
 
 import { useChannels } from "../providers/ChannelsProvider";
@@ -43,7 +43,12 @@ export const UserProfileScreen = ({route, navigation}) => {
             <Text style={{ marginHorizontal: 20, marginVertical: 10 }}>
                 Logged in as: { user.id } ({ user.profile.email })
             </Text>
-            <Button onPress={onSignOut} title='Logout' />
+            <View style={{ justifyContent: "center", alignItems: "center", marginTop: 20 }}>
+            <Pressable style={styles.loginButtonDark} onPress={onSignOut}>
+                <Text style={styles.loginButtonText}>LOGOUT</Text>
+            </Pressable>
+            </View>
+
         </ScrollView>
     )
 }
