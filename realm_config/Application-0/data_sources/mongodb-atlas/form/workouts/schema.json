@@ -9,11 +9,17 @@
         "name": {
             "bsonType": "string"
         },
+        "description": {
+            "bsonType": "string"
+        },
         "realm_id": {
             "bsonType": "string"
         },
         "sets": {
             "bsonType": "int"
+        },
+        "image_url": {
+            "bsonType": "string"
         },
         "steps": {
             "bsonType": "array",
@@ -41,6 +47,15 @@
                 },
                 "title": "WorkoutStep"
             }
+        },
+        "tags": {
+            "bsonType": "array",
+            "items": {
+                "bsonType": "string"
+            }
+        },
+        "duration": {
+            "bsonType": "int"
         }
     },
     "required": [

@@ -23,6 +23,9 @@
         },
         "user_id": {
             "bsonType": "string"
+        },
+        "image_url": {
+            "bsonType": "string"
         }
     },
     "required": [

@@ -46,7 +46,12 @@ const WorkoutCard = (props) => {
     const navigation = useNavigation();
     const workout = props.workout;
 
-    const image_url = `https://picsum.photos/seed/${workout._id}/150/150`;
+    var image_url = `https://picsum.photos/seed/${workout._id}/150/150`;
+
+    if (workout.image_url) {
+        // console.log('Custom workout image');
+        image_url = `${workout.image_url}&w=150&h=150&fit=crop`;
+    }
 
     return (
         <TouchableOpacity key={(workout._id)}

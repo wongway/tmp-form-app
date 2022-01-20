@@ -22,16 +22,18 @@ entity "**Users**" as User {
     * email : string
     * is_creator : boolean
     followed_channels : ObjectId <Channels._id> []
+    ---
+    image_url : string
+    __//Not implemented yet//__
     payments : embedded Payment []
 }
 
 entity "**Payment**" as Payment {
     embedded in User
-    ---
+    __//Not implemented yet//__
     channel : ObjectId <Channels._id>
     date : date
     expiry : date
-
 }
 
 entity "**Channels**" as Channel {
@@ -43,6 +45,8 @@ entity "**Channels**" as Channel {
     * name : string
     * description : string
     ---
+    image_url : string
+    __//Not implemented yet//__
     reviews : embedded []
     rating : uint8 (0-5)
 }
@@ -52,12 +56,15 @@ entity "**Workout**" as Workout {
     * realm_id : string
     ---
     * name : string
+    * description : string
     * channel_id : ObjectId <Channels._id>
     * sets : uint8
     * steps : embedded WorkoutStep (Timed or Rep) []
+    ---
+    image_url : string
+    duration : int (time in minutes)
+    tags : string []
     __//Not implemented yet//__
-    * duration : time
-    * tags : []
     * hidden_tags : []
     reviews : embedded Review []
     rating : aggregation uint8 (0-5)
