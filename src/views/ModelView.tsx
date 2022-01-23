@@ -342,7 +342,24 @@ export function ModelView({ workout_id })  {
               //setIsTimerPlaying(true);
             }
           }
-        } else { //timer is showing
+        } else { //timer is showing, calibration in progress
+          
+          if (isWorkoutLogStepAdded.current === false) {
+            const time = new Date(Date.now());
+            addWorkoutLogStep(
+                workoutlog_id.current, 
+                { 
+                    type: "CalibrationStep",
+                    // index: 0,
+                    name: workout.steps[currentStep.current].name,
+                    count: workout.steps[currentStep.current].count,
+                    duration: workout.steps[currentStep.current].duration,
+                    timestamp: time,
+                }
+            );
+            isWorkoutLogStepAdded.current = true;
+          }
+
           if (poses[0].keypoints[KEYPOINTS.NOSE].score > MIN_KEYPOINT_SCORE) {
 
             const nose_y = (poses[0].keypoints[KEYPOINTS.NOSE].y / getOutputTensorHeight()) *
@@ -379,6 +396,33 @@ export function ModelView({ workout_id })  {
             showFeedback.current = 'Raise Camera';
             setIsTimerPlaying(false);
           }
+
+          const time = new Date(Date.now());
+          addWorkoutData (
+            workoutlog_id.current,
+            {
+              timestamp: time,
+              pose_data: [{
+                algorithm : "MoveNet",
+                keypoint : "Left Hip", 
+                x : poses[0].keypoints[KEYPOINTS.LEFT_HIP].x,
+                y : poses[0].keypoints[KEYPOINTS.LEFT_HIP].y,
+                confidence : poses[0].keypoints[KEYPOINTS.LEFT_HIP].score},
+                {
+                  algorithm : "MoveNet",
+                  keypoint : "Right Hip", 
+                  x : poses[0].keypoints[KEYPOINTS.RIGHT_HIP].x,
+                  y : poses[0].keypoints[KEYPOINTS.RIGHT_HIP].y,
+                  confidence : poses[0].keypoints[KEYPOINTS.RIGHT_HIP].score},
+              ],
+              rep_data: {
+                is_rep : false,
+                algorithm: (algo.current === 0 ? "keypoint": "zscore"),
+                height : 0,
+                status : 0,
+              },
+            }
+          );
         }  
       } else {
         //console.log("No Keypoints");
