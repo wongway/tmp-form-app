@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, Text, View, Dimensions, Platform, Animated, Easing } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Platform, Animated, Easing, Pressable } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as tf from '@tensorflow/tfjs';
 import * as posedetection from '@tensorflow-models/pose-detection';
@@ -17,6 +17,7 @@ import { useWorkoutData } from "../providers/WorkoutDataProvider";
 import { useChannels } from "../providers/ChannelsProvider";
 import { useNavigation } from "@react-navigation/native";
 import { StackActions } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 const TensorCamera = cameraWithTensors(Camera);
 const IS_ANDROID = Platform.OS === 'android';
@@ -99,7 +100,7 @@ export function ModelView({ workout_id })  {
   // - >0: animation frame has been scheduled.
   const rafId = useRef<number | null>(null);
   const poseHistory = useRef(new CBuffer(ZSCORE_LAG*2));
-  
+  const [debugInfo, setDebugInfo] = useState(false);
   this.state = {hValue1: new Animated.Value(0)}
   const progressBarToValue = useRef(0);
   const { createWorkoutLog, completeWorkoutLog, addWorkoutLogStep, addWorkoutData } = useWorkoutData();
@@ -404,7 +405,7 @@ export function ModelView({ workout_id })  {
   };
 
   const renderPose = () => {
-    if (poses != null && poses.length > 0) {
+    if (debugInfo === true && poses != null && poses.length > 0) {
       const keypoints = poses[0].keypoints
         .filter((k) => (k.score ?? 0) > MIN_KEYPOINT_SCORE)
         .map((k) => {
@@ -433,7 +434,7 @@ export function ModelView({ workout_id })  {
 
       return <Svg style={styles.svg}>{keypoints}</Svg>;
     } else {
-      return <View></View>;
+      return null;
     }
   };
 
@@ -475,16 +476,19 @@ export function ModelView({ workout_id })  {
   };
 
   const renderFps = () => {
-    return (
-      <View style={styles.fpsContainer}>
-        <Text>FPS: {fps}</Text>
-      </View>
-    );
+    if (debugInfo === true) {
+      return (
+        <View style={styles.fpsContainer}>
+          <Text>FPS: {fps}</Text>
+        </View>
+      );
+    } else {
+      return null;
+    }
   };
 
   const renderFeedback = () => {
     if (isCalibrating.current === true) {
-
       return (
         <View style={styles.feedbackContainer}>
           <Text style={styles.feedback}>
@@ -498,13 +502,17 @@ export function ModelView({ workout_id })  {
   };
 
   const renderAlgo = () => {
-    return (
-      <View
-        style={styles.algorithm}
-        onTouchEnd={handleSwitchAlgo}>
-        <Text>{algo.current ? 'zscore' : 'keypoint'}</Text>
-      </View>
-    );
+    if (debugInfo === true) {
+      return (
+        <View
+          style={styles.algorithm}
+          onTouchEnd={handleSwitchAlgo}>
+          <Text>{algo.current ? 'Zscore' : 'Keypoint'}</Text>
+        </View>
+      );
+      } else {
+        return null;
+      }
   };
   const renderTime = ({ remainingTime }) => {
 
@@ -550,7 +558,7 @@ export function ModelView({ workout_id })  {
             isPlaying={isTimerPlaying}
             duration={duration}
             size={220}
-            strokeWidth={7}
+            strokeWidth={0}
             strokeLinecap={'square'}
             colors={[["#808080"]]}
         >{renderTime}
@@ -578,17 +586,13 @@ export function ModelView({ workout_id })  {
   };
 
   const renderCameraTypeSwitcher = () => {
-    return (
-      <View
-        style={styles.cameraTypeSwitcher}
-        onTouchEnd={handleSwitchCameraType}
-      >
-        <Text>
-          Switch to{' '}
-          {cameraType === Camera.Constants.Type.front ? 'back' : 'front'} camera
-        </Text>
-      </View>
-    );
+    let size = 40;
+    return (<Pressable style={styles.cameraTypeSwitcher} onPress={handleSwitchCameraType}>
+        <View >
+        <Ionicons name='sync-outline' size={size} color='#F2790F'/>
+        </View>
+      </Pressable>
+      );
   };
 
   const handleSwitchCameraType = () => {
@@ -596,6 +600,24 @@ export function ModelView({ workout_id })  {
       setCameraType(Camera.Constants.Type.back);
     } else {
       setCameraType(Camera.Constants.Type.front);
+    }
+  };
+
+  const renderDebugInfoSwitcher = () => {
+    let size = 40;
+    return (<Pressable style={styles.debugInfoSwitcher} onPress={handleDebugInfoType}>
+        <View >
+        <Ionicons name='information-circle-outline' size={size} color={debugInfo === true ? '#F2790F' : '#161616'}/>
+        </View>
+      </Pressable>
+      );
+  };
+
+  const handleDebugInfoType = () => {
+    if (debugInfo === false) {
+      setDebugInfo(true);
+    } else {
+      setDebugInfo(false);
     }
   };
 
@@ -687,6 +709,7 @@ export function ModelView({ workout_id })  {
         {renderFps()}
         {renderReps()}
         {renderCameraTypeSwitcher()}
+        {renderDebugInfoSwitcher()}
         {renderAlgo()}
         {renderFeedback()}
         {renderVerticalProgress()}
@@ -736,7 +759,7 @@ const styles = StyleSheet.create({
   },
   fpsContainer: {
     position: 'absolute',
-    top: 10,
+    bottom: 10,
     left: 10,
     width: 80,
     alignItems: 'center',
@@ -749,11 +772,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
-    width: 210,
+    width: 50,
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, .7)',
-    borderRadius: 2,
-    padding: 8,
+    zIndex: 20,
+  },
+  debugInfoSwitcher: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    width: 50,
+    alignItems: 'center',
     zIndex: 20,
   },
   repsContainer: {
@@ -775,11 +803,13 @@ const styles = StyleSheet.create({
   },
   algorithm: {
     position: 'absolute',
-    bottom: 40,
-    right: 40,
-    color: 'white',
+    bottom: 10,
+    right: 10,
+    width: 90,
+    alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, .7)',
-    fontSize: 100,
+    borderRadius: 2,
+    padding: 8,
     zIndex: 20,
   },
   countdownContainer: {
@@ -796,16 +826,17 @@ const styles = StyleSheet.create({
     textShadowColor: 'black',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 2,
-    color: 'violet',
-    fontSize: 150,
+    color: 'orange',
+    fontSize: 120,
     zIndex: 110,
     opacity: 1,
   },
   feedbackContainer: {
     position: 'absolute',
-    top: 100,
+    bottom: 50,
     left: 10,
     width: 400,
+    alignItems: 'center',
     zIndex: 120,
   },
   feedback: {
