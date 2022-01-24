@@ -632,9 +632,7 @@ export function ModelView({ workout_id })  {
   const renderCameraTypeSwitcher = () => {
     let size = 40;
     return (<Pressable style={styles.cameraTypeSwitcher} onPress={handleSwitchCameraType}>
-        <View >
         <Ionicons name='sync-outline' size={size} color='#F2790F'/>
-        </View>
       </Pressable>
       );
   };
@@ -650,9 +648,7 @@ export function ModelView({ workout_id })  {
   const renderDebugInfoSwitcher = () => {
     let size = 40;
     return (<Pressable style={styles.debugInfoSwitcher} onPress={handleDebugInfoType}>
-        <View >
         <Ionicons name='information-circle-outline' size={size} color={debugInfo === true ? '#F2790F' : '#161616'}/>
-        </View>
       </Pressable>
       );
   };
@@ -799,7 +795,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     position: 'absolute',
-    zIndex: 30,
+    zIndex: 20,
   },
   fpsContainer: {
     position: 'absolute',
