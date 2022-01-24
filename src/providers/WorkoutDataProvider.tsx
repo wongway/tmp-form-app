@@ -73,7 +73,7 @@ const WorkoutDataProvider: React.FC = ({
         return false;
         }
 
-        console.log("addWorkoutStepLog:", workoutStep);
+        // console.log("addWorkoutStepLog:", workoutStep);
 
         const workoutLog = getWorkoutLogById(workoutlog_id);
         if (!workoutLog) {
@@ -99,7 +99,7 @@ const WorkoutDataProvider: React.FC = ({
         const workoutLog = getWorkoutLogById(workoutlog_id);
         if (!workoutLog) { return false; }
 
-        console.log("=> addWorkoutData");
+        // console.log("=> addWorkoutData");
 
         realm.write(() => {
             workoutLog.data.push(data);
