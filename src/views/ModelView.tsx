@@ -101,7 +101,8 @@ export function ModelView({ workout_id })  {
   const rafId = useRef<number | null>(null);
   const poseHistory = useRef(new CBuffer(ZSCORE_LAG*2));
   const [debugInfo, setDebugInfo] = useState(false);
-  this.state = {hValue1: new Animated.Value(0)}
+  //this.state = {hValue1: new Animated.Value(0)}
+  const hValue1 = useRef(new Animated.Value(0)).current;
   const progressBarToValue = useRef(0);
   const { createWorkoutLog, completeWorkoutLog, addWorkoutLogStep, addWorkoutData } = useWorkoutData();
   const workoutlog_id = useRef(null);
@@ -221,7 +222,8 @@ export function ModelView({ workout_id })  {
             }
             if (repCount.current === workout.steps[currentStep.current].count) {
               repCount.current = 0;
-              this.state.hValue1.setValue(0);
+              //this.state.hValue1.setValue(0);
+              hValue1.setValue(0);
               //progressBarToValue.current = 0;
               currentStep.current++;
               repStatus.current = 0;
@@ -261,7 +263,8 @@ export function ModelView({ workout_id })  {
                     }
                   }
 
-                  this.state.hValue1.setValue(Math.min(3*(cy-keypointHeight.current), progressBarToValue.current));
+                  //this.state.hValue1.setValue(Math.min(3*(cy-keypointHeight.current), progressBarToValue.current));
+                  hValue1.setValue(Math.min(3*(cy-keypointHeight.current), progressBarToValue.current));
                   //console.log("hvalue new:", Math.min(3*(cy-keypointHeight.current), progressBarToValue.current));
                   renderVerticalProgressBar();
 
@@ -489,13 +492,14 @@ export function ModelView({ workout_id })  {
     //console.log("hvalue1: ", this.state.hValue1._value );
     //console.log("ratio: ",this.state.hValue1._value/progressBarToValue.current);
 
-    if (this.state.hValue1._value/progressBarToValue.current > 0.9) {
+    //if (this.state.hValue1._value/progressBarToValue.current > 0.9) {
+    if (this.hValue1/progressBarToValue.current > 0.9) {  
       setStyleValue('#0c0');
     } else {
       setStyleValue('#0ac');
     }
 
-    Animated.timing(this.state.hValue1, {
+    Animated.timing(hValue1, {
       toValue: progressBarToValue.current,
       duration: 1000,
       easing: Easing.linear,
@@ -506,7 +510,7 @@ export function ModelView({ workout_id })  {
 
   const dynamicStyleUpdatedFromProps = {
     backgroundColor: styleValue,
-    height: this.state.hValue1
+    height: hValue1
   };
 
   const renderVerticalProgress = () => {
@@ -632,9 +636,7 @@ export function ModelView({ workout_id })  {
   const renderCameraTypeSwitcher = () => {
     let size = 40;
     return (<Pressable style={styles.cameraTypeSwitcher} onPress={handleSwitchCameraType}>
-        <View >
         <Ionicons name='sync-outline' size={size} color='#F2790F'/>
-        </View>
       </Pressable>
       );
   };
@@ -650,9 +652,7 @@ export function ModelView({ workout_id })  {
   const renderDebugInfoSwitcher = () => {
     let size = 40;
     return (<Pressable style={styles.debugInfoSwitcher} onPress={handleDebugInfoType}>
-        <View >
         <Ionicons name='information-circle-outline' size={size} color={debugInfo === true ? '#F2790F' : '#161616'}/>
-        </View>
       </Pressable>
       );
   };
@@ -799,7 +799,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     position: 'absolute',
-    zIndex: 30,
+    zIndex: 20,
   },
   fpsContainer: {
     position: 'absolute',
