@@ -3,6 +3,7 @@ import { Text, TouchableOpacity } from "react-native";
 import { Badge, Card, ListItem, Avatar } from "react-native-elements";
 import { useNavigation } from "@react-navigation/native";
 import Realm from "realm";
+import { FontAwesome } from "@expo/vector-icons";
 
 import { useAuth } from "../providers/AuthProvider";
 import { useChannels } from "../providers/ChannelsProvider";
@@ -21,7 +22,40 @@ export const ChannelsView = (props) => {
         if (!favChannels || favChannels.length == 0) {
             return (
                 <Card containerStyle={styles.card}>
-                    <Text> No followed channels</Text>
+                    {/* <Card containerStyle={{marginTop: 5, paddingHorizontal: 30}}> */}
+
+                    {/* <ListItem key={1}>
+                        <ListItem.Content>
+                            <ListItem.Title>Welcome!</ListItem.Title>
+                            <Card.Divider />
+                            <ListItem.Subtitle>
+                                You aren't following any channels yet. To 
+                                get started, check out beginner workouts in our 
+                                officlal Form channel "The Basics" or explore other 
+                                channels from our affiliate trainers below!
+                            </ListItem.Subtitle>
+                        </ListItem.Content>
+                    </ListItem> */}
+
+                    {/* <Card.Title>
+                        Find your new favorite workout in the channels below!
+                    </Card.Title>
+                    <Card.Title><FontAwesome name="arrow-circle-down" size={24} color="gray" /></Card.Title> */}
+
+                    <ListItem key={1}>
+                        <ListItem.Title >
+                            <FontAwesome name="arrow-circle-down" size={36} color="gray" />
+                        </ListItem.Title>
+                        <ListItem.Content>
+                        <ListItem.Title>
+                            {/* <FontAwesome name="arrow-circle-down" size={24} color="gray" /> */}
+                            <Text style={styles.colorDarkOrange}>Welcome!</Text>
+                        </ListItem.Title>
+                        <ListItem.Subtitle>
+                            Find your new favorite workout by exploring channels below
+                        </ListItem.Subtitle></ListItem.Content>
+                    </ListItem>
+
                 </Card>
             );
         }
@@ -50,9 +84,9 @@ export const ChannelsView = (props) => {
                         return;
                     } else {
 
-                    return (
+                        return (
                             <ChannelItem key={i} channel_id={channel._id} />
-                    );
+                        );
                     }
                 })
             }
