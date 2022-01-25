@@ -1,6 +1,13 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, StatusBar } from "react-native";
 
 const styles = StyleSheet.create({
+  baseContainer: {
+    flex: 1,
+    marginHorizontal: 20,
+  },
+  scrollView: {
+    // backgroundColor: '#FFF',
+  },
   inputContainer: {
     width: "80%",
     padding: 5,
@@ -14,6 +21,7 @@ const styles = StyleSheet.create({
   card: {
     padding: 0,
     marginVertical: 0,
+    marginHorizontal: 0,
   },
   manageTeamTitle: {
     marginBottom: 10,
@@ -43,22 +51,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginVertical: 10,
-    marginHorizontal: 20,
   },
   h2Text: {
     fontSize: 16,
     fontWeight: "bold",
     marginVertical: 10,
-    marginHorizontal: 20,
   },
   normalBlockText: {
     marginVertical: 10,
-    marginHorizontal: 20,
   },
   workoutStepText: {
-
     marginVertical: 10,
-    marginHorizontal: 20,
   },
 
   container: {
@@ -127,7 +130,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loginButtonDark: {
-    width: "80%",
+    width: "90%",
     borderRadius: 10,
     height: 40,
     alignItems: "center",
@@ -136,7 +139,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F2790F",
   },
   loginButton: {
-    width: "80%",
+    width: "90%",
     borderRadius: 10,
     height: 40,
     alignItems: "center",
