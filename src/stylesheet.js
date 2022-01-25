@@ -180,6 +180,15 @@ const styles = StyleSheet.create({
     padding: 5,
     paddingHorizontal: 10,
   },
+  colorDarkOrange: {
+    color: '#F2790F',
+  },
+  colorOrange: {
+    color: '#F2A649',
+  },
+  colorLightOrange: {
+    color: '#FFB54A',
+  },
 
 });
 
