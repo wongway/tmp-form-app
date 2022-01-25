@@ -1,5 +1,6 @@
 import React from 'react';
 // import ObjectID from 'bson-objectid';
+import 'react-native-get-random-values';
 import { BSON } from 'realm';
 
 import { useAuth } from './AuthProvider';
