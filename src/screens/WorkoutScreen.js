@@ -28,7 +28,7 @@ export const WorkoutScreen = ({ navigation, route }) => {
     return <LoadingView>Camera permission is required to continue</LoadingView>;
   }
   if (!isLoaded) {
-    return <LoadingView>Loading TensorFlow</LoadingView>;
+    return <LoadingView>Loading</LoadingView>;
   }
 
   if (repCounter) {

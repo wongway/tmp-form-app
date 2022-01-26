@@ -4,6 +4,7 @@ export type Channel = {
   _id?: bson.ObjectId;
   creator_id?: bson.ObjectId;
   description?: string;
+  image_url?: string;
   name?: string;
   realm_id: string;
 };
@@ -14,6 +15,7 @@ export const ChannelSchema = {
     _id: 'objectId?',
     creator_id: 'objectId?',
     description: 'string?',
+    image_url: 'string?',
     name: 'string?',
     realm_id: 'string',
   },
@@ -24,6 +26,7 @@ export type User = {
   _id?: bson.ObjectId;
   email?: string;
   followed_channels: Array<bson.ObjectId>;
+  image_url?: string;
   is_creator?: boolean;
   name?: string;
   realm_id: string;
@@ -36,6 +39,7 @@ export const UserSchema = {
     _id: 'objectId?',
     email: 'string?',
     followed_channels: 'objectId[]',
+    image_url: 'string?',
     is_creator: 'bool?',
     name: 'string?',
     realm_id: 'string',
@@ -157,10 +161,13 @@ export const WorkoutLogStepSchema = {
 export type Workout = {
   _id?: bson.ObjectId;
   channel_id?: bson.ObjectId;
+  description?: string;
+  image_url?: string;
   name?: string;
   realm_id: string;
   sets?: number;
   steps: Array<WorkoutStep>;
+  tags: Array<string>;
 };
 
 export const WorkoutSchema = {
@@ -168,10 +175,13 @@ export const WorkoutSchema = {
   properties: {
     _id: 'objectId?',
     channel_id: 'objectId?',
+    description: 'string?',
+    image_url: 'string?',
     name: 'string?',
     realm_id: 'string',
     sets: 'int?',
     steps: 'WorkoutStep[]',
+    tags: 'string[]',
   },
   primaryKey: '_id',
 };

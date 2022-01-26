@@ -1,4 +1,4 @@
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView, SafeAreaView } from "react-native";
 import styles from "../stylesheet";
 import { FontAwesome } from "@expo/vector-icons";
 
@@ -30,9 +30,9 @@ export const ChannelScreen = ({ route, navigation }) => {
     }, [fav]);
 
     return (
-        <ScrollView>
-            <View style={{ flex: 1 }}>
-                <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingRight: 15 }}>
+        <SafeAreaView style={styles.baseContainer}>
+            <ScrollView style={styles.scrollView}>
+                <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Text style={styles.titleText}>{channel.name}</Text>
                     <Pressable style={styles.followBtn} onPress={() => { fav ? setFav(false) : setFav(true) }}>
                         <View style={styles.followBtnView}>
@@ -46,7 +46,7 @@ export const ChannelScreen = ({ route, navigation }) => {
 
                 <WorkoutView channel_id={channel_id} />
 
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </SafeAreaView>
     );
 };

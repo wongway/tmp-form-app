@@ -197,6 +197,10 @@ const ChannelsProvider = ({ children }) => {
     return getDocumentsById("Workout", channel_id, "channel_id");
   }
 
+  const getWorkoutLogsByUserId = (user_id) => {
+    return getDocumentsById("WorkoutLog", user_id, 'user_id');
+  }
+
   const getUserByAppId = (app_id) => {
     const realm = realmRef.current;
     if (!realm) {
@@ -368,6 +372,7 @@ const ChannelsProvider = ({ children }) => {
         getWorkoutById,
         getWorkoutLogById,
         getWorkoutsByChannelId,
+        getWorkoutLogsByUserId,
         getUserById,
         getUserByAppId,
         createNewUser,
