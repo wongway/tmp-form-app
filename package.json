@@ -12,6 +12,7 @@
     "@tensorflow/tfjs-react-native": "0.8.0",
     "bson-objectid": "^2.0.1",
     "cbuffer": "^2.2.0",
+    "color-hash": "^2.0.1",
     "expo": "^44.0.4",
     "expo-barcode-scanner": "~11.2.0",
     "expo-camera": "~12.1.0",

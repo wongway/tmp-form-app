@@ -3,6 +3,7 @@ import { View, ScrollView, Text, StyleSheet, TouchableOpacity, Pressable } from 
 import { Button, Card, Avatar, ListItem, Badge } from "react-native-elements";
 import { FontAwesome, Entypo } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
+import ColorHash from 'color-hash';
 
 import { useChannels } from "../providers/ChannelsProvider";
 import { useWorkoutData } from "../providers/WorkoutDataProvider";
@@ -52,6 +53,8 @@ const WorkoutCard = (props) => {
         // console.log('Custom workout image');
         image_url = `${workout.image_url}&w=150&h=150&fit=crop`;
     }
+    
+    var colorHash = new ColorHash();
 
     return (
         <TouchableOpacity key={(workout._id)}
@@ -67,7 +70,23 @@ const WorkoutCard = (props) => {
                     <ListItem.Title>{props.title}</ListItem.Title>
                     {/* <ListItem.Content><Text>Short descriptive text that's going to get you to try this workout</Text></ListItem.Content> */}
                     <ListItem.Subtitle style={{marginBottom: 5}}>{props.duration} min</ListItem.Subtitle>
-                    <Badge badgeStyle={{paddingHorizontal: 2, backgroundColor: '#F2790F'}} value='#squats' />
+                    <View style={{flexDirection: 'row'}}>
+                    { 
+                            workout.tags.map((tag, i) => {
+                                return (
+                                    <>
+                                    <Badge
+                                        key={i}
+                                        // badgeStyle={{paddingHorizontal: 2, backgroundColor: "#F2790F"}}
+                                        badgeStyle={{paddingHorizontal: 2, backgroundColor: colorHash.hex(tag)}}
+                                        value={'#' + tag}
+                                    /><Text> </Text>
+                                    </>
+                                )
+                            })
+                    }
+                    </View>
+                    {/* <Badge badgeStyle={{paddingHorizontal: 2, backgroundColor: '#F2790F'}} value='#squats' /> */}
                 </ListItem.Content>
                 <ListItem.Content right>
                     <ListItem.Chevron />
