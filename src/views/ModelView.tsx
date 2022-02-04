@@ -91,7 +91,7 @@ export function ModelView({ workout_id }) {
   const [orientation, setOrientation] =
     useState<ScreenOrientation.Orientation>();
   const [cameraType, setCameraType] = useState<CameraType>(
-    Camera.Constants.Type.front
+    Camera.Constants.Type.back
   );
   // Use `useRef` so that changing it won't trigger a re-render.
   //
@@ -103,6 +103,14 @@ export function ModelView({ workout_id }) {
   const [debugInfo, setDebugInfo] = useState(false);
   //this.state = {hValue1: new Animated.Value(0)}
   const hValue1 = useRef(new Animated.Value(0)).current;
+  const hValue1Denorm = useRef(0);
+  //const [hValue1] = useState(new Animated.Value(0));
+  //const hValue1 = new Animated.Value(0);
+  //const hValue1Ref = useRef (hValue1);
+  const backColor = hValue1.interpolate({
+    inputRange: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+    outputRange: ['lightgoldenrodyellow','lightgoldenrodyellow', 'lightgoldenrodyellow','palegoldenrod','palegoldenrod','palegoldenrod','palegoldenrod','palegoldenrod','palegoldenrod','green','green'],
+  })
   const progressBarToValue = useRef(0);
   const { createWorkoutLog, completeWorkoutLog, addWorkoutLogStep, addWorkoutData } = useWorkoutData();
   const workoutlog_id = useRef(null);
@@ -224,6 +232,7 @@ export function ModelView({ workout_id }) {
               repCount.current = 0;
               //this.state.hValue1.setValue(0);
               hValue1.setValue(0);
+              hValue1Denorm.current = 0;
               //progressBarToValue.current = 0;
               currentStep.current++;
               repStatus.current = 0;
@@ -263,8 +272,10 @@ export function ModelView({ workout_id }) {
                     }
                   }
 
+                  const newHValue = Math.min(Math.max(0,cy - keypointHeight.current)/progressBarToValue.current, 1);
                   //this.state.hValue1.setValue(Math.min(3*(cy-keypointHeight.current), progressBarToValue.current));
-                  hValue1.setValue(Math.min(3 * (cy - keypointHeight.current), progressBarToValue.current));
+                  hValue1.setValue(newHValue);
+                  hValue1Denorm.current = newHValue * progressBarToValue.current;
                   //console.log("hvalue new:", Math.min(3*(cy-keypointHeight.current), progressBarToValue.current));
                   renderVerticalProgressBar();
 
@@ -493,28 +504,34 @@ export function ModelView({ workout_id }) {
 
     //console.log("hvalue1: ", this.state.hValue1);
     //console.log("toValue: ", progressBarToValue.current);
-    //console.log("hvalue1: ", this.state.hValue1._value );
+    //console.log("hvalue2: ", this.state.hValue1._value );
+    console.log("hvalue: ", hValue1 );
+    console.log("progressbartovalue: ", progressBarToValue.current );
     //console.log("ratio: ",this.state.hValue1._value/progressBarToValue.current);
-
+    //const temp = Number(hValue1) ;
+    //console.log("temp: ", temp);
+    //console.log("hvalue ref: ", hValue1Ref.current);
     //if (this.state.hValue1._value/progressBarToValue.current > 0.9) {
-    if (this.hValue1 / progressBarToValue.current > 0.9) {
-      setStyleValue('#0c0');
-    } else {
-      setStyleValue('#0ac');
-    }
+    //if (Math.round(temp)  / progressBarToValue.current > 0.9) {
+    //  setStyleValue('#0c0');
+    //} else {
+    //  setStyleValue('#0ac');
+    //}
 
     Animated.timing(hValue1, {
-      toValue: progressBarToValue.current,
-      duration: 1000,
-      easing: Easing.linear,
+    //  Animated.timing(this.state.hValue1, {
+      toValue: 1,
+      duration: 300,
+      //easing: Easing.linear,
       useNativeDriver: false
     }).start();
   };
 
 
   const dynamicStyleUpdatedFromProps = {
-    backgroundColor: styleValue,
-    height: hValue1
+    backgroundColor: backColor,
+    height: hValue1Denorm.current
+    //height: this.state.hValue1
   };
 
   const renderVerticalProgress = () => {
@@ -739,7 +756,7 @@ export function ModelView({ workout_id }) {
   };
 
   if (!tfReady) {
-    return <LoadingView>Loading TensorFlow model</LoadingView>;
+    return <LoadingView>Loading ...</LoadingView>;
   } else {
     return (
       // Note that you don't need to specify `cameraTextureWidth` and
@@ -905,14 +922,15 @@ const styles = StyleSheet.create({
     top: 200,
     left: 10,
     //borderBottomWidth: 1,
-    //borderBottomColor: '#dcdcdc',
+    borderBottomColor: '#dcdcdc',
     marginTop: 50,
     height: 300,
-    zIndex: 150,
+    zIndex: 30,
   },
   verticalProgress: {
     width: 30,
     minHeight: 0,
+    height: 300
     //backgroundColor:'#0da3cd'
   }
 });
