@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, Text, View, Dimensions, Platform, Animated, Pressable, Alert, Modal} from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Platform, Animated, Pressable, Easing, Alert, Modal} from 'react-native';
 import { Camera } from 'expo-camera';
 import * as tf from '@tensorflow/tfjs';
 import * as posedetection from '@tensorflow-models/pose-detection';
@@ -46,6 +46,7 @@ const ZSCORE_LAG = 50;
 const OUTPUT_TENSOR_WIDTH = 180;
 const OUTPUT_TENSOR_HEIGHT = OUTPUT_TENSOR_WIDTH / (IS_IOS ? 9 / 16 : 3 / 4);
 
+const VERTICAL_PROGRESS_BAR_HEIGHT = 200;
 // Whether to auto-render TensorCamera preview.
 const AUTO_RENDER = false;
 
@@ -99,11 +100,10 @@ export function ModelView({ workout_id }) {
   const rafId = useRef<number | null>(null);
   const poseHistory = useRef(new CBuffer(ZSCORE_LAG * 2));
   const [debugInfo, setDebugInfo] = useState(false);
-  const hValue1 = useRef(new Animated.Value(0)).current;
-  const hValue1Denorm = useRef(0);
-  const backColor = hValue1.interpolate({
-    inputRange: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
-    outputRange: ['lightgoldenrodyellow','lightgoldenrodyellow', 'lightgoldenrodyellow','palegoldenrod','palegoldenrod','palegoldenrod','palegoldenrod','palegoldenrod','palegoldenrod','green','green'],
+  const progressBarCurrentValue = useRef(new Animated.Value(0)).current;
+  const backColor = progressBarCurrentValue.interpolate({
+    inputRange: [0, 180, 200],
+    outputRange: ['white','white','green'],
   })
   const progressBarToValue = useRef(0);
   const { createWorkoutLog, completeWorkoutLog, addWorkoutLogStep, addWorkoutData } = useWorkoutData();
@@ -161,7 +161,9 @@ export function ModelView({ workout_id }) {
       if (workout.steps[currentStep.current].type === "RepWorkoutStep" && 
         repCount.current !== workout.steps[currentStep.current].count &&
         repCount.current > 0) {
+
         const time = new Date(Date.now());
+
         addWorkoutLogStep(
           workoutlog_id.current,
           {
@@ -173,9 +175,8 @@ export function ModelView({ workout_id }) {
             timestamp: time,
           }
         );
-        console.log("Finishing rep step. Count is: ", repCount.current);
       }
-      console.log("Finishing workout log:", workoutlog_id.current);
+
       completeWorkoutLog(workoutlog_id.current);
       workoutlog_id.current = null;
 
@@ -190,21 +191,17 @@ export function ModelView({ workout_id }) {
     images: IterableIterator<tf.Tensor3D>,
     updatePreview: () => void,
     gl: ExpoWebGLRenderingContext
-  ) => {
+    ) => {
     const loop = async () => {
 
-      // next set check
+      // increment current set counter when end of this set reached
       if (currentStep.current >= workout.steps.length) {
         currentSet.current++;
         currentStep.current = 0;
       }
 
-      //console.log("Current set: ", currentSet.current);
-      //console.log("workout set: ", workout.sets);
-      // 
+      // reached end of the last step, show workout summary
       if (currentSet.current > workout.sets) {
-        //navigation.navigate('Fake Workout' as never,{workout_id: workout_id } as never);
-        //navigation.navigate('Workout Summary' as never,{workout_id: workout_id }as never);
         setIsWorkoutSummaryVisible(true);
         return;
       }
@@ -220,12 +217,12 @@ export function ModelView({ workout_id }) {
       );
 
       if (poses.length > 0) {
-        if (isCalibrating.current === false) { // if true we are in calibrating/countdown mode
-          if (workout.steps[currentStep.current].type === "RepWorkoutStep") { // RepWorkoutStep
-            //console.log(workout);
-            
+        // if true we are in calibrating/countdown mode
+        if (isCalibrating.current === false) { 
+          // RepWorkoutStep
+          if (workout.steps[currentStep.current].type === "RepWorkoutStep") { 
+            // reached the end of the step, add workout log for this step
             if (repCount.current === workout.steps[currentStep.current].count) {
-
               const time = new Date(Date.now());
               addWorkoutLogStep(
                 workoutlog_id.current,
@@ -238,68 +235,55 @@ export function ModelView({ workout_id }) {
                   timestamp: time,
                 }
               );
-              console.log("finishing rep workout step");
-
+              // end of the step rest the rep counter
               repCount.current = 0;
-              //this.state.hValue1.setValue(0);
-              hValue1.setValue(0);
-              hValue1Denorm.current = 0;
-              //progressBarToValue.current = 0;
+              // set vertical progress value to zero
+              progressBarCurrentValue.setValue(0);
+
               currentStep.current++;
               repStatus.current = 0;
             } else {
-
               let isRep = false;
-
+              // start algorithm only if greater than minimum keypoint score
               if (poses[0].keypoints[KEYPOINTS.LEFT_HIP].score > MIN_KEYPOINT_SCORE) {
-                if (algo.current === 0) { // keypoint algorithm 
+                // keypoint algorithm 
+                if (algo.current === 0) { 
                   const cy =
                     (poses[0].keypoints[KEYPOINTS.LEFT_HIP].y / getOutputTensorHeight()) *
                     (isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
-
                   // in case poseScale is not set before, default to 0.7 of the screen
                   if (poseScale.current === 0) {
                     poseScale.current = 0.7;
                   }
-
-                  //console.log("cy: ", cy);
-
                   // set the starting keypoint for the first time
                   if (isKeypointSet.current == false) {
                     keypointHeight.current = cy;
-                    progressBarToValue.current = 3 * 0.16 * poseScale.current * CAM_PREVIEW_HEIGHT;
-                    //console.log("Keypoint height set: ", keypointHeight.current);
+                    progressBarToValue.current = 0.16 * poseScale.current * CAM_PREVIEW_HEIGHT;
                     isKeypointSet.current = true;
                   }
-
                   // update the keypoint if the height is higher and within 2/3 of the screen height and we are still before the first squat
                   if (repCount.current == 0) {
                     if (cy < keypointHeight.current) {
                       keypointHeight.current = cy;
-                      progressBarToValue.current = 3 * 0.16 * poseScale.current * CAM_PREVIEW_HEIGHT;
-                      //console.log("Keypoint height changed: ", keypointHeight.current);
+                      progressBarToValue.current = 0.16 * poseScale.current * CAM_PREVIEW_HEIGHT;
                     }
                   }
+                  console.log("keypoint height: ", keypointHeight.current);
+                  console.log("progress bar max value: ", progressBarToValue.current);
+                  console.log("cy: ", cy);
 
-                  const newHValue = Math.min(Math.max(0,cy - keypointHeight.current)/progressBarToValue.current, 1);
-                  //this.state.hValue1.setValue(Math.min(3*(cy-keypointHeight.current), progressBarToValue.current));
-                  hValue1.setValue(newHValue);
-                  hValue1Denorm.current = newHValue * progressBarToValue.current;
-                  //console.log("hvalue new:", Math.min(3*(cy-keypointHeight.current), progressBarToValue.current));
+                  // normilize progress bar current value to 0 - 300
+                  progressBarCurrentValue.setValue (Math.min((cy - keypointHeight.current) * VERTICAL_PROGRESS_BAR_HEIGHT / progressBarToValue.current*1.1,VERTICAL_PROGRESS_BAR_HEIGHT));
+            
                   renderVerticalProgressBar();
-
                   // downward motion
                   if (repStatus.current == 0 && cy > keypointHeight.current + 0.16 * poseScale.current * CAM_PREVIEW_HEIGHT) {
                     repStatus.current = 1;
-                    //console.log("Down");
                   }
-
                   //upward motion
                   if (repStatus.current == 1 && cy < keypointHeight.current + 0.15 * poseScale.current * CAM_PREVIEW_HEIGHT) {
                     repStatus.current = 2;
-                    //console.log("Up");
                   }
-
                   // count the rep
                   if (repStatus.current == 2 && cy < keypointHeight.current + 0.1 * poseScale.current * CAM_PREVIEW_HEIGHT) {
                     repStatus.current = 0;
@@ -308,9 +292,7 @@ export function ModelView({ workout_id }) {
                   }
                 } else { // zscore algorithm
                   if (poseHistory.current.push(poses[0].keypoints[KEYPOINTS.LEFT_HIP].y) >= ZSCORE_LAG + 2) {
-                    //console.log("y= ", poses[0].keypoints[KEYPOINTS.LEFT_HIP].y);
                     let signal = smoothed_z_score(poseHistory.current.toArray());
-                    //console.log("signal= ", signal[0]);
                     isRep = is_rep(signal[0]);
                   }
                 }
@@ -318,7 +300,6 @@ export function ModelView({ workout_id }) {
                   repCount.current++;
                 }
                 const time = new Date(Date.now());
-
                 addWorkoutData(
                   workoutlog_id.current,
                   {
@@ -348,8 +329,8 @@ export function ModelView({ workout_id }) {
                 );
               }
             }
-          } else { // TimedWorkoutStep
-            //console.log("timed workout step");
+          } else { 
+            // TimedWorkoutStep
             // if last timed step of the last set -> skip it
             if (currentSet.current === workout.sets && currentStep.current === workout.steps.length - 1) {
               currentStep.current++;
@@ -359,23 +340,19 @@ export function ModelView({ workout_id }) {
               currentStep.current++;
               isResting.current = false;
               isRestingDone.current = false;
-              //console.log("finishing timed workout step");
             } else if (isResting.current === false) {
-              //console.log("setting timed duration to ", workout.steps[currentStep.current].duration);
               setDuration(workout.steps[currentStep.current].duration);
               isResting.current = true;
-              //setIsTimerPlaying(true);
             }
           }
-        } else { //timer is showing, calibration in progress
-
+        } else { 
+          //timer is showing, calibration in progress
           if (isWorkoutLogStepAdded.current === false) {
             const time = new Date(Date.now());
             addWorkoutLogStep(
               workoutlog_id.current,
               {
                 type: "CalibrationStep",
-                // index: 0,
                 name: workout.steps[currentStep.current].name,
                 count: 0,
                 duration: 0,
@@ -511,40 +488,20 @@ export function ModelView({ workout_id }) {
 
   const renderVerticalProgressBar = () => {
 
-    //console.log("hvalue1: ", this.state.hValue1);
-    //console.log("toValue: ", progressBarToValue.current);
-    //console.log("hvalue2: ", this.state.hValue1._value );
-    console.log("hvalue: ", hValue1 );
-    console.log("progressbartovalue: ", progressBarToValue.current );
-    //console.log("ratio: ",this.state.hValue1._value/progressBarToValue.current);
-    //const temp = Number(hValue1) ;
-    //console.log("temp: ", temp);
-    //console.log("hvalue ref: ", hValue1Ref.current);
-    //if (this.state.hValue1._value/progressBarToValue.current > 0.9) {
-    //if (Math.round(temp)  / progressBarToValue.current > 0.9) {
-    //  setStyleValue('#0c0');
-    //} else {
-    //  setStyleValue('#0ac');
-    //}
-
-    Animated.timing(hValue1, {
-    //  Animated.timing(this.state.hValue1, {
-      toValue: 1,
+    Animated.timing(progressBarCurrentValue, {
+      toValue: VERTICAL_PROGRESS_BAR_HEIGHT,
       duration: 300,
-      //easing: Easing.linear,
+      easing: Easing.linear,
       useNativeDriver: false
     }).start();
   };
 
-
   const dynamicStyleUpdatedFromProps = {
     backgroundColor: backColor,
-    height: hValue1Denorm.current
-    //height: this.state.hValue1
+    height: progressBarCurrentValue
   };
 
   const renderVerticalProgress = () => {
-    //console.log(styleValue);
     return (
       <View style={styles.content2}>
         <Animated.View style={{ ...styles.verticalProgress, ...dynamicStyleUpdatedFromProps }}>
@@ -726,20 +683,17 @@ export function ModelView({ workout_id }) {
           console.log("request close");
           const popAction = StackActions.pop(2);
           navigation.dispatch(popAction);
-          //navigation.navigate('Workout Summary' as never,{workout_id: workout_id} as never);
         }}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <Pressable
               style={styles.closeButtonSummary}
-              //onPress={() => setIsWorkoutSummaryVisible(!isWorkoutSummaryVisible)}
               onPress={() => handleCloseButtonWorkoutSummary()}
             >
               <Ionicons 
                 name={'close-outline'} 
                 size={40} 
                 color='rgba(0, 0, 0, .5)'
-                // color='#F2790F' 
               />
             </Pressable>
             <View style={{flex: 1}}>
@@ -775,10 +729,8 @@ export function ModelView({ workout_id }) {
     return (<Pressable style={styles.debugInfoSwitcher} onPress={handleDebugInfoType}>
       <Ionicons 
         name={debugInfo === true ? 'information-circle-outline' : 'information-circle'} 
-        // name='information-circle-outline' 
         size={size} 
         color='rgba(255, 255, 255, .5)'
-        // color={debugInfo === true ? '#F2790F' : '#161616'} 
       />
     </Pressable>
     );
@@ -1027,7 +979,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 200,
     left: 10,
-    //borderBottomWidth: 1,
     borderBottomColor: '#dcdcdc',
     marginTop: 50,
     height: 300,
@@ -1037,7 +988,6 @@ const styles = StyleSheet.create({
     width: 30,
     minHeight: 0,
     height: 300
-    //backgroundColor:'#0da3cd'
   },
   workoutSummaryContainer: {
     position: 'absolute',
