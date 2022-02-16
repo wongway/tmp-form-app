@@ -102,6 +102,7 @@ const AuthProvider = ({ children }) => {
         signInAnonymous,
         signOut,
         user,
+        app,
         // projectData, // list of projects the user is a memberOf
       }}
     >
