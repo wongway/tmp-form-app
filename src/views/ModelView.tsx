@@ -90,7 +90,7 @@ export function ModelView({ workout_id }) {
   const [isTimerPlaying, setIsTimerPlaying] = React.useState(false);
   const [duration, setDuration] = React.useState(3);
   const [orientation, setOrientation] = useState<ScreenOrientation.Orientation>();
-  const [cameraType, setCameraType] = useState<CameraType>(Camera.Constants.Type.back);
+  const [cameraType, setCameraType] = useState<CameraType>(Camera.Constants.Type.front);
   
   // Use `useRef` so that changing it won't trigger a re-render.
   //
@@ -656,6 +656,26 @@ export function ModelView({ workout_id }) {
           text: "OK", onPress: () => { 
             // if workout did not start just exit without displaying workout summary
             if (currentSet.current !== 1 || currentStep.current !== 0 || repCount.current !== 0){
+              if (workout.steps[currentStep.current].type === "RepWorkoutStep" && 
+              repCount.current !== workout.steps[currentStep.current].count &&
+              repCount.current > 0) {
+
+                const time = new Date(Date.now());
+                addWorkoutLogStep(
+                  workoutlog_id.current,
+                  {
+                    type: "RepWorkoutStep",
+                    // index: 0,
+                    name: workout.steps[currentStep.current].name,
+                    count: repCount.current,
+                    duration: workout.steps[currentStep.current].duration,
+                    timestamp: time,
+                  }
+                );
+                // end of the step rest the rep counter
+                repCount.current = 0;
+              }
+
               setIsWorkoutSummaryVisible(true);
             } else {
               const popAction = StackActions.pop(2);
