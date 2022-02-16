@@ -31,7 +31,11 @@ const IS_IOS = Platform.OS === 'ios';
 //
 // This might not cover all cases.
 const CAM_PREVIEW_WIDTH = Dimensions.get('window').width;
-const CAM_PREVIEW_HEIGHT = CAM_PREVIEW_WIDTH / (IS_IOS ? 9 / 16 : 3 / 4);
+// const CAM_PREVIEW_HEIGHT = CAM_PREVIEW_WIDTH / (IS_IOS ? 9 / 16 : 3 / 4);
+const CAM_PREVIEW_HEIGHT = CAM_PREVIEW_WIDTH / (9 / 16);
+// const CAM_PREVIEW_HEIGHT = Dimensions.get('window').height;
+// const CAM_PREVIEW_WIDTH = CAM_PREVIEW_HEIGHT * (IS_IOS ? 9 / 16 : 3 / 4);
+
 
 // The score threshold for pose detection results.
 const MIN_KEYPOINT_SCORE = 0.3;
@@ -112,9 +116,15 @@ export function ModelView({ workout_id }) {
   const currentStep = useRef(0);
   const navigation = useNavigation();
 
+  const [camPreviewWidth, setCamPreviewWidth] = useState(CAM_PREVIEW_WIDTH);
+  const [camPreviewHeight, setCamPreviewHeight] = useState(CAM_PREVIEW_HEIGHT);
+  const [camRatio, setCamRatio] = useState("4:3"); // Android only for TensorCamera.ratio
+
+
   useEffect(() => {
     async function prepare() {
       rafId.current = null;
+
 
       // Set initial orientation.
       const curOrientation = await ScreenOrientation.getOrientationAsync();
@@ -147,6 +157,7 @@ export function ModelView({ workout_id }) {
     }
 
     prepare();
+    console.log("Screen dims - H:", Dimensions.get('window').height, "W:", Dimensions.get('window').width);
   }, []);
 
   useEffect(() => {
@@ -163,6 +174,57 @@ export function ModelView({ workout_id }) {
       }
     };
   }, []);
+
+  useEffect(() => {
+
+    const getCameraPreviewDims = async () => {
+      const winWidth = Dimensions.get('screen').width;
+      const winHeight = Dimensions.get('screen').height;
+
+      console.log("getCameraPreviewDims");
+
+      if (IS_IOS) {
+        // return [winWidth, winWidth / (9 / 16)];
+        setCamPreviewWidth(winWidth);
+        setCamPreviewHeight(winWidth / (9 / 16));
+
+      } else { // IS_ANDROID
+        const winRatio = winHeight / winWidth;
+
+        // We need to calculate the appropriate ratio for Android
+        const camRatios = await cameraRef.current.camera.getSupportedRatiosAsync();
+        console.log("Camera ratios:", camRatios);
+        console.log(winHeight, winWidth, winRatio, winRatio - (16 / 9), ((winRatio - (16 / 9)) > 0), ((winRatio - (16 / 9)) < 0.1));
+
+        if ((camRatios.indexOf('16:9') !== -1)) { // && ((winRatio - (16 / 9)) > 0) && ((winRatio - (16 / 9)) < 0.1)) {
+          console.log("Android cam ratio - 16:9");
+          // return [winWidth, winWidth * (16 / 9)];
+          setCamPreviewWidth(winWidth);
+          setCamPreviewHeight(winWidth / (9 / 16));
+          setCamRatio('16:9');
+
+        } else {
+          console.log("Android cam ratio - defaulting to 4:3");
+          // return [winWidth, winWidth * (4 / 3)];
+          setCamPreviewWidth(winWidth);
+          setCamPreviewHeight(winWidth / (3 / 4));
+        }
+
+      }
+
+      return;
+    };
+
+
+    if (cameraRef.current != undefined) {
+      // Get screem dimensions
+      getCameraPreviewDims();
+
+      console.log("Camera dims - H:", CAM_PREVIEW_HEIGHT, "W:", CAM_PREVIEW_WIDTH);
+      console.log("Camera dims - H:", camPreviewHeight, "W:", camPreviewWidth);
+    }
+
+  }, [cameraRef.current]);
 
   const handleCameraStream = async (
     images: IterableIterator<tf.Tensor3D>,
@@ -638,11 +700,11 @@ export function ModelView({ workout_id }) {
   const renderCameraTypeSwitcher = () => {
     let size = 40;
     return (<Pressable style={styles.cameraTypeSwitcher} onPress={handleSwitchCameraType}>
-      <Ionicons 
-        name={cameraType === Camera.Constants.Type.front ? 'camera-reverse' : 'camera-reverse-outline'} 
-        size={size} 
+      <Ionicons
+        name={cameraType === Camera.Constants.Type.front ? 'camera-reverse' : 'camera-reverse-outline'}
+        size={size}
         color='rgba(255, 255, 255, .5)'
-        // color='#F2790F' 
+      // color='#F2790F' 
       />
     </Pressable>
     );
@@ -659,12 +721,12 @@ export function ModelView({ workout_id }) {
   const renderDebugInfoSwitcher = () => {
     let size = 40;
     return (<Pressable style={styles.debugInfoSwitcher} onPress={handleDebugInfoType}>
-      <Ionicons 
-        name={debugInfo === true ? 'information-circle-outline' : 'information-circle'} 
+      <Ionicons
+        name={debugInfo === true ? 'information-circle-outline' : 'information-circle'}
         // name='information-circle-outline' 
-        size={size} 
+        size={size}
         color='rgba(255, 255, 255, .5)'
-        // color={debugInfo === true ? '#F2790F' : '#161616'} 
+      // color={debugInfo === true ? '#F2790F' : '#161616'} 
       />
     </Pressable>
     );
@@ -750,6 +812,7 @@ export function ModelView({ workout_id }) {
         }
       >
         <TensorCamera
+          // ref={cameraRef}
           ref={cameraRef}
           style={styles.camera}
           autorender={AUTO_RENDER}
@@ -759,8 +822,8 @@ export function ModelView({ workout_id }) {
           resizeHeight={getOutputTensorHeight()}
           resizeDepth={3}
           rotation={getTextureRotationAngleInDegrees()}
-          onReady={handleCameraStream}
-        />
+          ratio={camRatio}
+          onReady={handleCameraStream} useCustomShadersToResize={undefined} cameraTextureWidth={undefined} cameraTextureHeight={undefined} />
         {renderCountdown()}
         {renderPose()}
         {renderFps()}
@@ -782,11 +845,11 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     left: 0,
-    width: CAM_PREVIEW_WIDTH,
-    height: CAM_PREVIEW_HEIGHT,
+    // width: CAM_PREVIEW_WIDTH,
+    // height: CAM_PREVIEW_HEIGHT,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: (Dimensions.get('window').height / 2 - CAM_PREVIEW_HEIGHT / 2) / 2,
+    // marginTop: (Dimensions.get('window').height / 2 - CAM_PREVIEW_HEIGHT / 2) / 2,
   },
   containerLandscape: {
     position: 'relative',
