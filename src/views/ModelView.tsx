@@ -91,7 +91,7 @@ export function ModelView({ workout_id }) {
   const [duration, setDuration] = React.useState(3);
   const [orientation, setOrientation] = useState<ScreenOrientation.Orientation>();
   const [cameraType, setCameraType] = useState<CameraType>(Camera.Constants.Type.front);
-  
+
   // Use `useRef` so that changing it won't trigger a re-render.
   //
   // - null: unset (initial value).
@@ -115,6 +115,11 @@ export function ModelView({ workout_id }) {
   const currentStep = useRef(0);
   const navigation = useNavigation();
   const [isWorkoutSummaryVisible, setIsWorkoutSummaryVisible] = useState(false);
+
+  const [camPreviewWidth, setCamPreviewWidth] = useState(CAM_PREVIEW_WIDTH);
+  const [camPreviewHeight, setCamPreviewHeight] = useState(CAM_PREVIEW_HEIGHT);
+  const [camRatio, setCamRatio] = useState("4:3"); // Android only for TensorCamera.ratio
+
 
   useEffect(() => {
     async function prepare() {
@@ -151,6 +156,7 @@ export function ModelView({ workout_id }) {
     }
 
     prepare();
+    console.log("Screen dims - H:", Dimensions.get('window').height, "W:", Dimensions.get('window').width);
   }, []);
 
   useEffect(() => {
@@ -187,11 +193,62 @@ export function ModelView({ workout_id }) {
     };
   }, []);
 
+  useEffect(() => {
+
+    const getCameraPreviewDims = async () => {
+      const winWidth = Dimensions.get('screen').width;
+      const winHeight = Dimensions.get('screen').height;
+
+      console.log("getCameraPreviewDims");
+
+      if (IS_IOS) {
+        // return [winWidth, winWidth / (9 / 16)];
+        setCamPreviewWidth(winWidth);
+        setCamPreviewHeight(winWidth / (9 / 16));
+
+      } else { // IS_ANDROID
+        const winRatio = winHeight / winWidth;
+
+        // We need to calculate the appropriate ratio for Android
+        const camRatios = await cameraRef.current.camera.getSupportedRatiosAsync();
+        console.log("Camera ratios:", camRatios);
+        console.log(winHeight, winWidth, winRatio, winRatio - (16 / 9), ((winRatio - (16 / 9)) > 0), ((winRatio - (16 / 9)) < 0.1));
+
+        if ((camRatios.indexOf('16:9') !== -1)) { // && ((winRatio - (16 / 9)) > 0) && ((winRatio - (16 / 9)) < 0.1)) {
+          console.log("Android cam ratio - 16:9");
+          // return [winWidth, winWidth * (16 / 9)];
+          setCamPreviewWidth(winWidth);
+          setCamPreviewHeight(winWidth / (9 / 16));
+          setCamRatio('16:9');
+
+        } else {
+          console.log("Android cam ratio - defaulting to 4:3");
+          // return [winWidth, winWidth * (4 / 3)];
+          setCamPreviewWidth(winWidth);
+          setCamPreviewHeight(winWidth / (3 / 4));
+        }
+
+      }
+
+      return;
+    };
+
+
+    if (cameraRef.current != undefined) {
+      // Get screem dimensions
+      getCameraPreviewDims();
+
+      console.log("Camera dims - H:", CAM_PREVIEW_HEIGHT, "W:", CAM_PREVIEW_WIDTH);
+      console.log("Camera dims - H:", camPreviewHeight, "W:", camPreviewWidth);
+    }
+
+  }, [cameraRef.current]);
+
   const handleCameraStream = async (
     images: IterableIterator<tf.Tensor3D>,
     updatePreview: () => void,
     gl: ExpoWebGLRenderingContext
-    ) => {
+  ) => {
     const loop = async () => {
 
       // increment current set counter when end of this set reached
@@ -243,11 +300,12 @@ export function ModelView({ workout_id }) {
               currentStep.current++;
               repStatus.current = 0;
             } else {
+
               let isRep = false;
               // start algorithm only if greater than minimum keypoint score
               if (poses[0].keypoints[KEYPOINTS.LEFT_HIP].score > MIN_KEYPOINT_SCORE) {
                 // keypoint algorithm 
-                if (algo.current === 0) { 
+                if (algo.current === 0) {
                   const cy =
                     (poses[0].keypoints[KEYPOINTS.LEFT_HIP].y / getOutputTensorHeight()) *
                     (isPortrait() ? CAM_PREVIEW_HEIGHT : CAM_PREVIEW_WIDTH);
@@ -274,7 +332,7 @@ export function ModelView({ workout_id }) {
 
                   // normilize progress bar current value to 0 - 300
                   progressBarCurrentValue.setValue (Math.min((cy - keypointHeight.current) * VERTICAL_PROGRESS_BAR_HEIGHT / progressBarToValue.current*1.1,VERTICAL_PROGRESS_BAR_HEIGHT));
-            
+
                   renderVerticalProgressBar();
                   // downward motion
                   if (repStatus.current == 0 && cy > keypointHeight.current + 0.16 * poseScale.current * CAM_PREVIEW_HEIGHT) {
@@ -621,11 +679,11 @@ export function ModelView({ workout_id }) {
   const renderCameraTypeSwitcher = () => {
     let size = 40;
     return (<Pressable style={styles.cameraTypeSwitcher} onPress={handleSwitchCameraType}>
-      <Ionicons 
-        name={cameraType === Camera.Constants.Type.front ? 'camera-reverse' : 'camera-reverse-outline'} 
-        size={size} 
+      <Ionicons
+        name={cameraType === Camera.Constants.Type.front ? 'camera-reverse' : 'camera-reverse-outline'}
+        size={size}
         color='rgba(255, 255, 255, .5)'
-        // color='#F2790F' 
+      // color='#F2790F' 
       />
     </Pressable>
     );
@@ -747,9 +805,9 @@ export function ModelView({ workout_id }) {
   const renderDebugInfoSwitcher = () => {
     let size = 40;
     return (<Pressable style={styles.debugInfoSwitcher} onPress={handleDebugInfoType}>
-      <Ionicons 
-        name={debugInfo === true ? 'information-circle-outline' : 'information-circle'} 
-        size={size} 
+      <Ionicons
+        name={debugInfo === true ? 'information-circle-outline' : 'information-circle'}
+        size={size}
         color='rgba(255, 255, 255, .5)'
       />
     </Pressable>
@@ -845,8 +903,8 @@ export function ModelView({ workout_id }) {
           resizeHeight={getOutputTensorHeight()}
           resizeDepth={3}
           rotation={getTextureRotationAngleInDegrees()}
-          onReady={handleCameraStream}
-        />
+          ratio={camRatio}
+          onReady={handleCameraStream} useCustomShadersToResize={undefined} cameraTextureWidth={undefined} cameraTextureHeight={undefined} />
         {renderCountdown()}
         {renderPose()}
         {renderFps()}
@@ -870,11 +928,11 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     left: 0,
-    width: CAM_PREVIEW_WIDTH,
-    height: CAM_PREVIEW_HEIGHT,
+    // width: CAM_PREVIEW_WIDTH,
+    // height: CAM_PREVIEW_HEIGHT,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: (Dimensions.get('window').height / 2 - CAM_PREVIEW_HEIGHT / 2) / 2,
+    // marginTop: (Dimensions.get('window').height / 2 - CAM_PREVIEW_HEIGHT / 2) / 2,
   },
   containerLandscape: {
     position: 'relative',

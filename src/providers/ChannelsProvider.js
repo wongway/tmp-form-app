@@ -15,7 +15,7 @@ const ChannelsProvider = ({ children }) => {
   const [favChannels, setFavChannels] = useState([]);
   const [workouts, setWorkouts] = useState([]);
   const [workoutLogs, setWorkoutLogs] = useState([]);
-  const { user } = useAuth();
+  const { user, app } = useAuth();
 
   // Use a Ref to store the realm rather than the state because it is not
   // directly rendered, so updating it should not trigger a re-render as using
@@ -28,26 +28,52 @@ const ChannelsProvider = ({ children }) => {
       return;
     }
 
+    // if (Realm.Sync._hasExistingSessions()) {
+    //   console.log("Multiple Realm Sync sessions exist");
+    // }
+
     const OpenRealmBehaviorConfiguration = {
       type: "openImmediately",
     };
 
+    function errorSync(_session, error) {
+      const realm = realmRef.current;
+      console.log('******************* ERRRRRRRRRRRRRRRRRRRRRRRRR ********************', error);
+      if (realm) {
+        if (error.name === "ClientReset") {
+          // const realmPath = "<Your Realm Path>";
+          realm.close();
+          console.log(`Error ${error.message}, need to reset ${realm.path}…`);
+          Realm.App.Sync.initiateClientReset(app, realm.path); // pass your realm app instance, and realm path to initiateClientReset()
+          console.log(`Creating backup from ${error.config.path}…`);
+          // Move backup file to a known location for a restore
+          fs.renameSync(error.config.path, realmPath + "~");
+          // Discard the reference to the realm instance
+          realm = null;
+        } else {
+          console.log(`Received error ${error.message}`);
+        }
+      }
+    }
+
     const config = {
       sync: {
         user: user,
-        schema: [ChannelSchema],
+        schema: [],
         partitionValue: PARTITION_VALUE,
-        error: (_session, error) => {
-          (error) => {
-            console.log("Sync error:", error.name, error.message);
-          };
-        },
+        error: errorSync,
+        // error: (_session, error) => {
+        //   (error) => {
+        //     console.log("Sync error:", error.name, error.message);
+        //   };
+        // },
         // newRealmFileBehavior: OpenRealmBehaviorConfiguration,
         // existingRealmFileBehavior: OpenRealmBehaviorConfiguration,
       },
     };
 
     // console.log("Opening realm");
+    console.log(Date.now().toString());
     console.log("User: ", user.id);
 
     // open a realm for this particular project
@@ -59,7 +85,7 @@ const ChannelsProvider = ({ children }) => {
       let sortedChannels = syncChannels.sorted("name");
       setChannels([...sortedChannels]);
       // console.log("Channels:", sortedChannels.length);
-      console.log(sortedChannels);
+      // console.log(sortedChannels);
       sortedChannels.addListener(() => {
         setChannels([...sortedChannels]);
       });
@@ -80,13 +106,31 @@ const ChannelsProvider = ({ children }) => {
         setFavChannels([...formUser.followed_channels]);
         // console.log("Fav Channels:", favChannels);
       })
+    }).catch((error) => {
+      console.error('Realm open error:', error);
+      if (error.errorCode === 1) {
+        if (realmRef.current) { realmRef.current.close(); }
+        // console.log(`Error ${error.message}, need to reset ${realm.path}…`);
+        // Realm.App.Sync.initiateClientReset(app, realm.path); // pass your realm app instance, and realm path to initiateClientReset()
+        console.log('Realm sync client reset initated');
+        try {
+          // Realm.App.Sync.initiateClientReset(app, realmRef.current.path); // pass your realm app instance, and realm path to initiateClientReset()
+          console.log("Deleting local realm file");
+          Realm.deleteFile(config);
+
+        } catch(error) {
+          console.log(error);
+        }
+        // Realm.Sync.initiateClientReset(); // pass your realm app instance, and realm path to initiateClientReset()
+        // console.log(`Creating backup from ${error.config.path}…`);
+      }
     });
 
     return () => {
       // cleanup function
-      console.log("Cleaning up realm connection for channels");
       const projectRealm = realmRef.current;
       if (projectRealm) {
+        console.log("Cleaning up realm connection");
         projectRealm.close();
         realmRef.current = null;
         setChannels([]);

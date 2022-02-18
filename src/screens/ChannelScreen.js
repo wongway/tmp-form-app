@@ -17,7 +17,7 @@ export const ChannelScreen = ({ route, navigation }) => {
 
     useEffect(() => {
         return () => {
-            console.log("Closing channel screen:", followed, fav);
+            // console.log("Closing channel screen:", followed, fav);
             if (fav != followed) {
                 if (fav) {
                     addFollowedChannel(channel_id);

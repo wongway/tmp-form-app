@@ -53,14 +53,14 @@ const WorkoutCard = (props) => {
         // console.log('Custom workout image');
         image_url = `${workout.image_url}&w=150&h=150&fit=crop`;
     }
-    
+
     var colorHash = new ColorHash();
 
     return (
-        <TouchableOpacity key={(workout._id)}
+        <TouchableOpacity
             onPress={() => navigation.navigate('Workout Details', { name: workout.name, workout_id: workout._id.toHexString() })}
             activeOpacity={0.5} >
-            <ListItem key={workout._id} bottomDivider>
+            <ListItem bottomDivider>
                 <Avatar
                     size="large"
                     source={image_url ? { uri: image_url } : {}}
@@ -69,24 +69,20 @@ const WorkoutCard = (props) => {
                 <ListItem.Content>
                     <ListItem.Title>{props.title}</ListItem.Title>
                     {/* <ListItem.Content><Text>Short descriptive text that's going to get you to try this workout</Text></ListItem.Content> */}
-                    <ListItem.Subtitle style={{marginBottom: 5}}>{props.duration} min</ListItem.Subtitle>
-                    <View style={{flexDirection: 'row'}}>
-                    { 
+                    <ListItem.Subtitle style={{ marginBottom: 5 }}>{props.duration} min</ListItem.Subtitle>
+                    <View style={{ flexDirection: 'row' }}>
+                        {
                             workout.tags.map((tag, i) => {
                                 return (
-                                    <>
                                     <Badge
                                         key={i}
-                                        // badgeStyle={{paddingHorizontal: 2, backgroundColor: "#F2790F"}}
-                                        badgeStyle={{paddingHorizontal: 2, backgroundColor: colorHash.hex(tag)}}
+                                        badgeStyle={{ marginRight: 5, paddingHorizontal: 2, backgroundColor: colorHash.hex(tag) }}
                                         value={'#' + tag}
-                                    /><Text> </Text>
-                                    </>
+                                    />
                                 )
                             })
-                    }
+                        }
                     </View>
-                    {/* <Badge badgeStyle={{paddingHorizontal: 2, backgroundColor: '#F2790F'}} value='#squats' /> */}
                 </ListItem.Content>
                 <ListItem.Content right>
                     <ListItem.Chevron />
@@ -171,14 +167,14 @@ export const WorkoutSummaryScreen = ({ route, navigation }) => {
     const workout = getWorkoutById(workout_id);
 
     return (
-        <View style={{flex: 1}}>
-            <Text style={styles.titleText}>You have just completed { workout.sets } sets of {workout.name}</Text>
+        <View style={{ flex: 1 }}>
+            <Text style={styles.titleText}>You have just completed {workout.sets} sets of {workout.name}</Text>
             {
                 workout.steps.map((step, i) => {
-                    return(<Text style={[styles.normalBlockText, { fontWeight: "bold"}]} key={i}>
+                    return (<Text style={[styles.normalBlockText, { fontWeight: "bold" }]} key={i}>
                         <Entypo name="chevron-right" size={12} />
                         {step.count}{step.type == 'RepWorkoutStep' ? 'x' : ' sec'} {step.name}
-                        </Text>)
+                    </Text>)
                 })
             }
         </View>

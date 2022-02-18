@@ -1,5 +1,6 @@
 import * as Camera from "expo-camera";
 import React from "react";
+import { SafeAreaView, View } from 'react-native';
 
 import { LoadingView } from "../views/LoadingView";
 import { ModelView } from "../views/ModelView";
@@ -32,7 +33,13 @@ export const WorkoutScreen = ({ navigation, route }) => {
   }
 
   if (repCounter) {
-    return <ModelView workout_id={workout_id} />;
+    return (
+      <SafeAreaView style={styles.baseContainerNoMargin}>
+        <View style={{ flex: 1 }}>
+          <ModelView workout_id={workout_id} />
+        </View>
+      </SafeAreaView>
+    );
   } else {
     return <ModelViewNoPrediction />;
   }
