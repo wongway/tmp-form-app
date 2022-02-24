@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
+import 'react-native-get-random-values';
 import Realm from "realm";
 import ObjectID from "bson-objectid";
 import { ChannelSchema, WorkoutSchema } from "../datamodel/schema";
