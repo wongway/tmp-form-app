@@ -2,6 +2,7 @@ import React from "react";
 import { Text, TouchableOpacity } from "react-native";
 import { Badge, Card, ListItem, Avatar } from "react-native-elements";
 import { useNavigation } from "@react-navigation/native";
+import 'react-native-get-random-values';
 import Realm from "realm";
 import { FontAwesome } from "@expo/vector-icons";
 
