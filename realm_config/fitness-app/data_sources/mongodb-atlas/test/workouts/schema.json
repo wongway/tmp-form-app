@@ -1,0 +1,74 @@
+{
+    "bsonType": "object",
+    "properties": {
+        "_id": {
+            "bsonType": "objectId"
+        },
+        "channel_id": {
+            "bsonType": "objectId"
+        },
+        "name": {
+            "bsonType": "string"
+        },
+        "realm_id": {
+            "bsonType": "string"
+        },
+        "sets": {
+            "bsonType": "int"
+        },
+        "steps": {
+            "bsonType": "array",
+            "items": {
+                "anyOf": [
+                    {
+                        "bsonType": "object",
+                        "properties": {
+                            "index": { "bsonType": "int" },
+                            "duration": {
+                                "bsonType": "int"
+                            },
+                            "name": {
+                                "bsonType": "string"
+                            }
+                        },
+                        "required": [
+                            "duration",
+                            "name",
+                            "index"
+                        ],
+                        "title": "TimedWorkoutStep"
+                    },
+                    {
+                        "bsonType": "object",
+                        "properties": {
+                            "index": { "bsonType": "int" },
+                            "count": {
+                                "bsonType": "int"
+                            },
+                            "name": {
+                                "bsonType": "string"
+                            }
+                        },
+                        "required": [
+                            "count",
+                            "name",
+                            "index"
+                        ],
+                        "title": "RepWorkoutStep"
+
+                    }
+                ]
+            }
+        },
+        "workout_id": {
+            "bsonType": "objectId"
+        }
+    },
+    "required": [
+        "_id",
+        "realm_id",
+        "name",
+        "sets"
+    ],
+    "title": "Workout"
+}

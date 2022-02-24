@@ -1,69 +1,163 @@
 @startuml data_schema
 
 title Entity Relationship Diagram
+' Follows the standards in: https://plantuml.com/ie-diagram
 
 hide circle
 skinparam linetype ortho
 
-entity "**User**" as User {
+entity "**App Users**" as AppUser {
     * _id : ObjectId
     ---
     * name : string
     * email : string
-    fav_workouts : workout_id []
+}
+
+entity "**Users**" as User {
+    * _id : ObjectId
+    * user_id : string <AppUser._id>
+    * realm_id : string
+    ---
+    * name : string
+    * email : string
+    * is_creator : boolean
+    followed_channels : ObjectId <Channels._id> []
+    ---
+    image_url : string
+    __//Not implemented yet//__
+    payments : embedded Payment []
+}
+
+entity "**Payment**" as Payment {
+    embedded in User
+    __//Not implemented yet//__
+    channel : ObjectId <Channels._id>
+    date : date
+    expiry : date
+}
+
+entity "**Channels**" as Channel {
+    * _id : ObjectId
+    ' * channel_id : string
+    * realm_id : string
+    ---
+    * creator_id : ObjectId <Users.user_id>
+    * name : string
+    * description : string
+    ---
+    image_url : string
+    __//Not implemented yet//__
+    reviews : embedded []
+    rating : uint8 (0-5)
 }
 
 entity "**Workout**" as Workout {
     * _id : ObjectId
+    * realm_id : string
     ---
     * name : string
-    * creator : user_id <ObjectId>
-    * derived_from : workout_id <ObjectId>
-    * duration : time
-    * tags : []
-    * hidden_tags : []
+    * description : string
+    * channel_id : ObjectId <Channels._id>
     * sets : uint8
-    * steps : embedded []
-    reviews : embedded []
-    rating : uint8 (0-5)
-    number_workouts : int
+    * steps : embedded WorkoutStep (Timed or Rep) []
+    ---
+    image_url : string
+    duration : int (time in minutes)
+    tags : string []
+    __//Not implemented yet//__
+    * hidden_tags : []
+    reviews : embedded Review []
+    rating : aggregation uint8 (0-5)
+    times_completed : aggregation int
+    likes : int
 }
 
-entity "**Steps**" as Steps {
-    embedded in Workout
+' TODO: Probably want some sort of enum for type
+entity "**RepWorkoutStep**" as RepWorkoutStep {
+    embedded in Workout or WorkoutLog
     ---
-    * name : e.g. squats
-    * type : duration or reps
-    * count : int or time
+    * type: static string "RepWorkoutStep"
+    * index : int
+    * name : string (e.g. squats)
+    * count : int
+    timestamp : date
+}
+
+entity "**TimedWorkoutStep**" as TimedWorkoutStep {
+    embedded in Workout or WorkoutLog
+    ---
+    * type: static string "TimedWorkoutStep"
+    * index : int
+    * name : string (e.g. squats)
+    * duration : int (time in seconds)
+    timestamp : date
 }
 
 entity "**WorkoutLog**" as WorkoutLog {
-    * _id
+    * _id : ObjectId
+    * realm_id : string
     ---
-    * user_id : id
-    * workout_id : id
-    * timestamp : time
-    * stats on steps
+    * user_id : ObjectId <Users._id>
+    * workout_id : ObjectId <Workouts._id>
+    * start_time : date
+    end_time : date
+    steps : embedded WorkoutStepLog []
+    data : embedded WorkoutData []
 }
 
 entity "**WorkoutData**" as WorkoutData {
-    * _id
+    embedded in WorkoutLog
     ---
-    * time : time
-    * is_rep : boolean
-    * x : float
-    * y : float
-    * confidence : float
-    * zscore : float
-    * avg : float
-    * stddev : float
-    * n_stddev : float
+    * timestamp : date
+    pose_data: PoseEstimationData []
+    rep_data: RepCountData
 }
 
-Workout ||--|{ Steps
+entity "**PoseEstimationData**" as PoseEstimationData {
+    embedded in WorkoutData
+    ---
+    * algorithm : string (MoveNet)
+    * keypoint : string 
+    * x : double
+    * y : double
+    * confidence : double
+}
+
+entity "**RepCountData**" as RepCountData {
+    embedded in WorkoutData
+    ---
+    * is_rep : bool
+    * algorithm: string (keypoint, zscore)
+    __//zscore algorithm related//__
+    zscore : double
+    avg : double
+    stddev : double
+    n_stddev : double
+    __//keypoint algorithm related//__
+    height : double
+    status : int
+}
+
+AppUser ||--|| User
+
+Workout ||--|{ TimedWorkoutStep
+Workout ||--|{ RepWorkoutStep
 Workout ||--o{ WorkoutLog
+
+WorkoutLog ||--|{ TimedWorkoutStep
+WorkoutLog ||--|{ RepWorkoutStep
+
 User ||--o{ WorkoutLog
-User ||--|| Workout
+User --o{ Payment
+
+Payment ||--|| Channel
+
+' Channel has one creator
+' Users have zero or more followed channels
+Channel ||--o| User
+Channel ||--o{ Workout
 WorkoutLog ||--o{ WorkoutData
+WorkoutData ||--o{ PoseEstimationData
+WorkoutData ||--o| RepCountData
 
 @enduml

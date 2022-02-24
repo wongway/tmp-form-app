@@ -9,15 +9,19 @@
 
 Uses `@tensorflow/tfjs`, `expo-camera`, and `expo-gl` (for native acceleration).
 
-## Running the App
+## Install Expo
 
-> `npm run android`
+>  yarn add expo
 
-- Runs `expo start`, open on a native device (simulator, emulator, and browser are not supported).
+## Build and Running the App Locally
 
-Running as a "production" build
+On Android:
 
-> `expo start --no-dev --minify`
+>  expo run:android
+
+On iOS:
+
+>  expo run:ios
 
 ## Building the App with EAS Build
 

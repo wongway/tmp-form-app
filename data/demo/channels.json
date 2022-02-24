@@ -1,0 +1,13 @@
+[
+    {
+        "_id": {
+            "$oid": "61d7b56e1388397512995d14"
+        },
+        "description": "If the nation has learned anything about fitness during the pandemic, it's that bodyweight exercises deserve a place in even the most dedicated bodybuilding training plan. We'd wager that if you didn't appreciate the untapped potential of a no-weights workout before March 2020, you almost certainly do now.\n\nNot only are bodyweight exercises convenient – shunt the coffee table to one side and you're good to go – but they're proof that you can pack on size and strength without a gym membership (or a pricey home set-up). You don't need a spotter to dial up the intensity, and you'll recruit a vast variety of stabilising muscles, making for a more effective workout.",
+        "name": "MH Bodyweight Exercises",
+        "realm_id": "form",
+        "creator_id": {
+            "$oid": "61d7b56e1388397512995d0f"
+        }
+    }
+]

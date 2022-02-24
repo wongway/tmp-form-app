@@ -31,6 +31,6 @@ export const encodeJpeg = async (tensor) => {
 }
 
 export const getCameraRollPermissions = async () => {
-    await MediaLibrary.requestPermissionsAsync();
+    await MediaLibrary.requestCameraPermissionsAsync();
 }
 

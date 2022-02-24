@@ -1,0 +1,35 @@
+{
+    "properties": {
+        "_id": {
+            "bsonType": "objectId"
+        },
+        "email": {
+            "bsonType": "string"
+        },
+        "followed_channels": {
+            "bsonType": "array",
+            "items": {
+                "bsonType": "objectId"
+            }
+        },
+        "is_creator": {
+            "bsonType": "bool"
+        },
+        "name": {
+            "bsonType": "string"
+        },
+        "realm_id": {
+            "bsonType": "string"
+        },
+        "user_id": {
+            "bsonType": "string"
+        },
+        "image_url": {
+            "bsonType": "string"
+        }
+    },
+    "required": [
+        "realm_id"
+    ],
+    "title": "User"
+}

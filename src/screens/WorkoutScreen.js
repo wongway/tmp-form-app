@@ -1,0 +1,46 @@
+import * as Camera from "expo-camera";
+import React from "react";
+import { SafeAreaView, View } from 'react-native';
+
+import { LoadingView } from "../views/LoadingView";
+import { ModelView } from "../views/ModelView";
+import { ModelViewNoPrediction } from "../views/ModelView2";
+import { useTensorFlowLoaded } from "../useTensorFlow";
+
+import styles from "../stylesheet";
+
+export const WorkoutScreen = ({ navigation, route }) => {
+  const { repCounter } = route.params;
+  const { workout_id } = route.params;
+  const isLoaded = useTensorFlowLoaded();
+
+  const [hasPermission, setHasPermission] = React.useState(null);
+  const [type, setType] = React.useState(Camera.Constants.Type.back);
+
+
+  React.useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === "granted");
+    })();
+  }, []);
+
+  if (!hasPermission) {
+    return <LoadingView>Camera permission is required to continue</LoadingView>;
+  }
+  if (!isLoaded) {
+    return <LoadingView>Loading</LoadingView>;
+  }
+
+  if (repCounter) {
+    return (
+      <SafeAreaView style={styles.baseContainerNoMargin}>
+        <View style={{ flex: 1 }}>
+          <ModelView workout_id={workout_id} />
+        </View>
+      </SafeAreaView>
+    );
+  } else {
+    return <ModelViewNoPrediction />;
+  }
+};
